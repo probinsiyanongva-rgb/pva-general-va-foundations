@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
 <style>
   .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
   .lesson-hero .eyebrow{ color:#E7D3A8; }
@@ -28,7 +29,7 @@
   .completion-panel{ text-align:center; padding: 20px 0; }
 </style>
 </head>
-<body>
+<body class="ga-v2">
 
 <div class="route-bar no-print">
   <div class="wrap">
@@ -46,7 +47,7 @@
   </div>
 </header>
 
-<main class="lesson-body">
+<main class="lesson-body" id="main">
   <div class="wrap-narrow">
 
     <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
@@ -108,12 +109,7 @@
           <div class="scenario-msg">"Hi! Can you just clean up my contacts list? Shouldn't take long, it's just data entry."</div>
           <p style="margin-bottom:0;">The client frames this as simple data entry. What should actually guide how you approach the task?</p>
         </div>
-        <div class="option-list" id="scenarioOptions">
-          <button class="option-btn" data-correct="false" data-feedback="Speed matters, but a fast result that's wrong or inconsistent isn't reliable work — and reliability is what the client is actually paying for.">Work as fast as possible since the client called it simple.</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. &quot;Simple&quot; describes the client's expectation, not the standard of work. You'd still confirm what &quot;clean&quot; means, apply it consistently, and check accuracy — the five qualities of reliable work (accuracy, completeness, consistency, timeliness, clarity) apply even to small tasks.">Clarify what "clean" means, then apply accuracy, consistency, and a quality check — the same as any other task.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Software knowledge is only one part of the service. Judgment, accuracy, consistency, timeliness, and clarity matter just as much — sometimes more.">Just use whatever spreadsheet skills you already have — the software is what matters most.</button>
-        </div>
-        <div class="feedback-box" id="scenarioFeedback"></div>
+        <div id="payActivity"></div>
       </section>
 
       <!-- STEP 5: Five qualities -->
@@ -135,13 +131,7 @@
       <section class="step-panel" data-step="6" id="sortStep">
         <div class="step-tag">Practice</div>
         <h2>Sort: Task or Skill?</h2>
-        <p>Drag each item into the correct bin. (On a touch device, tap an item, then tap the bin.)</p>
-        <div class="sort-pool" id="sortPool"></div>
-        <div class="sort-board">
-          <div class="sort-bin" id="binTask" data-bin="task"><h4>Task</h4><div class="bin-contents"></div></div>
-          <div class="sort-bin" id="binSkill" data-bin="skill"><h4>Skill</h4><div class="bin-contents"></div></div>
-        </div>
-        <p class="small" id="sortScore">0 of 8 placed correctly.</p>
+        <div id="sortActivity"></div>
       </section>
 
       <!-- STEP 7: Branching scenario — beginner limits -->
@@ -152,12 +142,7 @@
           <div class="scenario-msg">"A customer emailed asking for a $500 refund outside our usual policy window. Can you just approve it so they stop complaining?"</div>
           <p style="margin-bottom:0;">What's the professional move?</p>
         </div>
-        <div class="option-list" id="branchOptions">
-          <button class="option-btn" data-correct="false" data-feedback="Approving a refund outside policy is a financial commitment — that's outside a beginner General Admin VA's authority, even if it seems like it would resolve the complaint quickly.">Approve the refund — it's faster and keeps the customer happy.</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. This is a financial decision outside standard policy — exactly the kind of thing to escalate rather than decide yourself. You'd flag it to the client with the relevant facts and let them decide.">Escalate to the client: explain the situation is outside the usual policy window and ask how they'd like to proceed.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Ignoring it doesn't protect the client — it just delays a decision they need to make, and the customer is still waiting. Escalating with the facts is the professional path.">Don't respond to the customer until the client happens to bring it up.</button>
-        </div>
-        <div class="feedback-box" id="branchFeedback"></div>
+        <div id="limitActivity"></div>
       </section>
 
       <!-- STEP 8: Work sample -->
@@ -166,11 +151,11 @@
         <h2>Work sample: General Admin Task Map</h2>
         <p>Create a one-page map with three columns: administrative area, tasks you understand, and the skills needed to perform them well. Use the areas from this lesson (or your own) — there's no single correct answer.</p>
 
-        <div id="taskMapRows"></div>
-        <button class="btn btn-ghost no-print" id="addRowBtn" type="button">+ Add another area</button>
+        <div id="taskMapRows" class="no-print"></div>
+        <div id="taskMapCheck" class="no-print"></div>
 
         <div class="save-reminder no-print">
-          💾 <strong>Save your work now.</strong> This training doesn't store what you write — only that you completed the lesson. Copy your Task Map into a Google Doc or Drive folder so it's part of your portfolio.
+          💾 <strong>Save your work now.</strong> Your answers are saved only in this browser, and clearing site data or switching devices loses them. Copy your Task Map into a Google Doc or Drive folder, or use Print / Save as PDF below, so it's part of your portfolio.
         </div>
 
         <div class="export-box" id="exportBox">
@@ -209,8 +194,10 @@
   </div>
 </footer>
 
-<script src="/shared/progress.js"></script>
-<script src="/shared/lessons-data.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/activities.js"></script>
 <script src="lesson.js"></script>
 </body>
 </html>

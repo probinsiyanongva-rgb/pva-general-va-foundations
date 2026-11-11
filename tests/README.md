@@ -21,6 +21,7 @@ PVA_BASE_URL=https://<preview>.pages.dev ./run_all.sh   # against a Cloudflare p
 | `unit/validators.test.js` | WP2: every structure rule — genuine answers pass; empty, filler, copied models and unchanged examples fail; schedule, dataset and research violations; labels never claim correctness |
 | `e2e/activities.spec.js` | WP2 activity library on `fixtures/activities-harness.html`: mastery and retry, shuffle, keyboard sorting, written-work checklist, autosave, reveal gating, print sheet, storage banner, contrast, axe-core, 375/320 px |
 | `e2e/ga-audit-characterization.spec.js` | Audit C-01/C-02: a wrong-answer, minimal-typing learner must not finish. Pages still affected are marked `test.fail()`; remove a page from `KNOWN_DEFECT` when WP3/WP4 fixes it |
+| `e2e/lesson-01.spec.js` | WP3a pilot, Lesson 1 page: wrong answers and filler cannot finish, genuine completion recorded in the v2 store (V1 key untouched), keyboard sort, reload restore with step cap, completed banner, print sheet, axe-core per gated step, no overflow at 375/320 px. `PVA_SHOTS_DIR=<dir>` writes screenshots |
 
 Baselines in `fixtures/` were recorded on `main` @ 5778df5. Never regenerate them on a
 later commit: `UPDATE_BASELINE=1` exists only to rebuild them on the baseline itself.

@@ -9,7 +9,9 @@
 const { test, expect } = require("@playwright/test");
 
 const LESSONS = Array.from({ length: 13 }, (_, i) => `/lessons/lesson-${String(i + 1).padStart(2, "0")}/`);
-const KNOWN_DEFECT = new Set([...LESSONS, "/final-project/"]); // shrink as WP3/WP4 land
+// WP3a: Lesson 1 converted to the v2.0 activity library -- no longer a known defect.
+const CONVERTED = new Set(["/lessons/lesson-01/"]);
+const KNOWN_DEFECT = new Set([...LESSONS, "/final-project/"].filter((u) => !CONVERTED.has(u))); // shrink as WP3/WP4 land
 
 async function nextEnabled(page) {
   return page.evaluate(() => !document.getElementById("nextBtn").disabled);
@@ -17,6 +19,21 @@ async function nextEnabled(page) {
 
 async function tryUnlock(page) {
   const p = page.locator(".step-panel.active");
+
+  // v2.0 activity library controls (WP3+). Same minimal-effort strategy:
+  // take the first option shown and never press "Try again"; put every sort item
+  // in the first bin; then fall through to the filler typing below.
+  const v2opt = p.locator(".ga-option:not([disabled])");
+  if (await v2opt.count()) await v2opt.first().click();
+  if (await nextEnabled(page)) return;
+  for (let g = 0; g < 20 && (await p.locator(".ga-pool .ga-chip").count()); g++) {
+    await p.locator(".ga-pool .ga-chip").first().click();
+    await p.locator(".ga-bin-place").first().click();
+  }
+  const sortCheck = p.getByRole("button", { name: "Check my sorting" });
+  if ((await sortCheck.count()) && (await sortCheck.isEnabled())) await sortCheck.click();
+  if (await nextEnabled(page)) return;
+
   const wrong = p.locator('.option-btn[data-correct="false"]');
   if (await wrong.count()) await wrong.first().click();
   if (await nextEnabled(page)) return;

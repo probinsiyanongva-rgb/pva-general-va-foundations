@@ -186,3 +186,10 @@ body.ga-v2 .step-panel h2:focus-visible { outline: 3px solid var(--ga-focus); ou
   .print-sheet th, .print-sheet td { border: 1px solid #888; padding: 4pt 6pt; vertical-align: top; text-align: left; white-space: pre-wrap; font-size: 9.5pt; }
   .print-sheet .ps-footer { margin-top: 16pt; font-size: 8.5pt; color: #333; border-top: 1px solid #999; padding-top: 6pt; }
 }
+
+/* WP3a: reference and preview tables must fit at 320 px (no horizontal page scroll). */
+@media (max-width: 480px) {
+  body.ga-v2 table.ref-table { table-layout: fixed; }
+  body.ga-v2 table.ref-table th,
+  body.ga-v2 table.ref-table td { padding: 8px 6px; overflow-wrap: anywhere; }
+}

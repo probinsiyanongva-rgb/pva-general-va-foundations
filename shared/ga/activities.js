@@ -415,9 +415,11 @@
   }
 
   /* ---------------- row builder for table-like work samples ---------------- */
-  // columns: [{ key, label, type:'text'|'textarea'|'select', options:[values] }]
+  // columns: [{ key, label, type:'text'|'textarea'|'select', options:[values], placeholder? }]
   // examples: rows shown pre-filled and marked "Example"; the rules ignore them unchanged.
-  function RowTable({ container, idPrefix, columns, examples = [], startRows = 1, addLabel = "+ Add another row", rowNoun = "Row" }) {
+  // starters: rows pre-filled as a starting point (e.g. an area name) that the learner completes;
+  //           they are NOT examples and count once the learner fills the rest.
+  function RowTable({ container, idPrefix, columns, examples = [], starters = [], startRows = 1, addLabel = "+ Add another row", rowNoun = "Row" }) {
     const s = getStore();
     const wrap = h("div", { class: "ga-rows" });
     const rows = [];
@@ -434,6 +436,7 @@
         else if (col.type === "textarea") input = h("textarea", { id, rows: 2 });
         else input = h("input", { type: "text", id });
         input.value = values[col.key] == null ? "" : String(values[col.key]); // set via DOM, never HTML (E-04)
+        if (col.placeholder) input.placeholder = col.placeholder;
         els[col.key] = input;
         grid.append(h("div", { class: "ga-field" }, h("label", { for: id }, col.label, h("span", { class: "ga-visually-hidden" }, ` — ${rowNoun.toLowerCase()} ${n}`)), input));
       }
@@ -454,6 +457,7 @@
     if (saved && Array.isArray(saved) && saved.length) saved.forEach((r) => addRow(r, r.example === true));
     else {
       examples.forEach((r) => addRow(r, true));
+      starters.forEach((r) => addRow(r, false));
       for (let i = 0; i < startRows; i++) addRow({});
     }
     const addBtn = h("button", { type: "button", class: "btn btn-ghost" }, addLabel);
