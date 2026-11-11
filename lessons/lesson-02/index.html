@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2: The Administrative Workflow — Request to Done | PVA Free Training</title>
+<meta name="description" content="Lesson 2 of the free General Admin VA training: RECEIVE → UNDERSTAND → CLARIFY → PLAN → EXECUTE → CHECK → REPORT → CLOSE.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/styles.css">
+<style>
+  .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
+  .lesson-hero .eyebrow{ color:#E7D3A8; }
+  .lesson-hero h1{ color:#fff; margin-bottom: 4px; }
+  .lesson-body{ padding: 40px 0 20px; }
+  .step-card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 30px 28px 32px; }
+  @media (min-width:640px){ .step-card{ padding: 38px 44px 40px; } }
+  .step-tag{ font-family: var(--font-mono); font-size:0.76rem; color: var(--kraft-dark); letter-spacing:0.05em; text-transform:uppercase; font-weight:700; margin-bottom:8px; }
+  .lo-list{ margin:0; padding-left: 1.2em; }
+  .lo-list li{ margin-bottom:6px; }
+  .key-idea{ background: var(--forest); color:#fff; border-radius: var(--radius-md); padding: 20px 24px; margin: 22px 0; }
+  .key-idea .eyebrow{ color:#C9D8C4; }
+  .key-idea p{ margin:0; }
+  .workflow-chain{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-family: var(--font-mono); font-size:0.86rem; margin-top:10px; }
+  .workflow-chain .node{ background: rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.3); padding:6px 10px; border-radius: 6px; }
+  .workflow-chain .arrow{ opacity:0.6; }
+  .stage-block{ margin-bottom: 18px; }
+  .stage-block .stage-num{ font-family: var(--font-mono); font-size:0.75rem; color: var(--kraft-dark); font-weight:700; }
+  .example-msg{ background: var(--paper-dim); border-left:4px solid var(--forest); border-radius: var(--radius-sm); padding: 14px 16px; font-style: italic; margin: 12px 0; }
+  .plan-row{ display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom:12px; border:1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--paper-dim); }
+  @media (min-width:900px){ .plan-row{ grid-template-columns: repeat(6,1fr); align-items:start; } }
+  .plan-row .col-label{ font-family: var(--font-mono); font-size:0.68rem; text-transform:uppercase; color: var(--ink-soft); margin-bottom:4px; }
+  .completion-panel{ text-align:center; padding: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="route-bar no-print">
+  <div class="wrap">
+    <a class="route-home" href="/">🏠 Free Training Home</a>
+    <span class="route-crumb-sep">/</span>
+    <span class="current">Lesson 2</span>
+  </div>
+</div>
+
+<header class="lesson-hero">
+  <div class="wrap">
+    <span class="eyebrow">Lesson 2 of 13</span>
+    <h1>The Administrative Workflow: From Request to Done</h1>
+    <p style="margin:0;color:#DCE7D8;">Output: Client Request → Action Plan</p>
+  </div>
+</header>
+
+<main class="lesson-body">
+  <div class="wrap-narrow">
+
+    <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 8</p>
+
+    <div class="step-card">
+
+      <!-- STEP 1 -->
+      <section class="step-panel active" data-step="1">
+        <div class="step-tag">Learn</div>
+        <h2>Before you start</h2>
+        <p>By the end of this lesson you will be able to:</p>
+        <ul class="lo-list">
+          <li>Turn a client request into an action plan.</li>
+          <li>Identify missing information.</li>
+          <li>Ask useful clarification questions.</li>
+          <li>Determine priority, dependencies, and deadlines.</li>
+          <li>Verify work before reporting completion.</li>
+        </ul>
+        <div class="key-idea">
+          <span class="eyebrow">Key idea</span>
+          <p>Use the eight-stage workflow for every request, big or small:</p>
+          <div class="workflow-chain">
+            <span class="node">RECEIVE</span><span class="arrow">→</span>
+            <span class="node">UNDERSTAND</span><span class="arrow">→</span>
+            <span class="node">CLARIFY</span><span class="arrow">→</span>
+            <span class="node">PLAN</span><span class="arrow">→</span>
+            <span class="node">EXECUTE</span><span class="arrow">→</span>
+            <span class="node">CHECK</span><span class="arrow">→</span>
+            <span class="node">REPORT</span><span class="arrow">→</span>
+            <span class="node">CLOSE</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 2: Receive + Understand -->
+      <section class="step-panel" data-step="2">
+        <div class="step-tag">Learn</div>
+        <h2>Receive → Understand</h2>
+        <div class="stage-block">
+          <div class="stage-num">STAGE 1 — RECEIVE</div>
+          <p>Read the request carefully. Identify what, why, when, where, who, and how.</p>
+        </div>
+        <div class="stage-block">
+          <div class="stage-num">STAGE 2 — UNDERSTAND</div>
+          <p>Identify the desired outcome, not just the literal action. "Clean this up" is incomplete unless you know what clean means.</p>
+        </div>
+      </section>
+
+      <!-- STEP 3: Clarify + Plan -->
+      <section class="step-panel" data-step="3">
+        <div class="step-tag">Learn</div>
+        <h2>Clarify → Plan</h2>
+        <div class="stage-block">
+          <div class="stage-num">STAGE 3 — CLARIFY</div>
+          <p>Ask specific questions about decisions that affect the outcome. Good questions are necessary, concise, and easy to answer.</p>
+        </div>
+        <div class="stage-block">
+          <div class="stage-num">STAGE 4 — PLAN</div>
+          <p>Identify priority, deadline, dependencies, required tools, information, and approval requirements.</p>
+        </div>
+      </section>
+
+      <!-- STEP 4: Execute + Check -->
+      <section class="step-panel" data-step="4">
+        <div class="step-tag">Learn</div>
+        <h2>Execute → Check</h2>
+        <div class="stage-block">
+          <div class="stage-num">STAGE 5 — EXECUTE</div>
+          <p>Perform the work according to the instructions and any relevant SOP. Do not silently invent decisions outside your authority.</p>
+        </div>
+        <div class="stage-block">
+          <div class="stage-num">STAGE 6 — CHECK</div>
+          <p>Review accuracy, completeness, format, links, file version, privacy, and whether the requested outcome was achieved.</p>
+        </div>
+      </section>
+
+      <!-- STEP 5: Report + Close -->
+      <section class="step-panel" data-step="5">
+        <div class="step-tag">Learn</div>
+        <h2>Report → Close</h2>
+        <div class="stage-block">
+          <div class="stage-num">STAGE 7 — REPORT</div>
+          <p>Tell the client what was completed, what matters, what is pending, and the next step when relevant.</p>
+        </div>
+        <div class="stage-block">
+          <div class="stage-num">STAGE 8 — CLOSE</div>
+          <p>Update the task tracker, folder, calendar, follow-up list, or other system so the work does not remain mentally open.</p>
+        </div>
+      </section>
+
+      <!-- STEP 6: Clarification-writing exercise -->
+      <section class="step-panel" data-step="6" id="clarifyStep">
+        <div class="step-tag">Practice</div>
+        <h2>Write your clarification questions</h2>
+        <div class="example-msg">"Can you organize the attached contacts spreadsheet and have it ready by tomorrow? Thanks!"</div>
+        <p><strong>What is known?</strong> There is a contacts spreadsheet, it needs organization, there is a deadline, and the client expects a completed file.<br><strong>What may be unclear?</strong> What "organize" means, how duplicates should be handled, the required format, where the file should be saved, and the actual deadline time.</p>
+        <div class="field">
+          <label for="clarifyAnswer">Write three clarification questions you'd send back.</label>
+          <textarea id="clarifyAnswer" rows="4" placeholder="1) ...&#10;2) ...&#10;3) ..."></textarea>
+        </div>
+        <button class="btn btn-ghost reveal-btn no-print" id="clarifyRevealBtn" type="button">Show suggested questions</button>
+        <div class="model-answer" id="clarifyModel">
+          <strong>Suggested answers:</strong> (1) Which fields should be standardized, and is there an existing format? (2) Should duplicates be removed or flagged? (3) Is there a required folder and naming convention?
+        </div>
+      </section>
+
+      <!-- STEP 7: Decision scenario -->
+      <section class="step-panel" data-step="7" id="scenarioStep">
+        <div class="step-tag">Practice → Decide</div>
+        <h2>Spot the skipped stage</h2>
+        <div class="scenario">
+          <div class="scenario-msg">A VA finishes cleaning a client's spreadsheet and immediately messages: "Done! Let me know if you need anything else." The file actually has three blank required fields the VA didn't notice.</div>
+          <p style="margin-bottom:0;">Which stage of the workflow did the VA skip?</p>
+        </div>
+        <div class="option-list" id="scenarioOptions">
+          <button class="option-btn" data-correct="false" data-feedback="Plan was fine here — the VA knew what to do and when. The problem showed up after the work was done, not before it started.">Plan — the VA never figured out priority or deadline.</button>
+          <button class="option-btn" data-correct="true" data-feedback="Correct. Reporting &quot;Done&quot; without reviewing accuracy and completeness first skips the Check stage — that's exactly how avoidable mistakes reach the client.">Check — the VA reported completion without reviewing accuracy and completeness first.</button>
+          <button class="option-btn" data-correct="false" data-feedback="Close is about updating trackers/folders after the work is confirmed complete — it's a later problem than this one, which is about work that wasn't actually finished.">Close — the VA didn't update the task tracker.</button>
+        </div>
+        <div class="feedback-box" id="scenarioFeedback"></div>
+      </section>
+
+      <!-- STEP 8: Work sample -->
+      <section class="step-panel" data-step="8" id="workSampleStep">
+        <div class="step-tag">Apply</div>
+        <h2>Work sample: Client Request → Action Plan</h2>
+        <p>Turn a request into a plan. You can reuse the contacts-spreadsheet example, or write your own.</p>
+
+        <div id="planRows"></div>
+        <button class="btn btn-ghost no-print" id="addRowBtn" type="button">+ Add another request</button>
+
+        <div class="save-reminder no-print">
+          💾 <strong>Save your work now.</strong> Copy your Action Plan into a Google Doc or Drive folder — that's part of your starter portfolio, and this training doesn't store what you write here.
+        </div>
+
+        <div class="export-box" id="exportBox">
+          <span class="eyebrow">Preview / export</span>
+          <div id="exportPreview"></div>
+          <button class="btn btn-ghost no-print" id="printBtn" type="button">🖨️ Print / Save as PDF</button>
+        </div>
+      </section>
+
+      <!-- COMPLETION -->
+      <section class="step-panel" data-step="9" id="completionStep">
+        <div class="completion-panel">
+          <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 2 Processed</div>
+          <h2 style="margin-top:18px;">Nice work.</h2>
+          <p class="wrap-narrow" style="padding:0;">You've practiced turning a vague request into a real action plan using the eight-stage workflow. You'll use this same thinking in almost every lesson that follows.</p>
+          <div class="hero-cta center" style="justify-content:center;">
+            <a class="btn btn-primary" href="/lessons/lesson-03/">Next: Lesson 3 →</a>
+            <a class="btn btn-ghost" href="/">Back to Course Map</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="step-nav no-print" id="stepNav">
+        <button class="btn btn-ghost" id="prevBtn" type="button">← Back</button>
+        <button class="btn btn-primary" id="nextBtn" type="button">Continue →</button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer no-print">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>Probinsiyanong VA — Free General Admin VA Training</div>
+    <a href="/">🏠 Free Training Home</a>
+  </div>
+</footer>
+
+<script src="/shared/progress.js"></script>
+<script src="/shared/lessons-data.js"></script>
+<script src="lesson.js"></script>
+</body>
+</html>

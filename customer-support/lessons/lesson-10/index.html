@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 10: Support Metrics & Quality | PVA Free Training</title>
+<meta name="description" content="Lesson 10 of the free Customer Support VA training: common support metrics, and why optimizing for a single one can create bad behavior.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/styles.css">
+<style>
+  .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
+  .lesson-hero .eyebrow{ color:#E7D3A8; }
+  .lesson-hero h1{ color:#fff; margin-bottom: 4px; }
+  .lesson-body{ padding: 40px 0 20px; }
+  .step-card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 30px 28px 32px; }
+  @media (min-width:640px){ .step-card{ padding: 38px 44px 40px; } }
+  .step-tag{ font-family: var(--font-mono); font-size:0.76rem; color: var(--kraft-dark); letter-spacing:0.05em; text-transform:uppercase; font-weight:700; margin-bottom:8px; }
+  .lo-list{ margin:0; padding-left: 1.2em; }
+  .lo-list li{ margin-bottom:6px; }
+  .key-idea{ background: var(--forest); color:#fff; border-radius: var(--radius-md); padding: 20px 24px; margin: 22px 0; }
+  .key-idea .eyebrow{ color:#C9D8C4; }
+  .key-idea p{ margin:0; }
+  .brief-field{ margin-bottom: 18px; }
+  .brief-field label{ display:block; font-family: var(--font-mono); font-size:0.72rem; text-transform:uppercase; color: var(--kraft-dark); font-weight:700; margin-bottom:6px; }
+  .completion-panel{ text-align:center; padding: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="route-bar no-print">
+  <div class="wrap">
+    <a class="route-home" href="/customer-support/">🎧 Free Training Home</a>
+    <span class="route-crumb-sep">/</span>
+    <span class="current">Lesson 10</span>
+  </div>
+</div>
+
+<header class="lesson-hero">
+  <div class="wrap">
+    <span class="eyebrow">Lesson 10 of 13</span>
+    <h1>Support Metrics & Quality</h1>
+    <p style="margin:0;color:#DCE7D8;">Output: Support Scorecard</p>
+  </div>
+</header>
+
+<main class="lesson-body">
+  <div class="wrap-narrow">
+
+    <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 4</p>
+
+    <div class="step-card">
+
+      <!-- STEP 1 -->
+      <section class="step-panel active" data-step="1">
+        <div class="step-tag">Learn</div>
+        <h2>Before you start</h2>
+        <p>By the end of this lesson you will be able to:</p>
+        <ul class="lo-list">
+          <li>Understand common support metrics.</li>
+          <li>Distinguish speed from quality.</li>
+          <li>Use simple metrics to understand workload.</li>
+          <li>Recognize why one metric can create bad behavior.</li>
+          <li>Connect ticket quality to customer outcomes.</li>
+        </ul>
+        <div class="key-idea">
+          <span class="eyebrow">Key idea</span>
+          <p>A fast response is useful only if it is accurate and moves the case toward resolution.</p>
+        </div>
+      </section>
+
+      <!-- STEP 2: Common metrics -->
+      <section class="step-panel" data-step="2">
+        <div class="step-tag">Learn</div>
+        <h2>Common support metrics</h2>
+        <table class="ref-table">
+          <tr><th>Metric</th><th>Meaning</th></tr>
+          <tr><td>First response time</td><td>Time customers wait for the first response</td></tr>
+          <tr><td>Resolution/handle time</td><td>Time needed to handle or resolve a case</td></tr>
+          <tr><td>First contact resolution</td><td>Cases resolved without additional contacts</td></tr>
+          <tr><td>CSAT</td><td>Customer satisfaction after an interaction</td></tr>
+          <tr><td>Backlog</td><td>Open cases awaiting action</td></tr>
+          <tr><td>Escalation rate</td><td>Share of cases moved to another level/team</td></tr>
+        </table>
+      </section>
+
+      <!-- STEP 3: Single-metric scenario -->
+      <section class="step-panel" data-step="3" id="scenarioStep">
+        <div class="step-tag">Practice → Decide</div>
+        <h2>What happens when only one metric counts?</h2>
+        <div class="scenario">
+          <div class="scenario-msg">A support team is measured only on First Response Time — nothing else.</div>
+          <p style="margin-bottom:0;">What's a likely unintended consequence?</p>
+        </div>
+        <div class="option-list" id="scenarioOptions">
+          <button class="option-btn" data-correct="true" data-feedback="Correct. Optimizing for one number in isolation tends to sacrifice everything the metric doesn't measure — agents can hit a fast reply time with a low-quality or incomplete answer that doesn't actually resolve anything." >Agents send fast but low-quality or incomplete replies just to hit the metric.</button>
+          <button class="option-btn" data-correct="false" data-feedback="Faster isn't automatically better if it comes at the cost of accuracy — this lesson's key idea is exactly that speed without quality doesn't help the customer." >Nothing bad happens — faster is always better for the customer.</button>
+          <button class="option-btn" data-correct="false" data-feedback="A metric that only measures speed doesn't naturally push people toward accuracy — that's a separate outcome the metric isn't even tracking." >Agents will naturally also become more accurate as a side effect.</button>
+        </div>
+        <div class="feedback-box" id="scenarioFeedback"></div>
+      </section>
+
+      <!-- STEP 4: Work sample -->
+      <section class="step-panel" data-step="4" id="workSampleStep">
+        <div class="step-tag">Apply</div>
+        <h2>Work sample: Support Scorecard</h2>
+        <table class="ref-table">
+          <tr><th>Metric</th><th>This week</th><th>Last week</th></tr>
+          <tr><td>First response time</td><td>4.2 hrs</td><td>2.1 hrs</td></tr>
+          <tr><td>Resolution time</td><td>1.1 days</td><td>1.3 days</td></tr>
+          <tr><td>First contact resolution</td><td>61%</td><td>74%</td></tr>
+          <tr><td>CSAT</td><td>88%</td><td>91%</td></tr>
+          <tr><td>Backlog</td><td>47 open</td><td>22 open</td></tr>
+          <tr><td>Escalation rate</td><td>9%</td><td>6%</td></tr>
+        </table>
+        <p>Review this fictional weekly data, then fill in your analysis.</p>
+
+        <div class="brief-field"><label>Two strengths</label><textarea rows="2" id="scoreStrengths"></textarea></div>
+        <div class="brief-field"><label>Two concerns</label><textarea rows="2" id="scoreConcerns"></textarea></div>
+        <div class="brief-field"><label>One improvement to prioritize</label><textarea rows="2" id="scoreImprovement"></textarea></div>
+        <div class="brief-field"><label>What additional information would you want before drawing a strong conclusion?</label><textarea rows="2" id="scoreMoreInfo" placeholder="e.g. was there a volume spike or staffing change this week?"></textarea></div>
+
+        <div class="save-reminder no-print">
+          💾 <strong>Save your work now.</strong> Copy this scorecard into a Google Doc — that's part of your starter portfolio.
+        </div>
+
+        <div class="export-box" id="exportBox">
+          <span class="eyebrow">Preview / export</span>
+          <div id="exportPreview"></div>
+          <button class="btn btn-ghost no-print" id="printBtn" type="button">🖨️ Print / Save as PDF</button>
+        </div>
+      </section>
+
+      <!-- COMPLETION -->
+      <section class="step-panel" data-step="5" id="completionStep">
+        <div class="completion-panel">
+          <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 10 Processed</div>
+          <h2 style="margin-top:18px;">Nice work.</h2>
+          <p class="wrap-narrow" style="padding:0;">You've practiced reading support data for what it actually shows — strengths and concerns together, plus what's still missing before jumping to conclusions.</p>
+          <div class="hero-cta center" style="justify-content:center;">
+            <a class="btn btn-primary" href="/customer-support/lessons/lesson-11/">Next: Lesson 11 →</a>
+            <a class="btn btn-ghost" href="/customer-support/">Back to Course Map</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="step-nav no-print" id="stepNav">
+        <button class="btn btn-ghost" id="prevBtn" type="button">← Back</button>
+        <button class="btn btn-primary" id="nextBtn" type="button">Continue →</button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer no-print">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>Probinsiyanong VA — Free Customer Support VA Training</div>
+    <a href="/customer-support/">🎧 Free Training Home</a>
+  </div>
+</footer>
+
+<script src="/shared/progress-cs.js"></script>
+<script src="/shared/cs-lessons-data.js"></script>
+<script src="lesson.js"></script>
+</body>
+</html>

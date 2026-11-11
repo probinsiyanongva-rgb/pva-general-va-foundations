@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 7: Orders, Returns, Refunds & E-commerce Support | PVA Free Training</title>
+<meta name="description" content="Lesson 7 of the free Customer Support VA training: handling common e-commerce cases and recognizing which ones require approval.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/styles.css">
+<style>
+  .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
+  .lesson-hero .eyebrow{ color:#E7D3A8; }
+  .lesson-hero h1{ color:#fff; margin-bottom: 4px; }
+  .lesson-body{ padding: 40px 0 20px; }
+  .step-card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 30px 28px 32px; }
+  @media (min-width:640px){ .step-card{ padding: 38px 44px 40px; } }
+  .step-tag{ font-family: var(--font-mono); font-size:0.76rem; color: var(--kraft-dark); letter-spacing:0.05em; text-transform:uppercase; font-weight:700; margin-bottom:8px; }
+  .lo-list{ margin:0; padding-left: 1.2em; }
+  .lo-list li{ margin-bottom:6px; }
+  .key-idea{ background: var(--forest); color:#fff; border-radius: var(--radius-md); padding: 20px 24px; margin: 22px 0; }
+  .key-idea .eyebrow{ color:#C9D8C4; }
+  .key-idea p{ margin:0; }
+  .triage-item{ border:1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 10px; background: var(--paper-dim); }
+  .triage-item .msg{ font-style: italic; margin-bottom: 8px; font-size:0.94rem; }
+  .triage-item select{ font-family: var(--font-body); font-size:0.9rem; padding: 7px 9px; border-radius:6px; border:1.5px solid var(--line); margin-right:8px; }
+  .triage-item .check-btn{ font-size:0.82rem; padding:7px 12px; }
+  .triage-item .item-feedback{ display:none; margin-top:8px; font-size:0.88rem; padding:7px 9px; border-radius:6px; }
+  .triage-item .item-feedback.show{ display:block; }
+  .triage-item .item-feedback.correct{ background:#EEF6EE; color: var(--ok); }
+  .triage-item .item-feedback.incorrect{ background:#FBEEEC; color: var(--danger); }
+  .ec-row{ display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom:12px; border:1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--paper-dim); }
+  @media (min-width:960px){ .ec-row{ grid-template-columns: repeat(6,1fr); align-items:start; } }
+  .ec-row .col-label{ font-family: var(--font-mono); font-size:0.65rem; text-transform:uppercase; color: var(--ink-soft); margin-bottom:4px; }
+  .completion-panel{ text-align:center; padding: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="route-bar no-print">
+  <div class="wrap">
+    <a class="route-home" href="/customer-support/">🎧 Free Training Home</a>
+    <span class="route-crumb-sep">/</span>
+    <span class="current">Lesson 7</span>
+  </div>
+</div>
+
+<header class="lesson-hero">
+  <div class="wrap">
+    <span class="eyebrow">Lesson 7 of 13</span>
+    <h1>Orders, Returns, Refunds & E-commerce Support</h1>
+    <p style="margin:0;color:#DCE7D8;">Output: E-commerce Ticket Set</p>
+  </div>
+</header>
+
+<main class="lesson-body">
+  <div class="wrap-narrow">
+
+    <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 5</p>
+
+    <div class="step-card">
+
+      <!-- STEP 1 -->
+      <section class="step-panel active" data-step="1">
+        <div class="step-tag">Learn</div>
+        <h2>Before you start</h2>
+        <p>By the end of this lesson you will be able to:</p>
+        <ul class="lo-list">
+          <li>Handle common e-commerce cases.</li>
+          <li>Use order information and policies to determine next steps.</li>
+          <li>Distinguish returns, refunds, replacements, cancellations, and delivery issues.</li>
+          <li>Recognize cases requiring approval.</li>
+        </ul>
+        <div class="key-idea">
+          <span class="eyebrow">Key idea</span>
+          <p>E-commerce support connects customer communication with operational information.</p>
+        </div>
+      </section>
+
+      <!-- STEP 2: Case types -->
+      <section class="step-panel" data-step="2">
+        <div class="step-tag">Learn</div>
+        <h2>Common e-commerce cases</h2>
+        <table class="ref-table">
+          <tr><th>Case</th><th>What to investigate</th></tr>
+          <tr><td>Where is my order?</td><td>Order status, carrier, tracking, promised date</td></tr>
+          <tr><td>Wrong item</td><td>Order contents, shipment record, return/replacement policy</td></tr>
+          <tr><td>Damaged item</td><td>Evidence, order date, policy, replacement/refund options</td></tr>
+          <tr><td>Refund</td><td>Eligibility, payment status, refund authority</td></tr>
+          <tr><td>Cancellation</td><td>Order status, fulfillment stage, cancellation policy</td></tr>
+          <tr><td>Delivered but missing</td><td>Delivery evidence, address, carrier process, escalation policy</td></tr>
+        </table>
+      </section>
+
+      <!-- STEP 3: Practice — identify the case type -->
+      <section class="step-panel" data-step="3" id="caseTypeStep">
+        <div class="step-tag">Practice</div>
+        <h2>Identify the case type</h2>
+        <div id="caseItems"></div>
+        <p class="small" id="caseScore">0 of 6 checked.</p>
+      </section>
+
+      <!-- STEP 4: Approval-required scenario -->
+      <section class="step-panel" data-step="4" id="scenarioStep">
+        <div class="step-tag">Practice → Decide</div>
+        <h2>Already shipped, wants to cancel</h2>
+        <div class="scenario">
+          <div class="scenario-msg">A customer wants to cancel an order that has already shipped, according to the system.</div>
+          <p style="margin-bottom:0;">What's the right move?</p>
+        </div>
+        <div class="option-list" id="scenarioOptions">
+          <button class="option-btn" data-correct="false" data-feedback="An order that's already shipped can't simply be cancelled in the system as if it hadn't gone out — this needs special handling, not a routine cancellation." >Cancel it in the system right away since the customer asked.</button>
+          <button class="option-btn" data-correct="true" data-feedback="Correct. Once shipped, this is outside standard cancellation — explain the situation and check the client's process for shipped-order cancellations (intercept, return-to-sender, or refund on return)." >Explain that the order has already shipped, and check the process for handling a cancellation at this stage.</button>
+          <button class="option-btn" data-correct="false" data-feedback="Telling the customer nothing can be done isn't necessarily accurate — there may be a real process (intercept, refund on return) worth checking first." >Tell the customer nothing can be done since it already shipped.</button>
+        </div>
+        <div class="feedback-box" id="scenarioFeedback"></div>
+      </section>
+
+      <!-- STEP 5: Work sample -->
+      <section class="step-panel" data-step="5" id="workSampleStep">
+        <div class="step-tag">Apply</div>
+        <h2>Work sample: E-commerce Ticket Set</h2>
+        <p>The six cases from your practice are started below — record the customer goal, facts, policy, action, response, and escalation status for each.</p>
+
+        <div id="ecRows"></div>
+        <button class="btn btn-ghost no-print" id="addRowBtn" type="button">+ Add another case</button>
+
+        <div class="save-reminder no-print">
+          💾 <strong>Save your work now.</strong> Copy this into a Google Sheet — that's part of your starter portfolio.
+        </div>
+
+        <div class="export-box" id="exportBox">
+          <span class="eyebrow">Preview / export</span>
+          <div id="exportPreview"></div>
+          <button class="btn btn-ghost no-print" id="printBtn" type="button">🖨️ Print / Save as PDF</button>
+        </div>
+      </section>
+
+      <!-- COMPLETION -->
+      <section class="step-panel" data-step="6" id="completionStep">
+        <div class="completion-panel">
+          <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 7 Processed</div>
+          <h2 style="margin-top:18px;">Nice work.</h2>
+          <p class="wrap-narrow" style="padding:0;">You've practiced recognizing the six most common e-commerce case types — and catching the one that needs approval instead of a routine answer.</p>
+          <div class="hero-cta center" style="justify-content:center;">
+            <a class="btn btn-primary" href="/customer-support/lessons/lesson-08/">Next: Lesson 8 →</a>
+            <a class="btn btn-ghost" href="/customer-support/">Back to Course Map</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="step-nav no-print" id="stepNav">
+        <button class="btn btn-ghost" id="prevBtn" type="button">← Back</button>
+        <button class="btn btn-primary" id="nextBtn" type="button">Continue →</button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer no-print">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>Probinsiyanong VA — Free Customer Support VA Training</div>
+    <a href="/customer-support/">🎧 Free Training Home</a>
+  </div>
+</footer>
+
+<script src="/shared/progress-cs.js"></script>
+<script src="/shared/cs-lessons-data.js"></script>
+<script src="lesson.js"></script>
+</body>
+</html>

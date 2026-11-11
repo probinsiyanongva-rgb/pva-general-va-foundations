@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Final Project: Your First Simulated Support Queue | PVA Free Training</title>
+<meta name="description" content="The capstone project for the free Customer Support VA training: a simulated support queue with Northstar Home Services, combining all 13 lessons across 8 tasks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/styles.css">
+<style>
+  .lesson-hero{ background: linear-gradient(135deg, var(--forest-dark), var(--forest)); color:#fff; padding: 40px 0 32px; }
+  .lesson-hero .eyebrow{ color:#E7D3A8; }
+  .lesson-hero h1{ color:#fff; margin-bottom: 6px; }
+  .lesson-body{ padding: 40px 0 20px; }
+  .step-card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 30px 28px 32px; }
+  @media (min-width:640px){ .step-card{ padding: 38px 44px 40px; } }
+  .step-tag{ font-family: var(--font-mono); font-size:0.76rem; color: var(--kraft-dark); letter-spacing:0.05em; text-transform:uppercase; font-weight:700; margin-bottom:8px; }
+  .lo-list{ margin:0; padding-left: 1.2em; }
+  .lo-list li{ margin-bottom:6px; }
+  .key-idea{ background: var(--forest); color:#fff; border-radius: var(--radius-md); padding: 20px 24px; margin: 22px 0; }
+  .key-idea .eyebrow{ color:#C9D8C4; }
+  .key-idea p{ margin:0; }
+  .brief-box{ background: var(--paper-dim); border:1px solid var(--line); border-radius: var(--radius-sm); padding: 16px 18px; margin: 14px 0; }
+  .case-box{ background: var(--paper-dim); border:1px solid var(--line); border-radius: var(--radius-sm); padding: 16px 18px; margin: 16px 0; font-size:0.94rem; }
+  .triage-item{ border:1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 10px; background: var(--paper-dim); }
+  .triage-item .msg{ font-style: italic; margin-bottom: 8px; font-size:0.92rem; }
+  .triage-item select{ font-family: var(--font-body); font-size:0.88rem; padding: 6px 8px; border-radius:6px; border:1.5px solid var(--line); margin-right:8px; }
+  .triage-item .check-btn{ font-size:0.8rem; padding:6px 11px; }
+  .triage-item .item-feedback{ display:none; margin-top:8px; font-size:0.86rem; padding:7px 9px; border-radius:6px; }
+  .triage-item .item-feedback.show{ display:block; }
+  .triage-item .item-feedback.correct{ background:#EEF6EE; color: var(--ok); }
+  .triage-item .item-feedback.incorrect{ background:#FBEEEC; color: var(--danger); }
+  .pack-field{ margin-bottom: 18px; border:1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--paper-dim); }
+  .pack-field .col-label{ font-family: var(--font-mono); font-size:0.68rem; text-transform:uppercase; color: var(--kraft-dark); margin-bottom:6px; font-weight:700; }
+  .esc-row{ display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom:12px; border:1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--paper-dim); }
+  @media (min-width:700px){ .esc-row{ grid-template-columns: 1fr 2fr; } }
+  .esc-row .col-label{ font-family: var(--font-mono); font-size:0.65rem; text-transform:uppercase; color: var(--ink-soft); margin-bottom:4px; }
+  .final-checklist label{ display:flex; align-items:flex-start; gap:8px; background:#fff; border:1.5px solid var(--line); border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:0.94rem; cursor:pointer; }
+  .completion-panel{ text-align:center; padding: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="route-bar no-print">
+  <div class="wrap">
+    <a class="route-home" href="/customer-support/">🎧 Free Training Home</a>
+    <span class="route-crumb-sep">/</span>
+    <span class="current">Final Project</span>
+  </div>
+</div>
+
+<header class="lesson-hero">
+  <div class="wrap">
+    <span class="eyebrow">Final Project — the capstone</span>
+    <h1>Your First Simulated Support Queue</h1>
+    <p style="margin:0;color:#DCE7D8;">Output: Final Simulated Support Queue</p>
+  </div>
+</header>
+
+<main class="lesson-body">
+  <div class="wrap-narrow">
+
+    <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 10</p>
+
+    <div class="step-card">
+
+      <!-- STEP 1: Intro / scenario -->
+      <section class="step-panel active" data-step="1">
+        <div class="step-tag">The queue</div>
+        <h2>Northstar Home Services</h2>
+        <div class="brief-box">
+          <p style="margin:0 0 10px;">Northstar Home Services is a fictional home-services business that sells service plans and related products online. It receives support requests through email and chat.</p>
+          <p style="margin:0;">You're the beginner support VA working under documented policies and escalation rules. Treat this like a real queue: understand, investigate, decide, respond, document, follow up, and close.</p>
+        </div>
+        <div class="key-idea">
+          <span class="eyebrow">Treat this like a real queue</span>
+          <p>Every task below reuses a skill from one of the 13 lessons — this is where they come together.</p>
+        </div>
+      </section>
+
+      <!-- STEP 2: Task 1 — Triage -->
+      <section class="step-panel" data-step="2" id="task1Step">
+        <div class="step-tag">Task 1 of 8</div>
+        <h2>Triage</h2>
+        <p>Classify these 12 fictional cases by issue type. Pick a category for each, then check your answer.</p>
+        <div id="triageItems"></div>
+        <p class="small" id="triageScore">0 of 12 checked.</p>
+      </section>
+
+      <!-- STEP 3: Task 2 — Investigate -->
+      <section class="step-panel" data-step="3" id="task2Step">
+        <div class="step-tag">Task 2 of 8</div>
+        <h2>Investigate</h2>
+        <div class="case-box">
+          <strong>Case:</strong> Customer message: "I ordered the Smart Doorbell Pro two weeks ago and paid $189. Tracking says delivered on Tuesday but I never got anything, and my neighbor didn't see anything either."<br><br>
+          <strong>Order history:</strong> Order #55231, placed Aug 3. Carrier record: delivered Aug 17, 10:03 AM, no signature required, left at front door. No prior contacts on this order.<br><br>
+          <strong>Policy excerpt:</strong> For delivered-but-not-received claims under $200, offer a replacement after confirming the delivery address matches the order and at least 24 hours have passed since delivery (in case of late scanning).
+        </div>
+        <div class="field"><label for="factsAnswer">Facts</label><textarea id="factsAnswer" rows="2"></textarea></div>
+        <div class="field"><label for="assumeAnswer">Assumptions to avoid</label><textarea id="assumeAnswer" rows="2" placeholder="e.g. don't assume the customer is lying, don't assume carrier error"></textarea></div>
+        <div class="field"><label for="nextAnswer">Recommended next step</label><textarea id="nextAnswer" rows="2"></textarea></div>
+      </section>
+
+      <!-- STEP 4: Task 3 — Respond -->
+      <section class="step-panel" data-step="4" id="task3Step">
+        <div class="step-tag">Task 3 of 8</div>
+        <h2>Respond</h2>
+        <p>Write a response for each of these six cases.</p>
+        <div class="pack-field"><div class="col-label">1. Product question</div><textarea class="pack-input" data-key="product" rows="2"></textarea></div>
+        <div class="pack-field"><div class="col-label">2. Delay</div><textarea class="pack-input" data-key="delay" rows="2"></textarea></div>
+        <div class="pack-field"><div class="col-label">3. Damaged item</div><textarea class="pack-input" data-key="damaged" rows="2"></textarea></div>
+        <div class="pack-field"><div class="col-label">4. Refund request</div><textarea class="pack-input" data-key="refund" rows="2"></textarea></div>
+        <div class="pack-field"><div class="col-label">5. Frustrated customer</div><textarea class="pack-input" data-key="frustrated" rows="2"></textarea></div>
+        <div class="pack-field"><div class="col-label">6. Account issue</div><textarea class="pack-input" data-key="account" rows="2"></textarea></div>
+      </section>
+
+      <!-- STEP 5: Task 4 — Escalate -->
+      <section class="step-panel" data-step="5" id="task4Step">
+        <div class="step-tag">Task 4 of 8</div>
+        <h2>Escalate</h2>
+        <p>Looking back at the 12 cases from Task 1, identify three that require escalation and explain why.</p>
+        <div id="escRows"></div>
+      </section>
+
+      <!-- STEP 6: Task 5 — Document -->
+      <section class="step-panel" data-step="6" id="task5Step">
+        <div class="step-tag">Task 5 of 8</div>
+        <h2>Document</h2>
+        <p>Write concise internal ticket notes for five cases — facts and actions, not judgments.</p>
+        <div id="docRows"></div>
+        <button class="btn btn-ghost no-print" id="addDocRowBtn" type="button">+ Add another case</button>
+      </section>
+
+      <!-- STEP 7: Task 6 — Metrics -->
+      <section class="step-panel" data-step="7" id="task6Step">
+        <div class="step-tag">Task 6 of 8</div>
+        <h2>Metrics</h2>
+        <table class="ref-table">
+          <tr><th>Metric</th><th>This week</th><th>Last week</th></tr>
+          <tr><td>First response time</td><td>3.8 hrs</td><td>2.4 hrs</td></tr>
+          <tr><td>First contact resolution</td><td>58%</td><td>70%</td></tr>
+          <tr><td>CSAT</td><td>85%</td><td>90%</td></tr>
+          <tr><td>Backlog</td><td>39 open</td><td>18 open</td></tr>
+          <tr><td>Escalation rate</td><td>11%</td><td>7%</td></tr>
+        </table>
+        <div class="field"><label for="metricsAnswer">Strengths, risks, and one improvement to prioritize</label><textarea id="metricsAnswer" rows="3"></textarea></div>
+      </section>
+
+      <!-- STEP 8: Task 7 — AI -->
+      <section class="step-panel" data-step="8" id="task7Step">
+        <div class="step-tag">Task 7 of 8</div>
+        <h2>AI</h2>
+        <p>Use AI for one appropriate fictional support task in this queue — for example, drafting one of the six responses above, or summarizing the doorbell case from Task 2. Verify the output against the source material.</p>
+        <div class="field"><label for="aiUsed">What did you use AI for?</label><textarea id="aiUsed" rows="2"></textarea></div>
+        <div class="field"><label for="aiVerify">What did you check to verify the output?</label><textarea id="aiVerify" rows="2" placeholder="e.g. compared against the actual policy/order details, checked no customer data was pasted into an unapproved tool"></textarea></div>
+      </section>
+
+      <!-- STEP 9: Task 8 — Security -->
+      <section class="step-panel" data-step="9" id="task8Step">
+        <div class="step-tag">Task 8 of 8</div>
+        <h2>Security</h2>
+        <div class="scenario">
+          <div class="scenario-msg">A customer emails asking you to update their account's email address to a brand-new address, "so I can access my order faster" — with no other verification provided.</div>
+          <p style="margin-bottom:0;">What's the right response?</p>
+        </div>
+        <div class="option-list" id="task8Options">
+          <button class="option-btn" data-correct="false" data-feedback="Changing account access based on an email request alone, with no verification, is exactly the kind of convenience-over-security tradeoff this course warns against." >Update the email address right away — they asked, so it's probably them.</button>
+          <button class="option-btn" data-correct="true" data-feedback="Correct. An email address change affects account access and recovery — verify identity through the client's approved method before making the change." >Ask for additional verification per policy before changing anything on the account.</button>
+          <button class="option-btn" data-correct="false" data-feedback="Refusing to help at all isn't necessary — once identity is verified, you can make the change." >Refuse the request entirely and tell them to call instead.</button>
+        </div>
+        <div class="feedback-box" id="task8Feedback"></div>
+        <div class="field" style="margin-top:14px;">
+          <label for="task8Explain">Briefly explain the safer action and what you'd document about it.</label>
+          <textarea id="task8Explain" rows="3"></textarea>
+        </div>
+      </section>
+
+      <!-- STEP 10: Final submission checklist -->
+      <section class="step-panel" data-step="10" id="finalChecklistStep">
+        <div class="step-tag">Before you submit</div>
+        <h2>Final submission checklist</h2>
+        <p>Check each item honestly against the 8 tasks you just completed.</p>
+        <div class="final-checklist" id="finalChecklist"></div>
+      </section>
+
+      <!-- COMPLETION -->
+      <section class="step-panel" data-step="11" id="completionStep">
+        <div class="completion-panel">
+          <div class="stamp" style="font-size:1.05rem;padding:12px 22px;">✓ Final Project Complete</div>
+          <h2 style="margin-top:18px;">You've finished the course.</h2>
+          <p class="wrap-narrow" style="padding:0;">All 13 lessons and the Final Simulated Support Queue are done. Together with your 13 lesson work samples, this project completes your 14-piece starter Customer Support VA portfolio.</p>
+          <p class="small wrap-narrow" style="padding:0;">Remember: these are training work samples from a fictional practice environment — genuinely useful evidence of what you practiced, but not paid client work or proof of real experience. Present them that way.</p>
+          <div class="hero-cta center" style="justify-content:center;">
+            <a class="btn btn-kraft" href="/customer-support/">Back to Course Map</a>
+            <a class="btn btn-ghost" href="/">Explore General Admin Training</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="step-nav no-print" id="stepNav">
+        <button class="btn btn-ghost" id="prevBtn" type="button">← Back</button>
+        <button class="btn btn-primary" id="nextBtn" type="button">Continue →</button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer no-print">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>Probinsiyanong VA — Free Customer Support VA Training</div>
+    <a href="/customer-support/">🎧 Free Training Home</a>
+  </div>
+</footer>
+
+<script src="/shared/progress-cs.js"></script>
+<script src="/shared/cs-lessons-data.js"></script>
+<script src="final-project.js"></script>
+</body>
+</html>

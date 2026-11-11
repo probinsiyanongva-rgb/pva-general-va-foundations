@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 13: Quality Assurance & Continuous Improvement | PVA Free Training</title>
+<meta name="description" content="Lesson 13 of the free Customer Support VA training: the five-question check, common QA errors, and recognizing systemic problems.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/styles.css">
+<style>
+  .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
+  .lesson-hero .eyebrow{ color:#E7D3A8; }
+  .lesson-hero h1{ color:#fff; margin-bottom: 4px; }
+  .lesson-body{ padding: 40px 0 20px; }
+  .step-card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 30px 28px 32px; }
+  @media (min-width:640px){ .step-card{ padding: 38px 44px 40px; } }
+  .step-tag{ font-family: var(--font-mono); font-size:0.76rem; color: var(--kraft-dark); letter-spacing:0.05em; text-transform:uppercase; font-weight:700; margin-bottom:8px; }
+  .lo-list{ margin:0; padding-left: 1.2em; }
+  .lo-list li{ margin-bottom:6px; }
+  .key-idea{ background: var(--forest); color:#fff; border-radius: var(--radius-md); padding: 20px 24px; margin: 22px 0; }
+  .key-idea .eyebrow{ color:#C9D8C4; }
+  .key-idea p{ margin:0; }
+  .qa-item{ border:1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 10px; background: var(--paper-dim); }
+  .qa-item .msg{ font-style: italic; margin-bottom: 8px; font-size:0.94rem; }
+  .qa-item select{ font-family: var(--font-body); font-size:0.88rem; padding: 7px 9px; border-radius:6px; border:1.5px solid var(--line); margin-right:8px; }
+  .qa-item .check-btn{ font-size:0.82rem; padding:7px 12px; }
+  .qa-item .item-feedback{ display:none; margin-top:8px; font-size:0.88rem; padding:7px 9px; border-radius:6px; }
+  .qa-item .item-feedback.show{ display:block; }
+  .qa-item .item-feedback.correct{ background:#EEF6EE; color: var(--ok); }
+  .qa-item .item-feedback.incorrect{ background:#FBEEEC; color: var(--danger); }
+  .review-row{ display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom:12px; border:1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--paper-dim); }
+  @media (min-width:960px){ .review-row{ grid-template-columns: repeat(5,1fr); align-items:start; } }
+  .review-row .col-label{ font-family: var(--font-mono); font-size:0.65rem; text-transform:uppercase; color: var(--ink-soft); margin-bottom:4px; }
+  .completion-panel{ text-align:center; padding: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="route-bar no-print">
+  <div class="wrap">
+    <a class="route-home" href="/customer-support/">🎧 Free Training Home</a>
+    <span class="route-crumb-sep">/</span>
+    <span class="current">Lesson 13</span>
+  </div>
+</div>
+
+<header class="lesson-hero">
+  <div class="wrap">
+    <span class="eyebrow">Lesson 13 of 13 — the last lesson</span>
+    <h1>Quality Assurance & Continuous Improvement</h1>
+    <p style="margin:0;color:#DCE7D8;">Output: QA Review</p>
+  </div>
+</header>
+
+<main class="lesson-body">
+  <div class="wrap-narrow">
+
+    <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 6</p>
+
+    <div class="step-card">
+
+      <!-- STEP 1 -->
+      <section class="step-panel active" data-step="1">
+        <div class="step-tag">Learn</div>
+        <h2>Before you start</h2>
+        <p>By the end of this lesson you will be able to:</p>
+        <ul class="lo-list">
+          <li>Review responses before sending.</li>
+          <li>Identify accuracy, policy, tone, and completeness issues.</li>
+          <li>Recognize repeat problems that need process improvement.</li>
+          <li>Escalate serious or systemic issues.</li>
+        </ul>
+        <div class="key-idea">
+          <span class="eyebrow">Key idea</span>
+          <p>Quality support is more than a polite response: it is accurate, policy-aligned, customer-specific, and clear about the next step.</p>
+        </div>
+      </section>
+
+      <!-- STEP 2: Five-question check -->
+      <section class="step-panel" data-step="2">
+        <div class="step-tag">Learn</div>
+        <h2>The five-question check</h2>
+        <table class="ref-table">
+          <tr><th>Check</th><th>Question</th></tr>
+          <tr><td>Correct?</td><td>Are facts and policy interpretation accurate?</td></tr>
+          <tr><td>Complete?</td><td>Did I address relevant parts of the request?</td></tr>
+          <tr><td>Consistent?</td><td>Does the response match approved policies/templates?</td></tr>
+          <tr><td>Compliant?</td><td>Did I stay within authority and protect data?</td></tr>
+          <tr><td>Clear?</td><td>Does the customer know what happens next?</td></tr>
+        </table>
+      </section>
+
+      <!-- STEP 3: Common QA errors -->
+      <section class="step-panel" data-step="3">
+        <div class="step-tag">Learn</div>
+        <h2>Common QA errors</h2>
+        <ul class="lo-list">
+          <li>Wrong customer/order number</li>
+          <li>Incorrect policy</li>
+          <li>Unsupported promise</li>
+          <li>Missing next step</li>
+          <li>Unnecessary jargon</li>
+          <li>Template mismatch</li>
+          <li>Poor internal note</li>
+          <li>Missing follow-up</li>
+          <li>Privacy mistake</li>
+          <li>Failure to escalate</li>
+        </ul>
+      </section>
+
+      <!-- STEP 4: Practice — find the error -->
+      <section class="step-panel" data-step="4" id="qaStep">
+        <div class="step-tag">Practice</div>
+        <h2>Identify the error in each response</h2>
+        <div id="qaItems"></div>
+        <p class="small" id="qaScore">0 of 5 checked.</p>
+      </section>
+
+      <!-- STEP 5: Systemic-issue scenario -->
+      <section class="step-panel" data-step="5" id="scenarioStep">
+        <div class="step-tag">Practice → Decide</div>
+        <h2>The same complaint, eight times</h2>
+        <div class="scenario">
+          <div class="scenario-msg">You notice the same shipping-delay complaint has come up in 8 different tickets this week, all mentioning the same carrier.</div>
+          <p style="margin-bottom:0;">What's the right move?</p>
+        </div>
+        <div class="option-list" id="systemicOptions">
+          <button class="option-btn" data-correct="false" data-feedback="Handling each ticket individually resolves the symptom but misses the pattern — 8 tickets about the same carrier is worth flagging as its own issue." >Handle each ticket individually and move on — they're each still getting resolved.</button>
+          <button class="option-btn" data-correct="true" data-feedback="Correct. A repeated pattern across many tickets is a signal worth surfacing as a possible process or vendor issue — not just eight separate, unrelated complaints." >Flag the pattern to a supervisor as a possible systemic issue, not just eight individual tickets.</button>
+          <button class="option-btn" data-correct="false" data-feedback="Each ticket being individually resolved doesn't mean the underlying cause has been addressed — the pattern itself is information worth acting on." >Ignore the pattern since every ticket was still resolved.</button>
+        </div>
+        <div class="feedback-box" id="scenarioFeedback"></div>
+      </section>
+
+      <!-- STEP 6: Work sample -->
+      <section class="step-panel" data-step="6" id="workSampleStep">
+        <div class="step-tag">Apply</div>
+        <h2>Work sample: QA Review</h2>
+        <p>Two responses from your practice are started below — review each for issue, risk, rewrite, and whether it needs escalation or just process documentation.</p>
+
+        <div id="reviewRows"></div>
+        <button class="btn btn-ghost no-print" id="addRowBtn" type="button">+ Add another response to review</button>
+
+        <div class="save-reminder no-print">
+          💾 <strong>Save your work now.</strong> Copy this into a Google Doc — it's the last piece of your starter portfolio.
+        </div>
+
+        <div class="export-box" id="exportBox">
+          <span class="eyebrow">Preview / export</span>
+          <div id="exportPreview"></div>
+          <button class="btn btn-ghost no-print" id="printBtn" type="button">🖨️ Print / Save as PDF</button>
+        </div>
+      </section>
+
+      <!-- COMPLETION -->
+      <section class="step-panel" data-step="7" id="completionStep">
+        <div class="completion-panel">
+          <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 13 Processed</div>
+          <h2 style="margin-top:18px;">All 13 lessons complete.</h2>
+          <p class="wrap-narrow" style="padding:0;">You've built a full starter portfolio and practiced the judgment behind Customer Support VA work. One thing left: bring it all together in the Final Project.</p>
+          <div class="hero-cta center" style="justify-content:center;">
+            <a class="btn btn-kraft" href="/customer-support/final-project/">Start the Final Project →</a>
+            <a class="btn btn-ghost" href="/customer-support/">Back to Course Map</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="step-nav no-print" id="stepNav">
+        <button class="btn btn-ghost" id="prevBtn" type="button">← Back</button>
+        <button class="btn btn-primary" id="nextBtn" type="button">Continue →</button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer no-print">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>Probinsiyanong VA — Free Customer Support VA Training</div>
+    <a href="/customer-support/">🎧 Free Training Home</a>
+  </div>
+</footer>
+
+<script src="/shared/progress-cs.js"></script>
+<script src="/shared/cs-lessons-data.js"></script>
+<script src="lesson.js"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 9: SOPs, Checklists & Definition of Done | PVA Free Training</title>
+<meta name="description" content="Lesson 9 of the free General Admin VA training: what belongs in a useful SOP, spotting gaps, and defining what 'done' means for a recurring task.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/styles.css">
+<style>
+  .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
+  .lesson-hero .eyebrow{ color:#E7D3A8; }
+  .lesson-hero h1{ color:#fff; margin-bottom: 4px; }
+  .lesson-body{ padding: 40px 0 20px; }
+  .step-card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 30px 28px 32px; }
+  @media (min-width:640px){ .step-card{ padding: 38px 44px 40px; } }
+  .step-tag{ font-family: var(--font-mono); font-size:0.76rem; color: var(--kraft-dark); letter-spacing:0.05em; text-transform:uppercase; font-weight:700; margin-bottom:8px; }
+  .lo-list{ margin:0; padding-left: 1.2em; }
+  .lo-list li{ margin-bottom:6px; }
+  .key-idea{ background: var(--forest); color:#fff; border-radius: var(--radius-md); padding: 20px 24px; margin: 22px 0; }
+  .key-idea .eyebrow{ color:#C9D8C4; }
+  .key-idea p{ margin:0; }
+  .gap-checklist{ display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin:16px 0; }
+  @media (max-width:520px){ .gap-checklist{ grid-template-columns: 1fr; } }
+  .gap-checklist label{ display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid var(--line); border-radius:6px; padding:9px 12px; font-size:0.92rem; cursor:pointer; }
+  .sop-field{ margin-bottom: 16px; }
+  .sop-field label{ display:block; font-family: var(--font-mono); font-size:0.72rem; text-transform:uppercase; color: var(--kraft-dark); font-weight:700; margin-bottom:6px; }
+  .completion-panel{ text-align:center; padding: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="route-bar no-print">
+  <div class="wrap">
+    <a class="route-home" href="/">🏠 Free Training Home</a>
+    <span class="route-crumb-sep">/</span>
+    <span class="current">Lesson 9</span>
+  </div>
+</div>
+
+<header class="lesson-hero">
+  <div class="wrap">
+    <span class="eyebrow">Lesson 9 of 13</span>
+    <h1>SOPs, Checklists & Definition of Done</h1>
+    <p style="margin:0;color:#DCE7D8;">Output: Administrative SOP</p>
+  </div>
+</header>
+
+<main class="lesson-body">
+  <div class="wrap-narrow">
+
+    <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 6</p>
+
+    <div class="step-card">
+
+      <!-- STEP 1 -->
+      <section class="step-panel active" data-step="1">
+        <div class="step-tag">Learn</div>
+        <h2>Before you start</h2>
+        <p>By the end of this lesson you will be able to:</p>
+        <ul class="lo-list">
+          <li>Explain the purpose of an SOP.</li>
+          <li>Follow an SOP accurately.</li>
+          <li>Identify missing steps and exceptions.</li>
+          <li>Create a simple administrative SOP.</li>
+          <li>Define what "done" means for a recurring task.</li>
+        </ul>
+        <div class="key-idea">
+          <span class="eyebrow">Key idea</span>
+          <p>A good SOP turns repeated work into a reliable process. A good VA can follow one, spot gaps, and help make the process clearer.</p>
+        </div>
+      </section>
+
+      <!-- STEP 2: What belongs in an SOP -->
+      <section class="step-panel" data-step="2">
+        <div class="step-tag">Learn</div>
+        <h2>What belongs in a useful SOP?</h2>
+        <table class="ref-table">
+          <tr><th>Element</th><th>Question</th></tr>
+          <tr><td>Purpose</td><td>Why does this process exist?</td></tr>
+          <tr><td>Trigger</td><td>When does it start?</td></tr>
+          <tr><td>Inputs</td><td>What information or files are required?</td></tr>
+          <tr><td>Tools/access</td><td>What systems are needed?</td></tr>
+          <tr><td>Steps</td><td>What happens, in order?</td></tr>
+          <tr><td>Exceptions</td><td>What unusual situations can occur?</td></tr>
+          <tr><td>Escalation</td><td>When should someone else decide?</td></tr>
+          <tr><td>Definition of done</td><td>What must be true when the process is complete?</td></tr>
+        </table>
+      </section>
+
+      <!-- STEP 3: Spot the gap -->
+      <section class="step-panel" data-step="3" id="gapStep">
+        <div class="step-tag">Observe → Practice</div>
+        <h2>Spot what's missing</h2>
+        <div class="scenario-msg">"Every Friday, check invoices, update the tracker, email anything overdue, then save everything in Drive."</div>
+        <p>Which of the 8 SOP elements does this instruction leave vague or undefined? Check all that apply, then check your answer.</p>
+        <div class="gap-checklist" id="gapChecklist"></div>
+        <button class="btn btn-ghost no-print" id="gapCheckBtn" type="button">Check my answer</button>
+        <div class="feedback-box" id="gapFeedback"></div>
+      </section>
+
+      <!-- STEP 4: Practice — write a stronger SOP -->
+      <section class="step-panel" data-step="4" id="writeSopStep">
+        <div class="step-tag">Practice</div>
+        <h2>Write a stronger SOP</h2>
+        <p>Turn the Friday invoice instruction into a real SOP.</p>
+        <div id="sopPracticeFields"></div>
+        <button class="btn btn-ghost reveal-btn no-print" id="sopRevealBtn" type="button">Show a model SOP</button>
+        <div class="model-answer" id="sopModel">
+          <table class="ref-table">
+            <tr><td><strong>Purpose</strong></td><td>Ensure overdue invoices are identified and followed up on time each week.</td></tr>
+            <tr><td><strong>Trigger</strong></td><td>Every Friday, end of business day.</td></tr>
+            <tr><td><strong>Inputs</strong></td><td>Current invoice list from the accounting system, previous week's tracker.</td></tr>
+            <tr><td><strong>Tools/access</strong></td><td>Accounting software (view access), shared invoice tracker, Drive folder access.</td></tr>
+            <tr><td><strong>Steps</strong></td><td>1) Pull the current invoice list. 2) Compare against the tracker and flag anything overdue. 3) Update the tracker status for each invoice. 4) Send the approved reminder email to each overdue client. 5) Save the updated tracker to the agreed Drive folder using the naming convention.</td></tr>
+            <tr><td><strong>Exceptions</strong></td><td>A client already disputing the invoice, or on an agreed payment plan — flag to the client instead of sending the automatic reminder.</td></tr>
+            <tr><td><strong>Escalation</strong></td><td>Any invoice overdue more than 30 days, or any client reply disputing a charge, goes to the client for a decision.</td></tr>
+            <tr><td><strong>Definition of done</strong></td><td>Tracker fully updated, every overdue invoice has a reminder sent or an escalation flagged, file saved with today's date.</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- STEP 5: Exception-handling scenario -->
+      <section class="step-panel" data-step="5" id="scenarioStep">
+        <div class="step-tag">Practice → Decide</div>
+        <h2>The SOP doesn't cover this</h2>
+        <div class="scenario">
+          <div class="scenario-msg">While following the invoice SOP, you find an overdue invoice for a client who's actively disputing the charge in a separate email thread — the SOP's Exceptions section doesn't mention this situation.</div>
+          <p style="margin-bottom:0;">What should you do?</p>
+        </div>
+        <div class="option-list" id="scenarioOptions">
+          <button class="option-btn" data-correct="false" data-feedback="The SOP is a guide, not a substitute for judgment — sending an automatic reminder to a client who's actively disputing the charge could make a delicate situation worse." >Send the standard reminder anyway, since the SOP says to.</button>
+          <button class="option-btn" data-correct="true" data-feedback="Correct. Pause on this one case, flag it to the client, and note the gap so the SOP can be updated — that's exactly what &quot;identify missing steps and exceptions&quot; means in practice." >Pause, flag this specific case to the client, and note it as a gap in the SOP for later.</button>
+          <button class="option-btn" data-correct="false" data-feedback="Silently skipping the invoice without telling anyone leaves the client unaware there's an issue — flagging it is what turns a gap into something the process can improve from." >Skip this invoice quietly and move on to the next one.</button>
+        </div>
+        <div class="feedback-box" id="scenarioFeedback"></div>
+      </section>
+
+      <!-- STEP 6: Work sample -->
+      <section class="step-panel" data-step="6" id="workSampleStep">
+        <div class="step-tag">Apply</div>
+        <h2>Work sample: Administrative SOP</h2>
+        <p>Pick a different fictional recurring task (e.g. weekly social media posting, monthly report, onboarding a new client) and write its SOP.</p>
+        <div id="sopFinalFields"></div>
+
+        <div class="save-reminder no-print">
+          💾 <strong>Save your work now.</strong> Copy this SOP into a Google Doc — that's part of your starter portfolio.
+        </div>
+
+        <div class="export-box" id="exportBox">
+          <span class="eyebrow">Preview / export</span>
+          <div id="exportPreview"></div>
+          <button class="btn btn-ghost no-print" id="printBtn" type="button">🖨️ Print / Save as PDF</button>
+        </div>
+      </section>
+
+      <!-- COMPLETION -->
+      <section class="step-panel" data-step="7" id="completionStep">
+        <div class="completion-panel">
+          <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 9 Processed</div>
+          <h2 style="margin-top:18px;">Nice work.</h2>
+          <p class="wrap-narrow" style="padding:0;">You've practiced turning a vague instruction into a real process — and knowing what to do when reality doesn't match the SOP.</p>
+          <div class="hero-cta center" style="justify-content:center;">
+            <a class="btn btn-primary" href="/lessons/lesson-10/">Next: Lesson 10 →</a>
+            <a class="btn btn-ghost" href="/">Back to Course Map</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="step-nav no-print" id="stepNav">
+        <button class="btn btn-ghost" id="prevBtn" type="button">← Back</button>
+        <button class="btn btn-primary" id="nextBtn" type="button">Continue →</button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer no-print">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>Probinsiyanong VA — Free General Admin VA Training</div>
+    <a href="/">🏠 Free Training Home</a>
+  </div>
+</footer>
+
+<script src="/shared/progress.js"></script>
+<script src="/shared/lessons-data.js"></script>
+<script src="lesson.js"></script>
+</body>
+</html>

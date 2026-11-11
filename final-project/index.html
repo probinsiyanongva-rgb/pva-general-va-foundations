@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Final Project: Your First Simulated Client | PVA Free Training</title>
+<meta name="description" content="The capstone project for the free General Admin VA training: a simulated engagement with Northstar Home Services, combining all 13 lessons across 8 tasks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/styles.css">
+<style>
+  .lesson-hero{ background: linear-gradient(135deg, var(--forest-dark), var(--forest)); color:#fff; padding: 40px 0 32px; }
+  .lesson-hero .eyebrow{ color:#E7D3A8; }
+  .lesson-hero h1{ color:#fff; margin-bottom: 6px; }
+  .lesson-body{ padding: 40px 0 20px; }
+  .step-card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 30px 28px 32px; }
+  @media (min-width:640px){ .step-card{ padding: 38px 44px 40px; } }
+  .step-tag{ font-family: var(--font-mono); font-size:0.76rem; color: var(--kraft-dark); letter-spacing:0.05em; text-transform:uppercase; font-weight:700; margin-bottom:8px; }
+  .task-label{ font-family: var(--font-mono); font-size:0.76rem; color: var(--kraft-dark); font-weight:700; margin-bottom:4px; }
+  .lo-list{ margin:0; padding-left: 1.2em; }
+  .lo-list li{ margin-bottom:6px; }
+  .key-idea{ background: var(--forest); color:#fff; border-radius: var(--radius-md); padding: 20px 24px; margin: 22px 0; }
+  .key-idea .eyebrow{ color:#C9D8C4; }
+  .key-idea p{ margin:0; }
+  .brief-box{ background: var(--paper-dim); border:1px solid var(--line); border-radius: var(--radius-sm); padding: 16px 18px; margin: 14px 0; }
+  .rules-box{ background: var(--paper-dim); border:1px solid var(--line); border-radius: var(--radius-sm); padding: 16px 18px; margin: 16px 0; }
+  .rules-box ul{ margin:0; padding-left:1.2em; }
+  .triage-item{ border:1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 10px; background: var(--paper-dim); }
+  .triage-item .msg{ font-style: italic; margin-bottom: 8px; font-size:0.94rem; }
+  .triage-item select{ font-family: var(--font-body); font-size:0.9rem; padding: 7px 9px; border-radius:6px; border:1.5px solid var(--line); margin-right:8px; }
+  .triage-item .check-btn{ font-size:0.82rem; padding:7px 12px; }
+  .triage-item .item-feedback{ display:none; margin-top:8px; font-size:0.88rem; padding:7px 9px; border-radius:6px; }
+  .triage-item .item-feedback.show{ display:block; }
+  .triage-item .item-feedback.correct{ background:#EEF6EE; color: var(--ok); }
+  .triage-item .item-feedback.incorrect{ background:#FBEEEC; color: var(--danger); }
+  .clean-row{ display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom:12px; border:1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--paper-dim); }
+  @media (min-width:760px){ .clean-row{ grid-template-columns: 1fr 1fr; align-items:start; } }
+  .clean-row .col-label{ font-family: var(--font-mono); font-size:0.68rem; text-transform:uppercase; color: var(--ink-soft); margin-bottom:4px; }
+  .research-row{ display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom:12px; border:1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--paper-dim); }
+  @media (min-width:900px){ .research-row{ grid-template-columns: repeat(6,1fr); align-items:start; } }
+  .research-row .col-label{ font-family: var(--font-mono); font-size:0.65rem; text-transform:uppercase; color: var(--ink-soft); margin-bottom:4px; }
+  .sop-field{ margin-bottom: 14px; }
+  .sop-field label{ display:block; font-family: var(--font-mono); font-size:0.7rem; text-transform:uppercase; color: var(--kraft-dark); font-weight:700; margin-bottom:6px; }
+  .tracker-row{ display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom:12px; border:1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--paper-dim); }
+  @media (min-width:960px){ .tracker-row{ grid-template-columns: repeat(7,1fr); align-items:start; } }
+  .tracker-row .col-label{ font-family: var(--font-mono); font-size:0.65rem; text-transform:uppercase; color: var(--ink-soft); margin-bottom:4px; }
+  .final-checklist label{ display:flex; align-items:flex-start; gap:8px; background:#fff; border:1.5px solid var(--line); border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:0.94rem; cursor:pointer; }
+  .completion-panel{ text-align:center; padding: 20px 0; }
+  .task-progress-note{ font-size:0.85rem; color: var(--ink-soft); margin-bottom:0; }
+</style>
+</head>
+<body>
+
+<div class="route-bar no-print">
+  <div class="wrap">
+    <a class="route-home" href="/">🏠 Free Training Home</a>
+    <span class="route-crumb-sep">/</span>
+    <span class="current">Final Project</span>
+  </div>
+</div>
+
+<header class="lesson-hero">
+  <div class="wrap">
+    <span class="eyebrow">Final Project — the capstone</span>
+    <h1>Your First Simulated Client</h1>
+    <p style="margin:0;color:#DCE7D8;">Output: Final Simulated Client Project</p>
+  </div>
+</header>
+
+<main class="lesson-body">
+  <div class="wrap-narrow">
+
+    <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 10</p>
+
+    <div class="step-card">
+
+      <!-- STEP 1: Intro / scenario -->
+      <section class="step-panel active" data-step="1">
+        <div class="step-tag">The engagement</div>
+        <h2>Northstar Home Services</h2>
+        <div class="brief-box">
+          <p style="margin:0 0 10px;">Northstar Home Services is a fictional five-person home-services business. The owner is spending too much time on routine administration and wants help keeping information, scheduling, and follow-ups organized.</p>
+          <p style="margin:0;">The owner sends you a folder, an inbox simulation, a calendar, a customer spreadsheet, and several recurring instructions. Your job is to process the work in a sensible order and document your decisions.</p>
+        </div>
+        <div class="key-idea">
+          <span class="eyebrow">Treat this like a real engagement</span>
+          <p>Understand the requests, clarify what's necessary, prioritize, execute, check, report, and close — the same eight-stage workflow from Lesson 2, applied across all 8 tasks below.</p>
+        </div>
+      </section>
+
+      <!-- STEP 2: Task 1 — Email -->
+      <section class="step-panel" data-step="2" id="task1Step">
+        <div class="step-tag">Task 1 of 8</div>
+        <h2>Email</h2>
+        <p>Triage these 10 fictional messages. Pick a category for each, then check your answer.</p>
+        <div id="emailItems"></div>
+        <p class="task-progress-note" id="emailScore">0 of 10 checked.</p>
+      </section>
+
+      <!-- STEP 3: Task 2 — Calendar -->
+      <section class="step-panel" data-step="3" id="task2Step">
+        <div class="step-tag">Task 2 of 8</div>
+        <h2>Calendar</h2>
+        <div class="rules-box">
+          <strong>Client rules:</strong>
+          <ul>
+            <li>Working hours 8 AM–5 PM</li>
+            <li>No meetings on Wednesday mornings (the owner does site visits)</li>
+            <li>30-minute prep buffer before any customer walk-through</li>
+            <li>The main supplier is based in a different time zone (UTC+9) — Northstar is UTC+8</li>
+          </ul>
+          <strong>Requests:</strong>
+          <ul>
+            <li>Customer walk-through — customer asked for "Wednesday at 9 AM"</li>
+            <li>Supplier call — supplier proposed "3 PM their time"</li>
+            <li>Team check-in — flexible, "sometime this week"</li>
+            <li>Insurance agent call — "Friday afternoon"</li>
+          </ul>
+        </div>
+        <div class="field">
+          <label for="calAnswer">Build a conflict-free schedule, explain your decisions, and note anything that needs the owner's confirmation.</label>
+          <textarea id="calAnswer" rows="5" placeholder="e.g. Move the walk-through to..."></textarea>
+        </div>
+        <button class="btn btn-ghost reveal-btn no-print" id="calRevealBtn" type="button">Show a model schedule</button>
+        <div class="model-answer" id="calModel">
+          <table class="ref-table" style="margin-top:8px;">
+            <tr><th>Item</th><th>Placement &amp; reasoning</th></tr>
+            <tr><td>Customer walk-through</td><td>The requested Wednesday 9 AM conflicts with the no-meetings rule — propose Wednesday afternoon or Thursday morning instead, with a 30-minute buffer before it.</td></tr>
+            <tr><td>Supplier call</td><td>3 PM their time (UTC+9) = 2 PM Northstar time (UTC+8) — schedule for 2 PM, noting the conversion in the invite.</td></tr>
+            <tr><td>Team check-in</td><td>No fixed constraint — slot in an open block, e.g. Monday 10 AM.</td></tr>
+            <tr><td>Insurance agent call</td><td>Friday afternoon as requested — e.g. Friday 2 PM.</td></tr>
+          </table>
+          <p style="margin:10px 0 0;"><strong>Needs owner confirmation:</strong> the walk-through's actual new time (since the customer's original ask conflicts with the Wednesday-morning rule), and confirming the supplier's time zone assumption before sending the invite.</p>
+        </div>
+      </section>
+
+      <!-- STEP 4: Task 3 — Spreadsheet -->
+      <section class="step-panel" data-step="4" id="task3Step">
+        <div class="step-tag">Task 3 of 8</div>
+        <h2>Spreadsheet</h2>
+        <p>Clean this customer/contact spreadsheet: standardize fields, flag duplicates, note missing required information, and describe your rules.</p>
+        <div id="task3Rows"></div>
+        <div class="field" style="margin-top:12px;">
+          <label for="task3Rules">Rules you used</label>
+          <textarea id="task3Rules" rows="2" placeholder="e.g. Title Case names, phone as +63 XXX XXX XXXX, one date format"></textarea>
+        </div>
+      </section>
+
+      <!-- STEP 5: Task 4 — Research -->
+      <section class="step-panel" data-step="5" id="task4Step">
+        <div class="step-tag">Task 4 of 8</div>
+        <h2>Research</h2>
+        <p>Research three scheduling/dispatch software options suitable for a five-person home-services team. Compare price, features, limitations, and sources.</p>
+        <div id="task4Rows"></div>
+      </section>
+
+      <!-- STEP 6: Task 5 — SOP -->
+      <section class="step-panel" data-step="6" id="task5Step">
+        <div class="step-tag">Task 5 of 8</div>
+        <h2>SOP</h2>
+        <div class="brief-box">"Every time a new customer books a job, add them to the schedule and send a confirmation text." — turn this recurring instruction into a usable one-page SOP.</div>
+        <div id="task5Fields"></div>
+      </section>
+
+      <!-- STEP 7: Task 6 — Task management -->
+      <section class="step-panel" data-step="7" id="task6Step">
+        <div class="step-tag">Task 6 of 8</div>
+        <h2>Task management</h2>
+        <p>Two competing requests are started below — add at least one more, then identify priority, dependencies, deadlines, status, and next actions.</p>
+        <div id="task6Rows"></div>
+        <button class="btn btn-ghost no-print" id="addTask6RowBtn" type="button">+ Add another task</button>
+      </section>
+
+      <!-- STEP 8: Task 7 — AI assistance -->
+      <section class="step-panel" data-step="8" id="task7Step">
+        <div class="step-tag">Task 7 of 8</div>
+        <h2>AI assistance</h2>
+        <p>Use AI for one appropriate administrative task in this engagement — for example, extracting action items from one of the emails above, or drafting the confirmation text template from Task 5. Keep the source fictional and verify the output manually.</p>
+        <div class="field">
+          <label for="task7Used">What did you use AI for?</label>
+          <textarea id="task7Used" rows="2"></textarea>
+        </div>
+        <div class="field">
+          <label for="task7Verify">What did you check to verify the output before using it?</label>
+          <textarea id="task7Verify" rows="2" placeholder="e.g. checked names/dates against the original, confirmed nothing confidential was pasted in"></textarea>
+        </div>
+      </section>
+
+      <!-- STEP 9: Task 8 — Security -->
+      <section class="step-panel" data-step="9" id="task8Step">
+        <div class="step-tag">Task 8 of 8</div>
+        <h2>Security</h2>
+        <div class="scenario">
+          <div class="scenario-msg">A subcontractor texts asking for the owner's login to the scheduling software "just this once" because they're locked out and have a job starting soon.</div>
+          <p style="margin-bottom:0;">What's the safer response?</p>
+        </div>
+        <div class="option-list" id="task8Options">
+          <button class="option-btn" data-correct="false" data-feedback="Sharing the owner's own login, even &quot;just once,&quot; defeats the point of individual access and is exactly the convenience-over-security tradeoff this course warns against." >Share the owner's login so the subcontractor can get in quickly.</button>
+          <button class="option-btn" data-correct="true" data-feedback="Correct. If the software supports separate logins or delegated access, set that up (or flag it to the owner to set up) rather than sharing credentials — even under time pressure." >Explain that credentials can't be shared, and set up (or ask the owner to set up) the subcontractor's own access instead.</button>
+          <button class="option-btn" data-correct="false" data-feedback="Ignoring a time-sensitive request doesn't protect anything — it just leaves the subcontractor stuck and the owner unaware there's an access gap to fix." >Don't respond until you have time to think about it.</button>
+        </div>
+        <div class="feedback-box" id="task8Feedback"></div>
+        <div class="field" style="margin-top:14px;">
+          <label for="task8Explain">Briefly explain the safer action and the escalation path (who needs to know, and what should happen next).</label>
+          <textarea id="task8Explain" rows="3"></textarea>
+        </div>
+      </section>
+
+      <!-- STEP 10: Final submission checklist -->
+      <section class="step-panel" data-step="10" id="finalChecklistStep">
+        <div class="step-tag">Before you submit</div>
+        <h2>Final submission checklist</h2>
+        <p>Check each item honestly against the 8 tasks you just completed.</p>
+        <div class="final-checklist" id="finalChecklist"></div>
+      </section>
+
+      <!-- COMPLETION -->
+      <section class="step-panel" data-step="11" id="completionStep">
+        <div class="completion-panel">
+          <div class="stamp" style="font-size:1.05rem;padding:12px 22px;">✓ Final Project Complete</div>
+          <h2 style="margin-top:18px;">You've finished the course.</h2>
+          <p class="wrap-narrow" style="padding:0;">All 13 lessons and the Final Simulated Client Project are done. Together with your 13 lesson work samples, this project completes your 14-piece starter General Admin VA portfolio.</p>
+          <p class="small wrap-narrow" style="padding:0;">Remember: these are training work samples from a fictional practice environment — genuinely useful evidence of what you practiced, but not paid client work or proof of real experience. Present them that way.</p>
+          <div class="hero-cta center" style="justify-content:center;">
+            <a class="btn btn-kraft" href="/">Back to Course Map</a>
+            <a class="btn btn-ghost" href="https://probinsiyanongva.org" target="_blank" rel="noopener">Explore PVA Academy</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="step-nav no-print" id="stepNav">
+        <button class="btn btn-ghost" id="prevBtn" type="button">← Back</button>
+        <button class="btn btn-primary" id="nextBtn" type="button">Continue →</button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer no-print">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>Probinsiyanong VA — Free General Admin VA Training</div>
+    <a href="/">🏠 Free Training Home</a>
+  </div>
+</footer>
+
+<script src="/shared/progress.js"></script>
+<script src="/shared/lessons-data.js"></script>
+<script src="final-project.js"></script>
+</body>
+</html>

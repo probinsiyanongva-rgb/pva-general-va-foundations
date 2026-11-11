@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 5: Calendar & Appointment Management | PVA Free Training</title>
+<meta name="description" content="Lesson 5 of the free General Admin VA training: working hours, time-zone discipline, protecting focus time, and meeting readiness.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/styles.css">
+<style>
+  .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
+  .lesson-hero .eyebrow{ color:#E7D3A8; }
+  .lesson-hero h1{ color:#fff; margin-bottom: 4px; }
+  .lesson-body{ padding: 40px 0 20px; }
+  .step-card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 30px 28px 32px; }
+  @media (min-width:640px){ .step-card{ padding: 38px 44px 40px; } }
+  .step-tag{ font-family: var(--font-mono); font-size:0.76rem; color: var(--kraft-dark); letter-spacing:0.05em; text-transform:uppercase; font-weight:700; margin-bottom:8px; }
+  .lo-list{ margin:0; padding-left: 1.2em; }
+  .lo-list li{ margin-bottom:6px; }
+  .key-idea{ background: var(--forest); color:#fff; border-radius: var(--radius-md); padding: 20px 24px; margin: 22px 0; }
+  .key-idea .eyebrow{ color:#C9D8C4; }
+  .key-idea p{ margin:0; }
+  .rules-box{ background: var(--paper-dim); border:1px solid var(--line); border-radius: var(--radius-sm); padding: 16px 18px; margin: 16px 0; }
+  .rules-box ul{ margin:0; padding-left:1.2em; }
+  .cal-row{ display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom:12px; border:1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--paper-dim); }
+  @media (min-width:860px){ .cal-row{ grid-template-columns: repeat(5,1fr); align-items:start; } }
+  .cal-row .col-label{ font-family: var(--font-mono); font-size:0.68rem; text-transform:uppercase; color: var(--ink-soft); margin-bottom:4px; }
+  .completion-panel{ text-align:center; padding: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="route-bar no-print">
+  <div class="wrap">
+    <a class="route-home" href="/">🏠 Free Training Home</a>
+    <span class="route-crumb-sep">/</span>
+    <span class="current">Lesson 5</span>
+  </div>
+</div>
+
+<header class="lesson-hero">
+  <div class="wrap">
+    <span class="eyebrow">Lesson 5 of 13</span>
+    <h1>Calendar & Appointment Management</h1>
+    <p style="margin:0;color:#DCE7D8;">Output: Client Calendar Plan</p>
+  </div>
+</header>
+
+<main class="lesson-body">
+  <div class="wrap-narrow">
+
+    <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 8</p>
+
+    <div class="step-card">
+
+      <!-- STEP 1 -->
+      <section class="step-panel active" data-step="1">
+        <div class="step-tag">Learn</div>
+        <h2>Before you start</h2>
+        <p>By the end of this lesson you will be able to:</p>
+        <ul class="lo-list">
+          <li>Schedule meetings without creating avoidable conflicts.</li>
+          <li>Account for time zones, working hours, buffers, and preparation time.</li>
+          <li>Handle confirmations, rescheduling, and meeting details.</li>
+          <li>Follow client-specific scheduling rules.</li>
+        </ul>
+        <div class="key-idea">
+          <span class="eyebrow">Key idea</span>
+          <p>Calendar management is not placing events on a calendar. It is protecting the client's time and making sure commitments fit together.</p>
+        </div>
+      </section>
+
+      <!-- STEP 2: Before scheduling -->
+      <section class="step-panel" data-step="2">
+        <div class="step-tag">Learn</div>
+        <h2>Before scheduling</h2>
+        <ul class="lo-list">
+          <li>Know the client's working hours and preferred meeting windows.</li>
+          <li>Know which meetings require buffers or preparation time.</li>
+          <li>Know whether you have authority to accept, decline, or move meetings.</li>
+          <li>Know the client's relevant time zone(s).</li>
+          <li>Know how cancellations and rescheduling should be handled.</li>
+        </ul>
+      </section>
+
+      <!-- STEP 3: Time-zone discipline -->
+      <section class="step-panel" data-step="3">
+        <div class="step-tag">Learn</div>
+        <h2>Time-zone discipline</h2>
+        <p>Never assume that "3 PM" means the same thing for everyone. Confirm the intended time zone and make the zone visible when communicating with people in different regions.</p>
+      </section>
+
+      <!-- STEP 4: Protect focus and transition time -->
+      <section class="step-panel" data-step="4">
+        <div class="step-tag">Learn</div>
+        <h2>Protect focus and transition time</h2>
+        <p>A calendar that is technically conflict-free can still be operationally unrealistic. Consider travel, preparation, recovery, and focus blocks where the client requires them.</p>
+      </section>
+
+      <!-- STEP 5: Meeting readiness -->
+      <section class="step-panel" data-step="5">
+        <div class="step-tag">Learn</div>
+        <h2>Meeting readiness</h2>
+        <p>A useful event can include the correct title, participants, time zone, meeting link or location, agenda or preparation materials, and relevant notes.</p>
+      </section>
+
+      <!-- STEP 6: Practice — build the client's day -->
+      <section class="step-panel" data-step="6" id="practiceStep">
+        <div class="step-tag">Practice</div>
+        <h2>Build the client's day</h2>
+        <div class="rules-box">
+          <strong>Client rules:</strong>
+          <ul>
+            <li>Working hours 9 AM–5 PM</li>
+            <li>Lunch 12–1 PM</li>
+            <li>No meetings during a 2-hour focus block (time not specified)</li>
+            <li>15-minute buffer before a client presentation</li>
+          </ul>
+          <strong>Requests:</strong>
+          <ul>
+            <li>Team meeting 10–11 AM</li>
+            <li>Vendor call 11 AM–12 PM</li>
+            <li>Presentation 3–4 PM</li>
+            <li>Prospect call "any time Tuesday afternoon"</li>
+          </ul>
+        </div>
+        <div class="field">
+          <label for="dayAnswer">Create a conflict-free schedule, explain any decision you made, and identify anything that needs client confirmation.</label>
+          <textarea id="dayAnswer" rows="5" placeholder="e.g. 10-11 Team meeting, 11-12 Vendor call, ..."></textarea>
+        </div>
+        <button class="btn btn-ghost reveal-btn no-print" id="dayRevealBtn" type="button">Show a model schedule</button>
+        <div class="model-answer" id="dayModel">
+          <strong>One reasonable schedule:</strong>
+          <table class="ref-table" style="margin-top:8px;">
+            <tr><th>Time</th><th>Item</th></tr>
+            <tr><td>9:00–10:00</td><td>Open / prep</td></tr>
+            <tr><td>10:00–11:00</td><td>Team meeting (as requested)</td></tr>
+            <tr><td>11:00–12:00</td><td>Vendor call (as requested)</td></tr>
+            <tr><td>12:00–1:00</td><td>Lunch (protected)</td></tr>
+            <tr><td>1:00–2:45</td><td>Prospect call (within "Tuesday afternoon")</td></tr>
+            <tr><td>2:45–3:00</td><td>15-minute buffer before presentation</td></tr>
+            <tr><td>3:00–4:00</td><td>Presentation (as requested)</td></tr>
+            <tr><td>4:00–5:00</td><td>Open / wrap-up</td></tr>
+          </table>
+          <p style="margin:10px 0 0;"><strong>Needs client confirmation:</strong> the exact time of the 2-hour focus block, since it wasn't specified and could conflict with any of the above; and whether "Tuesday afternoon" has a preferred window for the prospect call.</p>
+        </div>
+      </section>
+
+      <!-- STEP 7: Time-zone scenario -->
+      <section class="step-panel" data-step="7" id="scenarioStep">
+        <div class="step-tag">Practice → Decide</div>
+        <h2>Whose 3 PM?</h2>
+        <div class="scenario">
+          <div class="scenario-msg">The client says, "Let's meet with the Berlin team at 3 PM." The client is in Manila, the Berlin team is in Germany.</div>
+          <p style="margin-bottom:0;">What should you do before sending the invite?</p>
+        </div>
+        <div class="option-list" id="scenarioOptions">
+          <button class="option-btn" data-correct="false" data-feedback="3 PM Manila time and 3 PM Berlin time are different moments — sending the invite without confirming whose 3 PM this is risks a real scheduling mistake." >Send the invite at 3 PM Manila time, since that's the client's time zone.</button>
+          <button class="option-btn" data-correct="true" data-feedback="Correct. Confirm which time zone the client meant, then build the invite with both time zones clearly visible so nobody has to guess." >Confirm with the client which time zone they meant, then send the invite showing both time zones.</button>
+          <button class="option-btn" data-correct="false" data-feedback="Guessing which time zone is convenient for the Berlin team isn't your call to make silently — confirm with the client instead of assuming." >Just pick whichever time zone seems more convenient for the Berlin team.</button>
+        </div>
+        <div class="feedback-box" id="scenarioFeedback"></div>
+      </section>
+
+      <!-- STEP 8: Work sample -->
+      <section class="step-panel" data-step="8" id="workSampleStep">
+        <div class="step-tag">Apply</div>
+        <h2>Work sample: Client Calendar Plan</h2>
+        <p>Log the four requests from this lesson's practice — or your own fictional events — as a real calendar plan.</p>
+
+        <div id="calRows"></div>
+        <button class="btn btn-ghost no-print" id="addRowBtn" type="button">+ Add another event</button>
+
+        <div class="save-reminder no-print">
+          💾 <strong>Save your work now.</strong> Copy your Calendar Plan into a Google Doc or Sheet — that's part of your starter portfolio.
+        </div>
+
+        <div class="export-box" id="exportBox">
+          <span class="eyebrow">Preview / export</span>
+          <div id="exportPreview"></div>
+          <button class="btn btn-ghost no-print" id="printBtn" type="button">🖨️ Print / Save as PDF</button>
+        </div>
+      </section>
+
+      <!-- COMPLETION -->
+      <section class="step-panel" data-step="9" id="completionStep">
+        <div class="completion-panel">
+          <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 5 Processed</div>
+          <h2 style="margin-top:18px;">Nice work.</h2>
+          <p class="wrap-narrow" style="padding:0;">You've practiced building a schedule that respects working hours, buffers, and time zones — and flagging what still needs the client's confirmation instead of guessing.</p>
+          <div class="hero-cta center" style="justify-content:center;">
+            <a class="btn btn-primary" href="/lessons/lesson-06/">Next: Lesson 6 →</a>
+            <a class="btn btn-ghost" href="/">Back to Course Map</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="step-nav no-print" id="stepNav">
+        <button class="btn btn-ghost" id="prevBtn" type="button">← Back</button>
+        <button class="btn btn-primary" id="nextBtn" type="button">Continue →</button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer no-print">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>Probinsiyanong VA — Free General Admin VA Training</div>
+    <a href="/">🏠 Free Training Home</a>
+  </div>
+</footer>
+
+<script src="/shared/progress.js"></script>
+<script src="/shared/lessons-data.js"></script>
+<script src="lesson.js"></script>
+</body>
+</html>

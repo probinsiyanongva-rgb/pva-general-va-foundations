@@ -1,0 +1,349 @@
+/* ==========================================================================
+   PVA Free Training — Shared Design System
+   Signature concept: the site is styled like a well-run admin's filing
+   system — folder tabs for navigation, a stamped mark for completion,
+   index-card layouts for reference material. Nothing decorative that
+   doesn't also describe what admin work actually looks like.
+   ========================================================================== */
+
+:root{
+  /* Brand core (from PVA brand system) */
+  --forest: #1F3D2F;
+  --forest-dark: #142920;
+  --sage: #6E7F3F;
+  --sage-light: #8fa15c;
+
+  /* Supporting palette — kraft/manila office tones, not cream-terracotta */
+  --paper: #FAF8F2;
+  --paper-dim: #F1EDE1;
+  --card: #FFFFFF;
+  --kraft: #C98F4B;
+  --kraft-dark: #A8712F;
+  --ink: #1C2620;
+  --ink-soft: #4B564C;
+  --line: #DCD5C4;
+  --line-soft: #E8E3D4;
+  --danger: #A8402F;
+  --ok: #2F6B45;
+
+  /* Type */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Layout */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-tab: 0 2px 0 rgba(31,61,47,0.18);
+  --shadow-card: 0 1px 2px rgba(28,38,32,0.06), 0 6px 20px rgba(28,38,32,0.06);
+  --shadow-card-hover: 0 2px 4px rgba(28,38,32,0.08), 0 14px 30px rgba(28,38,32,0.10);
+  --maxw: 1080px;
+}
+
+*, *::before, *::after{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+  *, *::before, *::after{ animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+body{
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,h2,h3,h4{
+  font-family: var(--font-display);
+  color: var(--forest-dark);
+  line-height: 1.15;
+  margin: 0 0 0.5em;
+  font-weight: 600;
+}
+h1{ font-size: clamp(2rem, 4vw, 2.9rem); font-weight: 600; }
+h2{ font-size: clamp(1.4rem, 2.6vw, 1.9rem); }
+h3{ font-size: 1.2rem; }
+p{ margin: 0 0 1em; }
+a{ color: var(--forest); }
+strong{ color: var(--forest-dark); }
+
+.eyebrow{
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kraft-dark);
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 0.6em;
+}
+
+.wrap{ max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+.wrap-narrow{ max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+/* Focus visibility */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+  outline: 3px solid var(--kraft);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Buttons */
+.btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.98rem;
+  padding: 12px 22px;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+  min-height: 44px;
+}
+.btn:active{ transform: translateY(1px); }
+.btn-primary{ background: var(--forest); color: #fff; box-shadow: var(--shadow-tab); }
+.btn-primary:hover{ background: var(--forest-dark); }
+.btn-kraft{ background: var(--kraft); color: #fff; box-shadow: 0 2px 0 rgba(168,113,47,0.35); }
+.btn-kraft:hover{ background: var(--kraft-dark); }
+.btn-ghost{ background: transparent; color: var(--forest); border-color: var(--forest); }
+.btn-ghost:hover{ background: rgba(31,61,47,0.06); }
+.btn:disabled{ opacity: 0.5; cursor: not-allowed; }
+.btn[disabled]:hover{ background: var(--forest); }
+
+/* Route bar (top nav, present on every lesson page) */
+.route-bar{
+  background: var(--forest-dark);
+  color: #EFEAD9;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+.route-bar .wrap{ display: flex; align-items: center; gap: 14px; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap; }
+.route-bar a{ color: #C9D8C4; text-decoration: none; }
+.route-bar a:hover{ color: #fff; text-decoration: underline; }
+.route-home{ display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: #fff !important; }
+.route-crumb-sep{ opacity: 0.45; }
+.route-bar .current{ color: #fff; }
+
+/* Folder tab — the signature motif. Used for lesson cards and section nav. */
+.folder-tab{
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+.folder-tab::before{
+  content: attr(data-tab);
+  position: absolute;
+  top: -22px;
+  left: 18px;
+  background: var(--sage);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 5px 12px 6px;
+  border-radius: 6px 6px 0 0;
+}
+a.folder-tab{ text-decoration: none; color: inherit; display: block; }
+a.folder-tab:hover{ box-shadow: var(--shadow-card-hover); transform: translateY(-2px); }
+
+/* Not-yet-built lesson/section cards — real content, deliberately not a link */
+.lesson-card-soon, .final-card-soon{
+  opacity: 0.62;
+  cursor: default;
+  background-image: repeating-linear-gradient(135deg, rgba(28,38,32,0.025) 0 10px, transparent 10px 20px);
+}
+.lesson-card-soon:hover, .final-card-soon:hover{ box-shadow: var(--shadow-card); transform: none; }
+.final-card-soon{ background: var(--paper-dim); color: var(--ink); }
+.final-card-soon .lnum{ color: var(--kraft-dark); }
+.final-card-soon h3{ color: var(--forest-dark); }
+.final-card-soon .output{ color: var(--ink-soft); }
+
+/* "Processed" stamp — completion indicator */
+.stamp{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1.5px solid var(--ok);
+  color: var(--ok);
+  transform: rotate(-2deg);
+}
+.stamp.pending{ border-color: var(--line); color: var(--ink-soft); transform: none; }
+
+/* Cards */
+.card{
+  background: var(--card);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+}
+
+/* Index-card style callouts for key ideas / reference material */
+.index-card{
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--kraft);
+  border-radius: var(--radius-sm);
+  padding: 20px 22px;
+  margin: 24px 0;
+  box-shadow: var(--shadow-card);
+}
+.index-card .eyebrow{ margin-bottom: 0.35em; }
+
+/* Tables */
+table.ref-table{ width: 100%; border-collapse: collapse; margin: 1.2em 0; font-size: 0.95rem; }
+table.ref-table th, table.ref-table td{ text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+table.ref-table th{ font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--forest); background: var(--paper-dim); }
+table.ref-table tr:last-child td{ border-bottom: none; }
+
+/* Progress rail */
+.progress-rail{ display: flex; align-items: center; gap: 6px; margin: 18px 0; }
+.progress-rail .seg{ flex: 1; height: 6px; border-radius: 4px; background: var(--line-soft); }
+.progress-rail .seg.done{ background: var(--sage); }
+.progress-rail .seg.active{ background: var(--kraft); }
+.progress-label{ font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-soft); }
+
+/* Step panel (lesson flow) */
+.step-panel{ display: none; }
+.step-panel.active{ display: block; }
+.step-nav{ display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+
+/* Scenario / decision UI */
+.scenario{
+  background: var(--paper-dim);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  margin: 18px 0;
+}
+.scenario-msg{
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--forest);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-style: italic;
+  margin: 12px 0;
+}
+.option-list{ display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+.option-btn{
+  text-align: left;
+  background: #fff;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  cursor: pointer;
+  transition: border-color .12s ease, background-color .12s ease;
+}
+.option-btn:hover{ border-color: var(--sage); background: #F7F9F1; }
+.option-btn.selected-correct{ border-color: var(--ok); background: #EEF6EE; }
+.option-btn.selected-incorrect{ border-color: var(--danger); background: #FBEEEC; }
+.option-btn:disabled{ cursor: default; }
+.feedback-box{ display:none; margin-top: 14px; padding: 14px 16px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: #fff; }
+.feedback-box.show{ display: block; }
+.feedback-box.correct{ border-left: 4px solid var(--ok); }
+.feedback-box.incorrect{ border-left: 4px solid var(--danger); }
+
+/* Sorting activity */
+.sort-board{ display: grid; grid-template-columns: 1fr; gap: 18px; margin: 18px 0; }
+@media (min-width: 640px){ .sort-board{ grid-template-columns: 1fr 1fr; } }
+.sort-bin{ background: #fff; border: 2px dashed var(--line); border-radius: var(--radius-md); padding: 14px; min-height: 140px; }
+.sort-bin h4{ margin-bottom: 10px; font-size: 0.95rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.04em; color: var(--forest); }
+.sort-bin.dragover{ border-color: var(--kraft); background: #FBF4E8; }
+.sort-pool{ display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.sort-chip{
+  background: var(--paper-dim);
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 0.92rem;
+  cursor: grab;
+  user-select: none;
+}
+.sort-chip:active{ cursor: grabbing; }
+.sort-chip.placed-correct{ background: #EEF6EE; border-color: var(--ok); }
+.sort-chip.placed-incorrect{ background: #FBEEEC; border-color: var(--danger); }
+.sort-chip[draggable="false"]{ opacity: 0.55; cursor: default; }
+
+/* Form fields (text-entry exercises, work samples) */
+.field{ margin-bottom: 16px; }
+.field label{ display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem; color: var(--forest-dark); }
+.field .hint{ font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 6px; }
+.field textarea, .field input[type="text"]{
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--ink);
+  resize: vertical;
+}
+.field textarea:focus, .field input:focus{ border-color: var(--sage); }
+
+/* Model answer reveal */
+.reveal-btn{ margin-top: 6px; }
+.model-answer{ display: none; margin-top: 10px; background: var(--paper-dim); border-left: 4px solid var(--sage); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.94rem; }
+.model-answer.show{ display: block; }
+
+/* Work sample export box */
+.export-box{
+  background: var(--paper-dim);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  margin: 20px 0;
+}
+.save-reminder{
+  background: #FBF4E8;
+  border: 1px solid var(--kraft);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+/* Print */
+@media print{
+  .no-print{ display: none !important; }
+  body{ background: #fff; }
+}
+
+/* Utility */
+.center{ text-align: center; }
+.mt-lg{ margin-top: 40px; }
+.mb-lg{ margin-bottom: 40px; }
+.small{ font-size: 0.88rem; color: var(--ink-soft); }
+.visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+footer.site-footer{
+  background: var(--forest-dark);
+  color: #C9D8C4;
+  margin-top: 60px;
+  padding: 36px 0;
+  font-size: 0.9rem;
+}
+footer.site-footer a{ color: #EFEAD9; }

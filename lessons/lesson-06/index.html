@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 6: Digital Organization — Files & Documents | PVA Free Training</title>
+<meta name="description" content="Lesson 6 of the free General Admin VA training: folder structure, file naming, version control, and permissions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/styles.css">
+<style>
+  .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
+  .lesson-hero .eyebrow{ color:#E7D3A8; }
+  .lesson-hero h1{ color:#fff; margin-bottom: 4px; }
+  .lesson-body{ padding: 40px 0 20px; }
+  .step-card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 30px 28px 32px; }
+  @media (min-width:640px){ .step-card{ padding: 38px 44px 40px; } }
+  .step-tag{ font-family: var(--font-mono); font-size:0.76rem; color: var(--kraft-dark); letter-spacing:0.05em; text-transform:uppercase; font-weight:700; margin-bottom:8px; }
+  .lo-list{ margin:0; padding-left: 1.2em; }
+  .lo-list li{ margin-bottom:6px; }
+  .key-idea{ background: var(--forest); color:#fff; border-radius: var(--radius-md); padding: 20px 24px; margin: 22px 0; }
+  .key-idea .eyebrow{ color:#C9D8C4; }
+  .key-idea p{ margin:0; }
+  .naming-example{ font-family: var(--font-mono); font-size:0.92rem; background: var(--paper-dim); border:1px dashed var(--line); border-radius: var(--radius-sm); padding: 10px 14px; margin: 10px 0; }
+  .bad-name{ text-decoration: line-through; color: var(--danger); font-family: var(--font-mono); }
+  .folder-row{ display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom:12px; border:1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--paper-dim); }
+  @media (min-width:760px){ .folder-row{ grid-template-columns: 1fr 1.5fr 1.3fr 1fr; align-items:start; } }
+  .folder-row .col-label{ font-family: var(--font-mono); font-size:0.7rem; text-transform:uppercase; color: var(--ink-soft); margin-bottom:4px; }
+  .completion-panel{ text-align:center; padding: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="route-bar no-print">
+  <div class="wrap">
+    <a class="route-home" href="/">🏠 Free Training Home</a>
+    <span class="route-crumb-sep">/</span>
+    <span class="current">Lesson 6</span>
+  </div>
+</div>
+
+<header class="lesson-hero">
+  <div class="wrap">
+    <span class="eyebrow">Lesson 6 of 13</span>
+    <h1>Digital Organization: Files & Documents</h1>
+    <p style="margin:0;color:#DCE7D8;">Output: Folder Structure + Naming Convention</p>
+  </div>
+</header>
+
+<main class="lesson-body">
+  <div class="wrap-narrow">
+
+    <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 8</p>
+
+    <div class="step-card">
+
+      <!-- STEP 1 -->
+      <section class="step-panel active" data-step="1">
+        <div class="step-tag">Learn</div>
+        <h2>Before you start</h2>
+        <p>By the end of this lesson you will be able to:</p>
+        <ul class="lo-list">
+          <li>Create logical folder structures.</li>
+          <li>Use clear file naming and versioning.</li>
+          <li>Manage shared documents responsibly.</li>
+          <li>Understand basic file permissions and access.</li>
+        </ul>
+        <div class="key-idea">
+          <span class="eyebrow">Key idea</span>
+          <p>Good digital organization makes information easier to find, harder to misuse, and less likely to be duplicated or lost.</p>
+        </div>
+      </section>
+
+      <!-- STEP 2: Folder structure -->
+      <section class="step-panel" data-step="2">
+        <div class="step-tag">Learn</div>
+        <h2>Folder structure</h2>
+        <p>Organize around how the business retrieves information. Avoid a single "Miscellaneous" folder that becomes a dumping ground.</p>
+      </section>
+
+      <!-- STEP 3: File naming -->
+      <section class="step-panel" data-step="3">
+        <div class="step-tag">Learn</div>
+        <h2>File naming</h2>
+        <p>A useful naming convention is predictable and searchable.</p>
+        <div class="naming-example">YYYY-MM-DD_Client_Project_Document_v01</div>
+      </section>
+
+      <!-- STEP 4: Version control -->
+      <section class="step-panel" data-step="4">
+        <div class="step-tag">Learn</div>
+        <h2>Version control</h2>
+        <p>Use a clear method for drafts and final versions. Avoid filenames such as:</p>
+        <p class="bad-name">final-final2-reallyfinal.xlsx</p>
+      </section>
+
+      <!-- STEP 5: Permissions -->
+      <section class="step-panel" data-step="5">
+        <div class="step-tag">Learn</div>
+        <h2>Permissions</h2>
+        <p>Give people the access they need for the work, and avoid broad access when narrower access is sufficient.</p>
+      </section>
+
+      <!-- STEP 6: Sorting practice -->
+      <section class="step-panel" data-step="6" id="sortStep">
+        <div class="step-tag">Practice</div>
+        <h2>Sort a chaotic folder</h2>
+        <p>This folder contains duplicate invoices, contracts, screenshots, drafts, reports, outdated files, and unrelated downloads. Drag each item into where it belongs.</p>
+        <div class="sort-pool" id="sortPool"></div>
+        <div class="sort-board" style="grid-template-columns:1fr 1fr;">
+          <div class="sort-bin" id="binAdmin" data-bin="admin"><h4>01_Admin</h4><div class="bin-contents"></div></div>
+          <div class="sort-bin" id="binReports" data-bin="reports"><h4>02_Reports</h4><div class="bin-contents"></div></div>
+          <div class="sort-bin" id="binArchive" data-bin="archive"><h4>03_Archive</h4><div class="bin-contents"></div></div>
+          <div class="sort-bin" id="binFlag" data-bin="flag"><h4>🚩 Flag / Don't File</h4><div class="bin-contents"></div></div>
+        </div>
+        <p class="small" id="sortScore">0 of 8 placed correctly.</p>
+      </section>
+
+      <!-- STEP 7: Version-control scenario -->
+      <section class="step-panel" data-step="7" id="scenarioStep">
+        <div class="step-tag">Practice → Decide</div>
+        <h2>Which file is actually final?</h2>
+        <div class="scenario">
+          <div class="scenario-msg">A shared Drive folder contains: proposal.docx, proposal-v2.docx, proposal-final.docx, and proposal-final2-reallyfinal.docx.</div>
+          <p style="margin-bottom:0;">What's the right first move?</p>
+        </div>
+        <div class="option-list" id="scenarioOptions">
+          <button class="option-btn" data-correct="false" data-feedback="&quot;Final&quot; in a filename isn't reliable evidence on its own — with four candidates, guessing risks using the wrong version." >Use proposal-final.docx since it says "final" in the name.</button>
+          <button class="option-btn" data-correct="true" data-feedback="Correct. Confirm which one is truly current, then rename it following a clear convention (e.g. 2026-08-30_ClientName_Proposal_v03) and archive or remove the rest so this never happens again." >Confirm with the client or teammate which version is current, then rename it clearly and archive the others.</button>
+          <button class="option-btn" data-correct="false" data-feedback="Deleting files you haven't confirmed are safe to remove is risky — you could lose real work. Confirm first, then clean up." >Delete the three older-looking files right away to reduce clutter.</button>
+        </div>
+        <div class="feedback-box" id="scenarioFeedback"></div>
+      </section>
+
+      <!-- STEP 8: Work sample -->
+      <section class="step-panel" data-step="8" id="workSampleStep">
+        <div class="step-tag">Apply</div>
+        <h2>Work sample: Folder Structure + Naming Convention</h2>
+        <p>Three starter folders are filled in from this lesson — add at least one more that fits a fictional client's needs.</p>
+
+        <div id="folderRows"></div>
+        <button class="btn btn-ghost no-print" id="addRowBtn" type="button">+ Add another folder</button>
+
+        <div class="save-reminder no-print">
+          💾 <strong>Save your work now.</strong> Copy this into a Google Doc or Drive folder — that's part of your starter portfolio.
+        </div>
+
+        <div class="export-box" id="exportBox">
+          <span class="eyebrow">Preview / export</span>
+          <div id="exportPreview"></div>
+          <button class="btn btn-ghost no-print" id="printBtn" type="button">🖨️ Print / Save as PDF</button>
+        </div>
+      </section>
+
+      <!-- COMPLETION -->
+      <section class="step-panel" data-step="9" id="completionStep">
+        <div class="completion-panel">
+          <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 6 Processed</div>
+          <h2 style="margin-top:18px;">Nice work.</h2>
+          <p class="wrap-narrow" style="padding:0;">You've practiced turning a chaotic folder into something a teammate could navigate without asking you where anything is.</p>
+          <div class="hero-cta center" style="justify-content:center;">
+            <a class="btn btn-primary" href="/lessons/lesson-07/">Next: Lesson 7 →</a>
+            <a class="btn btn-ghost" href="/">Back to Course Map</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="step-nav no-print" id="stepNav">
+        <button class="btn btn-ghost" id="prevBtn" type="button">← Back</button>
+        <button class="btn btn-primary" id="nextBtn" type="button">Continue →</button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer no-print">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>Probinsiyanong VA — Free General Admin VA Training</div>
+    <a href="/">🏠 Free Training Home</a>
+  </div>
+</footer>
+
+<script src="/shared/progress.js"></script>
+<script src="/shared/lessons-data.js"></script>
+<script src="lesson.js"></script>
+</body>
+</html>
