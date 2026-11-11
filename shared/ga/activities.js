@@ -361,7 +361,8 @@
   // fields: [{ key, label, type:'text'|'textarea', rows?, hint? }]  — simple named fields
   // collect(): returns the answer object for the rule (use with RowTable for row data)
   // watch: extra elements whose edits count (e.g. a RowTable container elsewhere on the step)
-  function WrittenWork({ container, requirementId, ruleName, fields = [], collect, extraEls = [], watch = [], revealButton, revealPanel }) {
+  // reviewNote: optional instruction shown under the transparency note (what to review before saving)
+  function WrittenWork({ container, requirementId, ruleName, fields = [], collect, extraEls = [], watch = [], revealButton, revealPanel, reviewNote }) {
     const s = getStore();
     const inputs = {};
     for (const f of fields) {
@@ -380,7 +381,8 @@
     const list = h("ul", {});
     const status = h("p", { class: "ga-status", role: "status", "aria-live": "polite" });
     const box = h("section", { class: "ga-structure", "aria-label": COPY.checklistHeading },
-      h("h3", {}, COPY.checklistHeading), list, status, h("p", { class: "ga-transparency" }, COPY.transparency));
+      h("h3", {}, COPY.checklistHeading), list, status, h("p", { class: "ga-transparency" }, COPY.transparency),
+      reviewNote ? h("p", { class: "ga-review-note" }, reviewNote) : null);
     container.append(box);
 
     const answer = () => (collect ? collect(inputs) : Object.fromEntries(Object.entries(inputs).map(([k, el]) => [k, el.value])));

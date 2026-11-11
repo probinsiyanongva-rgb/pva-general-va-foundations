@@ -26,7 +26,7 @@
     missingPrefix: "Missing: ",
     checklistHeading: "Automatic structure check",
     transparency:
-      "Checked automatically: required parts, length, structure. Not checked: whether your content is correct or well written — no one reviews this work. Use the self-review checklist before you save it to your portfolio.",
+      "Checked automatically: required parts, length, structure. Not checked: whether your content is correct or well written — no one reviews this work.",
   };
 
   /* ---------------- text helpers ---------------- */

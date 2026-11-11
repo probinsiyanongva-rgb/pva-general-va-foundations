@@ -193,3 +193,31 @@ body.ga-v2 .step-panel h2:focus-visible { outline: 3px solid var(--ga-focus); ou
   body.ga-v2 table.ref-table th,
   body.ga-v2 table.ref-table td { padding: 8px 6px; overflow-wrap: anywhere; }
 }
+
+/* WP3a revision: work-sample preview. Desktop keeps the three-column table;
+   at 600px and below each row becomes a stacked card with its own labels. */
+body.ga-v2 .ga-preview-cards { display: none; list-style: none; margin: 1em 0 0; padding: 0; }
+body.ga-v2 .ga-review-note { font-size: 0.92rem; margin: 10px 0 0; padding-top: 10px; border-top: 1px solid var(--line-soft); }
+@media (max-width: 600px) {
+  body.ga-v2 .ga-preview-table { display: none; }
+  body.ga-v2 .ga-preview-cards { display: grid; gap: 12px; }
+  body.ga-v2 .ga-preview-card { background: #fff; border: 1px solid #857D6C; border-radius: 10px; padding: 12px 14px; }
+  body.ga-v2 .ga-preview-card dl { margin: 0; display: grid; gap: 10px; }
+  body.ga-v2 .ga-preview-field dt { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--forest); margin: 0 0 2px; }
+  body.ga-v2 .ga-preview-field dd { margin: 0; font-size: 0.98rem; line-height: 1.45; overflow-wrap: anywhere; }
+}
+
+/* WP3a revision: at phone widths the nested padding (page, step card, export box,
+   preview card) left ~140px for text at 320px. Tighten it so content gets the width. */
+@media (max-width: 420px) {
+  body.ga-v2 .lesson-body .wrap-narrow { padding: 0 12px; }
+  body.ga-v2 .step-card { padding: 22px 16px 24px; }
+  body.ga-v2 .export-box { padding: 16px 12px; }
+  body.ga-v2 .ga-preview-card { padding: 10px 12px; }
+  /* two-row textareas clipped a typical answer at this width */
+  body.ga-v2 .ga-row textarea { min-height: 5.6em; }
+}
+
+/* WP3a revision: .btn { display:inline-flex } in styles.css overrode the hidden
+   attribute, so "Try again" showed before any answer and after a correct one. */
+body.ga-v2 [hidden] { display: none !important; }

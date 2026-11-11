@@ -73,11 +73,11 @@ test("page loads the v2 library only; legacy progress scripts are gone", async (
 test("wrong answers keep Continue locked on steps 4 and 7; hint-free retry still requires the right answer", async ({ page }) => {
   await toStep(page, 4);
   await expect(next(page)).toBeDisabled();
-  await answerChoice(page, /Work as fast as possible/);
+  await answerChoice(page, /Work as quickly as you can/);
   await expect(active(page).locator(".ga-feedback")).toContainText("Try again.");
   await expect(next(page)).toBeDisabled();
   await active(page).getByRole("button", { name: "Try again" }).click();
-  await answerChoice(page, /Just use whatever spreadsheet skills/);
+  await answerChoice(page, /Rely on the spreadsheet skills/);
   await expect(next(page)).toBeDisabled();
   expect(await passed(page, "l01-pay")).toBe(false);
   await active(page).getByRole("button", { name: "Try again" }).click();
@@ -242,7 +242,7 @@ test("axe: no serious or critical violations on each gated step", async ({ page 
     return r.violations.filter((v) => ["serious", "critical"].includes(v.impact)).map((v) => `${v.id}: ${v.nodes.length}`);
   };
   await toStep(page, 4); expect(await scan()).toEqual([]);
-  await answerChoice(page, /Work as fast as possible/); expect(await scan()).toEqual([]);
+  await answerChoice(page, /Work as quickly as you can/); expect(await scan()).toEqual([]);
   await active(page).getByRole("button", { name: "Try again" }).click();
   await answerChoice(page, /Clarify what "clean" means/);
   await next(page).click(); await next(page).click(); expect(await scan()).toEqual([]);
@@ -260,15 +260,123 @@ for (const width of [375, 320]) {
     await next(page).click(); expect(await overflow(), "step 5").toBeLessThanOrEqual(0);
     await next(page).click();
     expect(await overflow(), "step 6").toBeLessThanOrEqual(0);
-    await shot(page, `l01-sort-${width}`, { fullPage: true });
     await sortAllCorrectly(page);
     await next(page).click(); await answerChoice(page, /Escalate to the client/);
     expect(await overflow(), "step 7").toBeLessThanOrEqual(0);
     await next(page).click();
     await fillTaskMap(page, GOOD_ROWS);
     expect(await overflow(), "step 8").toBeLessThanOrEqual(0);
-    await shot(page, `l01-taskmap-${width}`, { fullPage: true });
     await next(page).click();
     expect(await overflow(), "completion").toBeLessThanOrEqual(0);
   });
 }
+
+// ---------------- WP3a review revisions ----------------
+
+async function choiceTexts(page) {
+  return active(page).locator(".ga-option").evaluateAll((els) => els.map((e) => e.textContent.trim()));
+}
+
+test("answer length is not a cue: the correct option is never the longest (steps 4 and 7)", async ({ page }) => {
+  await toStep(page, 4);
+  let texts = await choiceTexts(page);
+  const pay = texts.find((t) => t.startsWith('Clarify what "clean" means'));
+  expect(texts).toHaveLength(3);
+  expect(Math.max(...texts.map((t) => t.length))).toBeGreaterThan(pay.length);
+  await answerChoice(page, /Clarify what "clean" means/);
+  await next(page).click(); await next(page).click(); await sortAllCorrectly(page); await next(page).click();
+  texts = await choiceTexts(page);
+  const limit = texts.find((t) => t.startsWith("Escalate to the client"));
+  expect(texts).toHaveLength(3);
+  expect(Math.max(...texts.map((t) => t.length))).toBeGreaterThan(limit.length);
+  // and no option is wildly shorter than the rest (within 20% of the longest)
+  for (const t of texts) expect(t.length).toBeGreaterThan(0.8 * Math.max(...texts.map((x) => x.length)));
+});
+
+async function reachTaskMap(page) {
+  await toStep(page, 4); await answerChoice(page, /Clarify what "clean" means/);
+  await next(page).click(); await next(page).click(); await sortAllCorrectly(page);
+  await next(page).click(); await answerChoice(page, /Escalate to the client/);
+  await next(page).click();
+  await expect(label(page)).toHaveText("Step 8 of 8");
+}
+
+test("Task Map check: no reference to a missing checklist; review instruction shown instead", async ({ page }) => {
+  await reachTaskMap(page);
+  const box = active(page).locator(".ga-structure");
+  await expect(box).not.toContainText(/checklist/i);
+  await expect(box.locator(".ga-review-note")).toHaveText(/^Before you save it, review your completed Task Map/);
+});
+
+test("preview: three-column table on desktop", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await reachTaskMap(page);
+  await fillTaskMap(page, GOOD_ROWS);
+  await expect(page.locator("#exportPreview .ga-preview-table")).toBeVisible();
+  await expect(page.locator("#exportPreview .ga-preview-cards")).toBeHidden();
+  await expect(page.locator("#exportPreview .ga-preview-table th")).toHaveText(["Area", "Tasks", "Skills"]);
+  await expect(page.locator("#exportPreview .ga-preview-table tr")).toHaveCount(4);
+});
+
+for (const width of [375, 320]) {
+  test(`preview at ${width}px: one stacked, labelled card per area, readable line length`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await reachTaskMap(page);
+    await fillTaskMap(page, GOOD_ROWS);
+    const cards = page.locator("#exportPreview .ga-preview-card");
+    await expect(page.locator("#exportPreview .ga-preview-table")).toBeHidden();
+    await expect(cards).toHaveCount(3);
+    for (let i = 0; i < 3; i++) {
+      await expect(cards.nth(i).locator("dt")).toHaveText(["Area", "Tasks", "Skills"]);
+      await expect(cards.nth(i).locator("dd")).toHaveText(GOOD_ROWS[i]);
+    }
+    // Readability: each value gets (almost) the full card width, at body size, and the
+    // longest sample task wraps to at most 3 lines.
+    const m = await cards.first().evaluate((card) => {
+      const dd = card.querySelectorAll("dd");
+      const cs = getComputedStyle(dd[1]);
+      return { card: card.clientWidth, dd: Math.min(...[...dd].map((d) => d.clientWidth)), font: parseFloat(cs.fontSize),
+        lines: Math.round(dd[1].getBoundingClientRect().height / parseFloat(cs.lineHeight)) };
+    });
+    expect(m.dd).toBeGreaterThanOrEqual(m.card - 30);
+    expect(m.font).toBeGreaterThanOrEqual(15);
+    expect(m.lines).toBeLessThanOrEqual(3);
+    // edits update the cards live
+    await active(page).locator(".ga-row").first().locator("input").fill("Inbox and messages");
+    await expect(cards.first().locator("dd").first()).toHaveText("Inbox and messages");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+  });
+}
+
+// Handoff evidence: the same screens at desktop, 375 px and 320 px (only when PVA_SHOTS_DIR is set).
+for (const [name, width] of [["desktop", 1280], ["375", 375], ["320", 320]]) {
+  test(`screenshots at ${name}`, async ({ page }) => {
+    test.skip(!SHOTS, "set PVA_SHOTS_DIR to capture handoff screenshots");
+    await page.setViewportSize({ width, height: width > 1000 ? 900 : 780 });
+    const panel = (n) => shot(page, `${name}-${n}`, { fullPage: true });
+    await toStep(page, 4); await panel("step4-scenario");
+    await answerChoice(page, /Clarify what "clean" means/); await panel("step4-correct");
+    await next(page).click(); await next(page).click(); await panel("step6-sort");
+    await sortAllCorrectly(page); await panel("step6-sorted");
+    await next(page).click(); await panel("step7-scenario");
+    await answerChoice(page, /Escalate to the client/);
+    await next(page).click(); await fillTaskMap(page, GOOD_ROWS);
+    await expect(active(page).locator(".ga-status")).toHaveText("Required parts complete");
+    await panel("step8-taskmap");
+    await page.locator("#exportBox").scrollIntoViewIfNeeded();
+    await page.locator("#exportBox").screenshot({ path: `${SHOTS}/${name}-step8-preview.png` });
+    await next(page).click(); await panel("complete");
+  });
+}
+
+test("Try again appears only after a wrong answer (hidden before answering and after a correct answer)", async ({ page }) => {
+  await toStep(page, 4);
+  const retry = active(page).getByRole("button", { name: "Try again" });
+  await expect(retry).toBeHidden();
+  await answerChoice(page, /Work as quickly as you can/);
+  await expect(retry).toBeVisible();
+  await retry.click();
+  await expect(retry).toBeHidden();
+  await answerChoice(page, /Clarify what "clean" means/);
+  await expect(retry).toBeHidden();
+});

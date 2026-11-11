@@ -7,7 +7,9 @@
      l01-sort  step 6  sort      "Task or Skill?"
      l01-limit step 7  scenario  "Recognize the limit"
      l01-ws    step 8  work sample (General Admin Task Map), rule "l01-ws"
-   Option text, feedback and sort items are unchanged from v1 of this lesson.
+   Correct answers, feedback and sort items are unchanged from v1. WP3a revision:
+   the wrong options in both scenarios were reworded so the correct answer is
+   not the longest option (audit M-01 length cue); their meaning is unchanged.
    ========================================================================== */
 (function () {
   "use strict";
@@ -22,7 +24,7 @@
     items: [{ options: [
           {
                 "id": "o1",
-                "text": "Work as fast as possible since the client called it simple.",
+                "text": "Work as quickly as you can — the client called it simple, so a fast turnaround is what they will value most.",
                 "correct": false,
                 "feedback": "Speed matters, but a fast result that's wrong or inconsistent isn't reliable work — and reliability is what the client is actually paying for."
           },
@@ -34,7 +36,7 @@
           },
           {
                 "id": "o3",
-                "text": "Just use whatever spreadsheet skills you already have — the software is what matters most.",
+                "text": "Rely on the spreadsheet skills you already have — on a cleanup task like this, knowing the software is what matters most.",
                 "correct": false,
                 "feedback": "Software knowledge is only one part of the service. Judgment, accuracy, consistency, timeliness, and clarity matter just as much — sometimes more."
           }
@@ -65,7 +67,7 @@
     items: [{ options: [
           {
                 "id": "o1",
-                "text": "Approve the refund — it's faster and keeps the customer happy.",
+                "text": "Approve the refund — it's faster, it keeps the customer happy, and it stops the complaint before it reaches the client.",
                 "correct": false,
                 "feedback": "Approving a refund outside policy is a financial commitment — that's outside a beginner General Admin VA's authority, even if it seems like it would resolve the complaint quickly."
           },
@@ -77,7 +79,7 @@
           },
           {
                 "id": "o3",
-                "text": "Don't respond to the customer until the client happens to bring it up.",
+                "text": "Hold off on replying to the customer until the client happens to bring it up, so you don't say the wrong thing.",
                 "correct": false,
                 "feedback": "Ignoring it doesn't protect the client — it just delays a decision they need to make, and the customer is still waiting. Escalating with the facts is the professional path."
           }
@@ -100,14 +102,22 @@
   });
   const collect = () => ({ rows: table.getRows() });
 
-  // Preview (same table as v1), built with textContent only.
+  // Preview, built with textContent only. Desktop: the v1 three-column table.
+  // Narrow screens (v2.css, <= 600px): one stacked card per area with its own
+  // Area / Tasks / Skills labels. CSS shows exactly one of the two.
   const preview = document.getElementById("exportPreview");
   function renderPreview() {
     const rows = table.getRows();
-    const cell = (tag, text) => h(tag, {}, text && String(text).trim() ? String(text) : "—");
-    preview.replaceChildren(h("table", { class: "ref-table" },
+    const val = (text) => (text && String(text).trim() ? String(text) : "—");
+    const cell = (tag, text) => h(tag, {}, val(text));
+    const desktop = h("table", { class: "ref-table ga-preview-table" },
       h("tr", {}, cell("th", "Area"), cell("th", "Tasks"), cell("th", "Skills")),
-      ...rows.map((r) => h("tr", {}, cell("td", r.area), cell("td", r.tasks), cell("td", r.skills)))));
+      ...rows.map((r) => h("tr", {}, cell("td", r.area), cell("td", r.tasks), cell("td", r.skills))));
+    const field = (label, text) => h("div", { class: "ga-preview-field" }, h("dt", {}, label), h("dd", {}, val(text)));
+    const mobile = h("ol", { class: "ga-preview-cards", "aria-label": "Task Map preview" },
+      ...rows.map((r) => h("li", { class: "ga-preview-card" },
+        h("dl", {}, field("Area", r.area), field("Tasks", r.tasks), field("Skills", r.skills)))));
+    preview.replaceChildren(desktop, mobile);
   }
   const rowsEl = document.getElementById("taskMapRows");
   rowsEl.addEventListener("input", renderPreview);
@@ -120,6 +130,7 @@
     ruleName: "l01-ws",
     watch: [rowsEl],
     collect,
+    reviewNote: "Before you save it, review your completed Task Map: read each row and check that the tasks are specific and the skills are the ones needed to do those tasks well.",
   });
 
   document.getElementById("printBtn").addEventListener("click", () => {

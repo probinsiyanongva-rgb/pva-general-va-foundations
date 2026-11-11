@@ -37,6 +37,7 @@ test("labels never claim correctness for written work (clarification 3)", () => 
   assert.strictEqual(COPY.complete, "Required parts complete");
   assert.ok(!bad.test(COPY.complete) && !bad.test(COPY.checklistHeading));
   assert.match(COPY.transparency, /Not checked/);
+  assert.doesNotMatch(COPY.transparency, /checklist/i); // no lesson has a self-review checklist (WP3a review)
   for (const n of ruleNames) for (const c of V[n]({}).checks) assert.ok(!bad.test(c.label) || /not the suggested/i.test(c.label), `${n}: "${c.label}"`);
   assert.strictEqual(statusLabel({ ok: false, missing: ["A", "B"] }), "Missing: A; B");
 });
