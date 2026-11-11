@@ -1,0 +1,14 @@
+{
+  "name": "pva-general-va-foundations-tests",
+  "private": true,
+  "description": "Regression suite for General Admin VA v2.0. Not deployed as part of the course.",
+  "scripts": {
+    "test:unit": "node --test unit/*.test.js",
+    "test:e2e": "playwright test",
+    "test": "npm run test:unit && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "wrangler": "4.160.0"
+  }
+}

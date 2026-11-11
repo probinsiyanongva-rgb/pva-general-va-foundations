@@ -1,0 +1,137 @@
+{
+  "/customer-support/": {
+    "title": "Customer Support VA — Free Training | Probinsiyanong VA",
+    "h1": "Customer Support VA — Beginner Foundations",
+    "stepPanels": 0,
+    "stepLabel": null,
+    "cards": 13,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-01/": {
+    "title": "Lesson 1: What Customer Support VAs Actually Do | PVA Free Training",
+    "h1": "What Customer Support VAs Actually Do",
+    "stepPanels": 8,
+    "stepLabel": "Step 1 of 7",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-02/": {
+    "title": "Lesson 2: The Support Ticket Workflow | PVA Free Training",
+    "h1": "The Support Ticket Workflow",
+    "stepPanels": 8,
+    "stepLabel": "Step 1 of 7",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-03/": {
+    "title": "Lesson 3: Customer Communication & Tone | PVA Free Training",
+    "h1": "Customer Communication & Tone",
+    "stepPanels": 8,
+    "stepLabel": "Step 1 of 7",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-04/": {
+    "title": "Lesson 4: Email & Chat Support | PVA Free Training",
+    "h1": "Email & Chat Support",
+    "stepPanels": 6,
+    "stepLabel": "Step 1 of 5",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-05/": {
+    "title": "Lesson 5: Knowledge Bases, SOPs & Policy | PVA Free Training",
+    "h1": "Knowledge Bases, SOPs & Policy",
+    "stepPanels": 7,
+    "stepLabel": "Step 1 of 6",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-06/": {
+    "title": "Lesson 6: Investigation Before Response | PVA Free Training",
+    "h1": "Investigation Before Response",
+    "stepPanels": 7,
+    "stepLabel": "Step 1 of 6",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-07/": {
+    "title": "Lesson 7: Orders, Returns, Refunds & E-commerce Support | PVA Free Training",
+    "h1": "Orders, Returns, Refunds & E-commerce Support",
+    "stepPanels": 6,
+    "stepLabel": "Step 1 of 5",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-08/": {
+    "title": "Lesson 8: Difficult Conversations, De-escalation & Escalation | PVA Free Training",
+    "h1": "Difficult Conversations, De-escalation & Escalation",
+    "stepPanels": 7,
+    "stepLabel": "Step 1 of 6",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-09/": {
+    "title": "Lesson 9: Ticket Documentation & Support Operations | PVA Free Training",
+    "h1": "Ticket Documentation & Support Operations",
+    "stepPanels": 7,
+    "stepLabel": "Step 1 of 6",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-10/": {
+    "title": "Lesson 10: Support Metrics & Quality | PVA Free Training",
+    "h1": "Support Metrics & Quality",
+    "stepPanels": 5,
+    "stepLabel": "Step 1 of 4",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-11/": {
+    "title": "Lesson 11: AI-Assisted Customer Support | PVA Free Training",
+    "h1": "AI-Assisted Customer Support",
+    "stepPanels": 7,
+    "stepLabel": "Step 1 of 6",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-12/": {
+    "title": "Lesson 12: Privacy, Security & Customer Data | PVA Free Training",
+    "h1": "Privacy, Security & Customer Data",
+    "stepPanels": 7,
+    "stepLabel": "Step 1 of 6",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/lessons/lesson-13/": {
+    "title": "Lesson 13: Quality Assurance & Continuous Improvement | PVA Free Training",
+    "h1": "Quality Assurance & Continuous Improvement",
+    "stepPanels": 7,
+    "stepLabel": "Step 1 of 6",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  },
+  "/customer-support/final-project/": {
+    "title": "Final Project: Your First Simulated Support Queue | PVA Free Training",
+    "h1": "Your First Simulated Support Queue",
+    "stepPanels": 11,
+    "stepLabel": "Step 1 of 10",
+    "cards": 0,
+    "storageKeys": [],
+    "errors": []
+  }
+}
