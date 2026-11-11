@@ -264,7 +264,9 @@
       ]);
     },
     "l05-ws"(a) {
-      const rows = rowsOf(a).filter((r) => str(r.event).trim() && !(isExampleRow("l05", r.event) && r.example !== false));
+      // Exclude the two example rows only while unchanged. A learner's own row may use the
+      // same event name (the lesson asks them to log the practice requests).
+      const rows = rowsOf(a).filter((r) => str(r.event).trim() && !(r.example === true && isExampleRow("l05", r.event)));
       const valid = rows.filter((r) => hasTime(r.confirmed) && wordCount(r.tz) >= 1);
       return result([
         c("At least 4 events of your own", rows.length >= 4),

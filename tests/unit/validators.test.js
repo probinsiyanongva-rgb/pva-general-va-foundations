@@ -170,6 +170,14 @@ test("unchanged example rows never count (C-02)", () => {
   assert.strictEqual(ok("l10-ws", l10).ok, false);
 });
 
+test("Lesson 5: a learner's own row may use an example's event name; the unchanged example row never counts", () => {
+  const own = (event) => ({ event, confirmed: "10:00 AM", tz: "Manila", notes: "Prep 10 min before" });
+  const rows = [own("Team meeting"), own("Presentation"), own("Vendor call"), own("Prospect call")];
+  assert.equal(V["l05-ws"]({ rows }).ok, true);
+  const withExamples = [{ ...own("Team meeting"), example: true }, { ...own("Presentation"), example: true }, own("Vendor call"), own("Prospect call")];
+  assert.equal(V["l05-ws"]({ rows: withExamples }).ok, false);
+});
+
 test("filler answers fail written rules", () => {
   assert.strictEqual(ok("l03-ws", { clarify: FILLER, progress: FILLER, completion: FILLER, delay: FILLER, error: FILLER }).ok, false);
   assert.strictEqual(ok("l08-ws", { question: FILLER, criteria: FILLER, findings: FILLER, caveats: FILLER, sources: FILLER }).ok, false);

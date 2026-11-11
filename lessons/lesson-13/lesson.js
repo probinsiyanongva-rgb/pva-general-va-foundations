@@ -1,171 +1,98 @@
+/* ==========================================================================
+   Lesson 13 — Quality Assurance & Escalation   (v2.0, WP3b)
+   --------------------------------------------------------------------------
+   Lesson data + wiring only; behaviour comes from shared/ga/activities.js.
+     l13-find     step 4  identify     all 10 real issues, none of the 3 distractors (M-08)
+     l13-fixflag  step 5  scenario     "Fix it, or flag it?"
+     l13-ws       step 6  work sample  QA Checklist + issue report, rule "l13-ws"
+   Step 4: three issue types that are not in the report were added, and the report's
+   giveaway annotations were replaced with what a reviewer would actually see (M-08).
+   Scenario: correct answer and feedback unchanged; wrong options reworded so the
+   correct answer is not the longest (audit M-01).
+   ========================================================================== */
 (function () {
-  const LESSON_ID = 13;
-  const TOTAL_STEPS = 7; // 6 content steps + completion
-  let current = 1;
+  "use strict";
+  const A = window.PVAGAActivities;
+  A.initPage({ lesson: 13 });
 
-  const panels = Array.from(document.querySelectorAll(".step-panel"));
-  const rail = document.getElementById("stepRail");
-  const label = document.getElementById("stepLabel");
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  const stepNav = document.getElementById("stepNav");
+  const CHOICES = {
+    "l13-fixflag": [{ options: [
+      { id: "o1", correct: false,
+        text: "Escalate both the typo and the discount amount to the client, so nothing changes without their approval.",
+        feedback: "Escalating a typo wastes the client's attention on something you're fully capable of fixing yourself — not every issue needs their involvement." },
+      { id: "o2", correct: true,
+        text: "Fix the typo yourself, and flag the discount amount to the client for approval.",
+        feedback: "Correct. Fix the ordinary mistake (the typo) yourself — it's safe and within your authority. Flag the discount, since approving spend isn't your call to make." },
+      { id: "o3", correct: false,
+        text: "Leave both as they are, since the report is otherwise done and the deadline is close.",
+        feedback: "Ignoring the authority issue means an unapproved discount could go out under the client's name — that's exactly the kind of thing that needs to be flagged, not skipped." },
+    ] }],
+  };
+  window.PVAGALesson = { n: 13, choices: CHOICES };
 
-  const gatedSteps = { 4: false, 5: false, 6: false };
-
-  function buildRail() {
-    rail.innerHTML = "";
-    for (let i = 1; i <= TOTAL_STEPS - 1; i++) {
-      const seg = document.createElement("div");
-      seg.className = "seg" + (i < current ? " done" : i === current ? " active" : "");
-      rail.appendChild(seg);
-    }
-  }
-
-  function show(step) {
-    current = step;
-    panels.forEach((p) => p.classList.toggle("active", Number(p.dataset.step) === step));
-    buildRail();
-    if (step >= TOTAL_STEPS) {
-      stepNav.style.display = "none";
-      label.textContent = "Complete";
-      window.PVAFT.markLessonComplete(LESSON_ID);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    stepNav.style.display = "flex";
-    label.textContent = "Step " + step + " of " + (TOTAL_STEPS - 1);
-    prevBtn.style.visibility = step === 1 ? "hidden" : "visible";
-    nextBtn.textContent = step === TOTAL_STEPS - 1 ? "Finish Lesson →" : "Continue →";
-    updateGate();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function updateGate() {
-    if (gatedSteps.hasOwnProperty(current)) nextBtn.disabled = !gatedSteps[current];
-    else nextBtn.disabled = false;
-  }
-
-  prevBtn.addEventListener("click", () => { if (current > 1) show(current - 1); });
-  nextBtn.addEventListener("click", () => { if (current < TOTAL_STEPS) show(current + 1); });
-
-  // ---- Step 4: find the mistakes ----
-  const ISSUE_TYPES = [
-    { key: "date", label: "Wrong date", note: "\"March 32, 2026\" isn't a real date." },
-    { key: "attachment", label: "Missing attachment", note: "The email says a file is attached, but none is." },
-    { key: "status", label: "Inconsistent status", note: "\"Overdue\", \"overdue\", and \"OVERDUE - FOLLOW UP\" are three different values for the same status." },
-    { key: "formula", label: "Incorrect formula", note: "=SUM(B2:B10)*2 doubles the total for no stated reason." },
-    { key: "version", label: "Wrong file version", note: "The filename doesn't reliably say which version is current." },
-    { key: "link", label: "Broken link", note: "The dashboard link returns a 404." },
-    { key: "duplicate", label: "Duplicate record", note: "\"Ana Reyes\" and \"Ana R.\" are the same person, left unresolved." },
-    { key: "filename", label: "Unclear filename", note: "\"Invoice_Tracker_v2_final_reallyfinal.xlsx\" is exactly the pattern this course warned against." },
-    { key: "assumption", label: "Unsupported assumption", note: "Records were deleted based on an assumption, without confirming first." },
-    { key: "exception", label: "Unreported exception", note: "INV-2291 was handled differently and only mentioned after the fact." },
-  ];
-
-  function initFind() {
-    const container = document.getElementById("findChecklist");
-    ISSUE_TYPES.forEach((issue) => {
-      const label = document.createElement("label");
-      label.innerHTML = `<input type="checkbox" value="${issue.key}"> ${issue.label}`;
-      container.appendChild(label);
-    });
-  }
-  initFind();
-
-  document.getElementById("findCheckBtn").addEventListener("click", () => {
-    const checked = new Set(Array.from(document.querySelectorAll("#findChecklist input:checked")).map((c) => c.value));
-    document.querySelectorAll("#findChecklist input").forEach((c) => (c.disabled = true));
-    const foundCount = checked.size;
-    const feedback = document.getElementById("findFeedback");
-    let html = `<strong>All ten issues are actually present in the report:</strong><ul style="margin:8px 0 0;padding-left:1.2em;">`;
-    ISSUE_TYPES.forEach((issue) => {
-      const gotIt = checked.has(issue.key);
-      html += `<li>${gotIt ? "✓" : "○"} <strong>${issue.label}:</strong> ${issue.note}</li>`;
-    });
-    html += "</ul>";
-    feedback.innerHTML = html;
-    feedback.className = "feedback-box show " + (foundCount >= 7 ? "correct" : "incorrect");
-    gatedSteps[4] = true;
-    updateGate();
+  /* ---- Step 4: find the mistakes (l13-find) ---- */
+  A.IdentifyActivity({
+    container: document.getElementById("findActivity"),
+    requirementId: "l13-find",
+    prompt: "Tick every issue type that is in the report.",
+    successText: "All ten real issues found, and none of the issue types that aren't in the report.",
+    options: [
+      { id: "date", text: "Wrong date", correct: true, note: "\"March 32, 2026\" isn't a real date." },
+      { id: "attachment", text: "Missing attachment", correct: true, note: "The email says a file is attached, but none is." },
+      { id: "status", text: "Inconsistent status", correct: true, note: "\"Overdue\", \"overdue\", and \"OVERDUE - FOLLOW UP\" are three different values for the same status." },
+      { id: "formula", text: "Incorrect formula", correct: true, note: "=SUM(B2:B10)*2 doubles the total for no stated reason." },
+      { id: "version", text: "Wrong file version", correct: true, note: "The filename doesn't reliably say which version is current." },
+      { id: "link", text: "Broken link", correct: true, note: "The dashboard link returns a 404." },
+      { id: "duplicate", text: "Duplicate record", correct: true, note: "\"Ana Reyes\" and \"Ana R.\" are the same person, left unresolved." },
+      { id: "filename", text: "Unclear filename", correct: true, note: "\"Invoice_Tracker_v2_final_reallyfinal.xlsx\" is exactly the pattern this course warned against." },
+      { id: "assumption", text: "Unsupported assumption", correct: true, note: "Records were deleted based on an assumption, without confirming first." },
+      { id: "exception", text: "Unreported exception", correct: true, note: "INV-2291 was handled differently and only mentioned after the fact." },
+      { id: "greeting", text: "Missing greeting", correct: false, note: "Not in this report: it opens with \"Hi Team,\"." },
+      { id: "subject", text: "Missing subject line", correct: false, note: "Not in this report: the subject \"Weekly Invoice Update\" is there." },
+      { id: "count", text: "Missing invoice count", correct: false, note: "Not in this report: it says 12 invoices were processed." },
+    ],
   });
 
-  // ---- Step 5: fix-it-yourself vs escalate ----
-  (function wireScenario() {
-    const container = document.getElementById("fixOptions");
-    const feedback = document.getElementById("fixFeedback");
-    const buttons = Array.from(container.querySelectorAll(".option-btn"));
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const correct = btn.dataset.correct === "true";
-        buttons.forEach((b) => (b.disabled = true));
-        btn.classList.add(correct ? "selected-correct" : "selected-incorrect");
-        feedback.textContent = (correct ? "✓ " : "✗ ") + btn.dataset.feedback;
-        feedback.className = "feedback-box show " + (correct ? "correct" : "incorrect");
-        gatedSteps[5] = true;
-        updateGate();
-      });
-    });
-  })();
+  /* ---- Step 5: fix it, or flag it? (l13-fixflag) ---- */
+  A.ChoiceActivity({ container: document.getElementById("fixActivity"), requirementId: "l13-fixflag", items: CHOICES["l13-fixflag"] });
 
-  // ---- Step 6: QA Checklist work sample ----
+  /* ---- Step 6: QA Checklist + issue report (l13-ws) ---- */
   const QA_ITEMS = ["Correct", "Complete", "Consistent", "Compliant", "Clear"];
-  const qaAnswers = {};
-  const exportPreview = document.getElementById("exportPreview");
+  const rowsEl = document.getElementById("qaRows");
+  const qa = A.ChoiceRows({
+    container: rowsEl,
+    idPrefix: "l13-ws",
+    items: QA_ITEMS,
+    choices: [{ value: "pass", label: "Pass" }, { value: "fail", label: "Fail" }],
+    noteLabel: "Evidence",
+    notePlaceholder: "What you checked, and what you found",
+  });
+  const work = A.WrittenWork({
+    container: document.getElementById("qaCheck"),
+    requirementId: "l13-ws",
+    ruleName: "l13-ws",
+    fields: [{ key: "issueReport", label: "Issue report", type: "textarea", rows: 4,
+      hint: "What happened, what you did about it, and what still remains or what you recommend." }],
+    watch: [rowsEl],
+    collect: (inputs) => ({ checks: qa.collect().map((x) => ({ result: x.answer, evidence: x.note })), issueReport: inputs.issueReport.value }),
+    reviewNote: "Before you save it, review your completed QA Checklist: would the evidence convince someone who didn't see the work, and does the issue report say clearly what still needs to happen?",
+  });
+  const checkEl = document.getElementById("qaCheck");
+  const PREVIEW = [{ key: "check", label: "Check" }, { key: "result", label: "Pass/Fail" }, { key: "evidence", label: "Evidence" }];
+  const rows = () => qa.collect().map((x, i) => ({ check: QA_ITEMS[i], result: qa.labelOf(x.answer), evidence: x.note }))
+    .concat([{ check: "Issue report", result: "", evidence: work.inputs.issueReport.value }]);
+  A.livePreview(document.getElementById("exportPreview"), { columns: PREVIEW, getRows: rows, label: "QA checklist preview", watch: [rowsEl, checkEl] });
 
-  function initQa() {
-    const container = document.getElementById("qaRows");
-    QA_ITEMS.forEach((item, idx) => {
-      const row = document.createElement("div");
-      row.className = "checklist-row";
-      row.innerHTML = `
-        <div class="item-label">${item}</div>
-        <div class="yn-toggle">
-          <button type="button" data-idx="${idx}" data-val="pass">Pass</button>
-          <button type="button" data-idx="${idx}" data-val="fail">Fail</button>
-        </div>
-        <div></div>
-        <div><input type="text" class="f-note" data-idx="${idx}" placeholder="Evidence or note"></div>
-      `;
-      container.appendChild(row);
+  document.getElementById("printBtn").addEventListener("click", () => {
+    A.printWorkSample({
+      title: "QA Checklist",
+      subtitle: "Lesson 13 · Quality Assurance & Escalation",
+      sections: [
+        { heading: "Five-question check", table: { columns: PREVIEW.map((c) => c.label), rows: rows().slice(0, QA_ITEMS.length).map((r) => [r.check, r.result, r.evidence]) } },
+        { heading: "Issue report", text: work.inputs.issueReport.value },
+      ],
     });
-    container.querySelectorAll(".yn-toggle button").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const idx = btn.dataset.idx;
-        qaAnswers[idx] = btn.dataset.val;
-        const group = container.querySelectorAll(`.yn-toggle button[data-idx="${idx}"]`);
-        group.forEach((b) => b.classList.remove("active-pass", "active-fail"));
-        btn.classList.add(btn.dataset.val === "pass" ? "active-pass" : "active-fail");
-        updateQaExport();
-      });
-    });
-    container.querySelectorAll(".f-note").forEach((input) => input.addEventListener("input", updateQaExport));
-  }
-  initQa();
+  });
 
-  function updateQaExport() {
-    const notes = document.querySelectorAll(".f-note");
-    let html = '<table class="ref-table"><tr><th>Check</th><th>Pass/Fail</th><th>Evidence or note</th></tr>';
-    let answered = 0;
-    QA_ITEMS.forEach((item, idx) => {
-      const val = qaAnswers[idx] ? qaAnswers[idx].toUpperCase() : "—";
-      if (qaAnswers[idx]) answered++;
-      const note = notes[idx] ? notes[idx].value.trim() : "";
-      html += `<tr><td>${item}</td><td>${val}</td><td>${esc(note) || "—"}</td></tr>`;
-    });
-    html += "</table>";
-    exportPreview.innerHTML = html;
-    gatedSteps[6] = answered >= 3;
-    updateGate();
-  }
-  updateQaExport();
-
-  function esc(str) {
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  document.getElementById("printBtn").addEventListener("click", () => window.print());
-
-  show(1);
+  A.Stepper({ lesson: 13, gates: { 4: "l13-find", 5: "l13-fixflag", 6: "l13-ws" } });
 })();

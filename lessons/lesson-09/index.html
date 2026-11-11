@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
 <style>
   .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
   .lesson-hero .eyebrow{ color:#E7D3A8; }
@@ -30,7 +31,7 @@
   .completion-panel{ text-align:center; padding: 20px 0; }
 </style>
 </head>
-<body>
+<body class="ga-v2">
 
 <div class="route-bar no-print">
   <div class="wrap">
@@ -48,11 +49,11 @@
   </div>
 </header>
 
-<main class="lesson-body">
+<main class="lesson-body" id="main">
   <div class="wrap-narrow">
 
     <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
-    <p class="progress-label no-print" id="stepLabel">Step 1 of 6</p>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 7</p>
 
     <div class="step-card">
 
@@ -96,10 +97,8 @@
         <div class="step-tag">Observe → Practice</div>
         <h2>Spot what's missing</h2>
         <div class="scenario-msg">"Every Friday, check invoices, update the tracker, email anything overdue, then save everything in Drive."</div>
-        <p>Which of the 8 SOP elements does this instruction leave vague or undefined? Check all that apply, then check your answer.</p>
-        <div class="gap-checklist" id="gapChecklist"></div>
-        <button class="btn btn-ghost no-print" id="gapCheckBtn" type="button">Check my answer</button>
-        <div class="feedback-box" id="gapFeedback"></div>
+        <p>Which of the 8 SOP elements does this instruction leave vague or undefined? Tick all that apply, then check your answer.</p>
+        <div id="gapActivity"></div>
       </section>
 
       <!-- STEP 4: Practice — write a stronger SOP -->
@@ -109,7 +108,7 @@
         <p>Turn the Friday invoice instruction into a real SOP.</p>
         <div id="sopPracticeFields"></div>
         <button class="btn btn-ghost reveal-btn no-print" id="sopRevealBtn" type="button">Show a model SOP</button>
-        <div class="model-answer" id="sopModel">
+        <div class="model-answer" id="sopModel" hidden>
           <table class="ref-table">
             <tr><td><strong>Purpose</strong></td><td>Ensure overdue invoices are identified and followed up on time each week.</td></tr>
             <tr><td><strong>Trigger</strong></td><td>Every Friday, end of business day.</td></tr>
@@ -131,23 +130,37 @@
           <div class="scenario-msg">While following the invoice SOP, you find an overdue invoice for a client who's actively disputing the charge in a separate email thread — the SOP's Exceptions section doesn't mention this situation.</div>
           <p style="margin-bottom:0;">What should you do?</p>
         </div>
-        <div class="option-list" id="scenarioOptions">
-          <button class="option-btn" data-correct="false" data-feedback="The SOP is a guide, not a substitute for judgment — sending an automatic reminder to a client who's actively disputing the charge could make a delicate situation worse." >Send the standard reminder anyway, since the SOP says to.</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. Pause on this one case, flag it to the client, and note the gap so the SOP can be updated — that's exactly what &quot;identify missing steps and exceptions&quot; means in practice." >Pause, flag this specific case to the client, and note it as a gap in the SOP for later.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Silently skipping the invoice without telling anyone leaves the client unaware there's an issue — flagging it is what turns a gap into something the process can improve from." >Skip this invoice quietly and move on to the next one.</button>
-        </div>
-        <div class="feedback-box" id="scenarioFeedback"></div>
+        <div id="exceptionActivity"></div>
       </section>
 
-      <!-- STEP 6: Work sample -->
-      <section class="step-panel" data-step="6" id="workSampleStep">
+      <!-- STEP 6: Follow the SOP (new check, l09-follow) -->
+      <section class="step-panel" data-step="6" id="followStep">
+        <div class="step-tag">Practice → Decide</div>
+        <h2>Follow the SOP</h2>
+        <p>These are the Steps from the invoice SOP:</p>
+        <ol>
+          <li>Pull the current invoice list.</li>
+          <li>Compare against the tracker and flag anything overdue.</li>
+          <li>Update the tracker status.</li>
+          <li>Send the approved reminder email.</li>
+          <li>Save the tracker in the agreed folder using the naming convention.</li>
+        </ol>
+        <div class="scenario">
+          <div class="scenario-msg">It's Friday. You've pulled the invoice list and compared it with the tracker. Three invoices are overdue, and none of them is disputed or on a payment plan.</div>
+          <p style="margin-bottom:0;">What's your next step?</p>
+        </div>
+        <div id="followActivity"></div>
+      </section>
+
+      <!-- STEP 7: Work sample -->
+      <section class="step-panel" data-step="7" id="workSampleStep">
         <div class="step-tag">Apply</div>
         <h2>Work sample: Administrative SOP</h2>
         <p>Pick a different fictional recurring task (e.g. weekly social media posting, monthly report, onboarding a new client) and write its SOP.</p>
-        <div id="sopFinalFields"></div>
+        <div id="sopFinalFields" class="no-print"></div>
 
         <div class="save-reminder no-print">
-          💾 <strong>Save your work now.</strong> Copy this SOP into a Google Doc — that's part of your starter portfolio.
+          💾 <strong>Save your work now.</strong> Your answers are saved only in this browser, and clearing site data or switching devices loses them. Copy your SOP into a Google Doc or Drive folder, or use Print / Save as PDF below, so it's part of your portfolio.
         </div>
 
         <div class="export-box" id="exportBox">
@@ -158,7 +171,7 @@
       </section>
 
       <!-- COMPLETION -->
-      <section class="step-panel" data-step="7" id="completionStep">
+      <section class="step-panel" data-step="8" id="completionStep">
         <div class="completion-panel">
           <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 9 Processed</div>
           <h2 style="margin-top:18px;">Nice work.</h2>
@@ -186,8 +199,10 @@
   </div>
 </footer>
 
-<script src="/shared/progress.js"></script>
-<script src="/shared/lessons-data.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/activities.js"></script>
 <script src="lesson.js"></script>
 </body>
 </html>

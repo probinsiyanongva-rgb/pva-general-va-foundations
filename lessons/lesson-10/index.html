@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
 <style>
   .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
   .lesson-hero .eyebrow{ color:#E7D3A8; }
@@ -28,7 +29,7 @@
   .completion-panel{ text-align:center; padding: 20px 0; }
 </style>
 </head>
-<body>
+<body class="ga-v2">
 
 <div class="route-bar no-print">
   <div class="wrap">
@@ -46,11 +47,11 @@
   </div>
 </header>
 
-<main class="lesson-body">
+<main class="lesson-body" id="main">
   <div class="wrap-narrow">
 
     <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
-    <p class="progress-label no-print" id="stepLabel">Step 1 of 7</p>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 8</p>
 
     <div class="step-card">
 
@@ -101,15 +102,8 @@
       <section class="step-panel" data-step="4" id="sortStep">
         <div class="step-tag">Practice</div>
         <h2>Sort by urgency and importance</h2>
-        <p>Drag each task into the quadrant that fits best.</p>
-        <div class="sort-pool" id="sortPool"></div>
-        <div class="sort-board" style="grid-template-columns:1fr 1fr;">
-          <div class="sort-bin" id="binDoFirst" data-bin="do_first"><h4>Do first (urgent &amp; important)</h4><div class="bin-contents"></div></div>
-          <div class="sort-bin" id="binSchedule" data-bin="schedule"><h4>Schedule (important, not urgent)</h4><div class="bin-contents"></div></div>
-          <div class="sort-bin" id="binQuick" data-bin="quick"><h4>Quick or flag (urgent, low impact)</h4><div class="bin-contents"></div></div>
-          <div class="sort-bin" id="binLater" data-bin="later"><h4>Batch for later (neither)</h4><div class="bin-contents"></div></div>
-        </div>
-        <p class="small" id="sortScore">0 of 6 placed correctly.</p>
+        <p>Put each task in the quadrant that fits best.</p>
+        <div id="sortActivity"></div>
       </section>
 
       <!-- STEP 5: Dependency scenario -->
@@ -120,12 +114,7 @@
           <div class="scenario-msg">The client asks why the newsletter draft (Task B) is late. Task B can't be finished until the product team sends final copy (Task A), which is still pending.</div>
           <p style="margin-bottom:0;">What's the best response?</p>
         </div>
-        <div class="option-list" id="scenarioOptions">
-          <button class="option-btn" data-correct="false" data-feedback="Apologizing without explaining the real cause leaves the client thinking you're behind schedule, when the actual blocker is outside your control." >Apologize and say you'll try to finish it sooner.</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. Naming the dependency clearly shows the client exactly what's blocking progress and who needs to act — not just that you're &quot;behind.&quot;" >Explain that Task B depends on final copy from the product team, which hasn't arrived yet, and ask if they can help follow up.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Starting on placeholder content risks wasted work and confusion once real copy arrives — better to flag the dependency and wait or follow up." >Start drafting with placeholder content so something is ready.</button>
-        </div>
-        <div class="feedback-box" id="scenarioFeedback"></div>
+        <div id="dependencyActivity"></div>
       </section>
 
       <!-- STEP 6: Prioritization-conflict scenario -->
@@ -136,25 +125,31 @@
           <div class="scenario-msg">A vendor emails marked "URGENT" asking for a quick reply. At the same time, the client asked you yesterday to finish a report due today by noon.</div>
           <p style="margin-bottom:0;">Which should you prioritize, and why?</p>
         </div>
-        <div class="option-list" id="conflictOptions">
-          <button class="option-btn" data-correct="false" data-feedback="A vendor's own &quot;URGENT&quot; label doesn't override the client's stated deadline — the client's priorities are what actually define priority here, not how loudly a sender frames their request." >The vendor email, since it's marked "URGENT."</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. The client-defined deadline (today by noon) is a real commitment; the vendor's self-labeled urgency isn't automatically higher priority. A brief acknowledgment to the vendor buys time without dropping the report." >The report due at noon, since that's the client's own deadline — with a brief "got it, will reply shortly" to the vendor.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Splitting focus on both at once usually means neither gets done well, and the deadline that actually matters (the client's) is the one that slips." >Try to do both at the same time.</button>
-        </div>
-        <div class="feedback-box" id="conflictFeedback"></div>
+        <div id="conflictActivity"></div>
       </section>
 
-      <!-- STEP 7: Work sample -->
-      <section class="step-panel" data-step="7" id="workSampleStep">
+      <!-- STEP 7: More work than time (new check, l10-workload) -->
+      <section class="step-panel" data-step="7" id="workloadStep">
+        <div class="step-tag">Practice → Decide</div>
+        <h2>More work than time</h2>
+        <div class="scenario">
+          <div class="scenario-msg">At 10:00 AM the client sends three requests, all "for today": update the client list (about 3 hours), prepare the monthly report (about 4 hours) and research two venues (about 2 hours). You have about 5 working hours left today.</div>
+          <p style="margin-bottom:0;">What do you do?</p>
+        </div>
+        <div id="workloadActivity"></div>
+      </section>
+
+      <!-- STEP 8: Work sample -->
+      <section class="step-panel" data-step="8" id="workSampleStep">
         <div class="step-tag">Apply</div>
         <h2>Work sample: Administrative Task Tracker</h2>
         <p>Two rows are started — add more fictional tasks with different deadlines, dependencies, and priorities.</p>
 
-        <div id="trackerRows"></div>
-        <button class="btn btn-ghost no-print" id="addRowBtn" type="button">+ Add another task</button>
+        <div id="trackerRows" class="no-print"></div>
+        <div id="trackerCheck" class="no-print"></div>
 
         <div class="save-reminder no-print">
-          💾 <strong>Save your work now.</strong> Copy your tracker into a Google Sheet — that's part of your starter portfolio.
+          💾 <strong>Save your work now.</strong> Your answers are saved only in this browser, and clearing site data or switching devices loses them. Copy your tracker into a Google Doc or Drive folder, or use Print / Save as PDF below, so it's part of your portfolio.
         </div>
 
         <div class="export-box" id="exportBox">
@@ -165,7 +160,7 @@
       </section>
 
       <!-- COMPLETION -->
-      <section class="step-panel" data-step="8" id="completionStep">
+      <section class="step-panel" data-step="9" id="completionStep">
         <div class="completion-panel">
           <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 10 Processed</div>
           <h2 style="margin-top:18px;">Nice work.</h2>
@@ -193,8 +188,10 @@
   </div>
 </footer>
 
-<script src="/shared/progress.js"></script>
-<script src="/shared/lessons-data.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/activities.js"></script>
 <script src="lesson.js"></script>
 </body>
 </html>

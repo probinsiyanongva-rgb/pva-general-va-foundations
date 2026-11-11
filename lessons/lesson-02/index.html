@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
 <style>
   .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
   .lesson-hero .eyebrow{ color:#E7D3A8; }
@@ -34,7 +35,7 @@
   .completion-panel{ text-align:center; padding: 20px 0; }
 </style>
 </head>
-<body>
+<body class="ga-v2">
 
 <div class="route-bar no-print">
   <div class="wrap">
@@ -52,7 +53,7 @@
   </div>
 </header>
 
-<main class="lesson-body">
+<main class="lesson-body" id="main">
   <div class="wrap-narrow">
 
     <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
@@ -150,12 +151,9 @@
         <h2>Write your clarification questions</h2>
         <div class="example-msg">"Can you organize the attached contacts spreadsheet and have it ready by tomorrow? Thanks!"</div>
         <p><strong>What is known?</strong> There is a contacts spreadsheet, it needs organization, there is a deadline, and the client expects a completed file.<br><strong>What may be unclear?</strong> What "organize" means, how duplicates should be handled, the required format, where the file should be saved, and the actual deadline time.</p>
-        <div class="field">
-          <label for="clarifyAnswer">Write three clarification questions you'd send back.</label>
-          <textarea id="clarifyAnswer" rows="4" placeholder="1) ...&#10;2) ...&#10;3) ..."></textarea>
-        </div>
+        <div id="clarifyWork"></div>
         <button class="btn btn-ghost reveal-btn no-print" id="clarifyRevealBtn" type="button">Show suggested questions</button>
-        <div class="model-answer" id="clarifyModel">
+        <div class="model-answer" id="clarifyModel" hidden>
           <strong>Suggested answers:</strong> (1) Which fields should be standardized, and is there an existing format? (2) Should duplicates be removed or flagged? (3) Is there a required folder and naming convention?
         </div>
       </section>
@@ -168,12 +166,7 @@
           <div class="scenario-msg">A VA finishes cleaning a client's spreadsheet and immediately messages: "Done! Let me know if you need anything else." The file actually has three blank required fields the VA didn't notice.</div>
           <p style="margin-bottom:0;">Which stage of the workflow did the VA skip?</p>
         </div>
-        <div class="option-list" id="scenarioOptions">
-          <button class="option-btn" data-correct="false" data-feedback="Plan was fine here — the VA knew what to do and when. The problem showed up after the work was done, not before it started.">Plan — the VA never figured out priority or deadline.</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. Reporting &quot;Done&quot; without reviewing accuracy and completeness first skips the Check stage — that's exactly how avoidable mistakes reach the client.">Check — the VA reported completion without reviewing accuracy and completeness first.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Close is about updating trackers/folders after the work is confirmed complete — it's a later problem than this one, which is about work that wasn't actually finished.">Close — the VA didn't update the task tracker.</button>
-        </div>
-        <div class="feedback-box" id="scenarioFeedback"></div>
+        <div id="skipActivity"></div>
       </section>
 
       <!-- STEP 8: Work sample -->
@@ -182,11 +175,11 @@
         <h2>Work sample: Client Request → Action Plan</h2>
         <p>Turn a request into a plan. You can reuse the contacts-spreadsheet example, or write your own.</p>
 
-        <div id="planRows"></div>
-        <button class="btn btn-ghost no-print" id="addRowBtn" type="button">+ Add another request</button>
+        <div id="planRows" class="no-print"></div>
+        <div id="planCheck" class="no-print"></div>
 
         <div class="save-reminder no-print">
-          💾 <strong>Save your work now.</strong> Copy your Action Plan into a Google Doc or Drive folder — that's part of your starter portfolio, and this training doesn't store what you write here.
+          💾 <strong>Save your work now.</strong> Your answers are saved only in this browser, and clearing site data or switching devices loses them. Copy your Action Plan into a Google Doc or Drive folder, or use Print / Save as PDF below, so it's part of your portfolio.
         </div>
 
         <div class="export-box" id="exportBox">
@@ -225,8 +218,10 @@
   </div>
 </footer>
 
-<script src="/shared/progress.js"></script>
-<script src="/shared/lessons-data.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/activities.js"></script>
 <script src="lesson.js"></script>
 </body>
 </html>

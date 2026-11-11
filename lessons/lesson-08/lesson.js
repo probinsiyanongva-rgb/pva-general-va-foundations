@@ -1,204 +1,119 @@
+/* ==========================================================================
+   Lesson 8 — Internet Research & Information Management   (v2.0, WP3b)
+   --------------------------------------------------------------------------
+   Lesson data + wiring only; behaviour comes from shared/ga/activities.js.
+     l08-sources   step 5  sort         6/6
+     l08-compare   step 6  table        rule "l08-compare" (price or "not published", source, date)
+     l08-conflict  step 7  scenario     "Conflicting prices"
+     l08-fact      step 8  triage       NEW check 4 (wording approved 2026-11-11)
+     l08-ws        step 9  work sample  Client Research Brief, rule "l08-ws"
+   Step 6 no longer invites estimates; it adds "Date checked" (audit M-07).
+   Scenario: correct answer and feedback unchanged; wrong options reworded so the
+   correct answer is not the longest (audit M-01).
+   ========================================================================== */
 (function () {
-  const LESSON_ID = 8;
-  const TOTAL_STEPS = 9;
-  let current = 1;
+  "use strict";
+  const A = window.PVAGAActivities;
+  A.initPage({ lesson: 8 });
 
-  const panels = Array.from(document.querySelectorAll(".step-panel"));
-  const rail = document.getElementById("stepRail");
-  const label = document.getElementById("stepLabel");
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  const stepNav = document.getElementById("stepNav");
+  const CHOICES = {
+    "l08-conflict": [{ options: [
+      { id: "o1", correct: false,
+        text: "Report $10/user/month as a reasonable average of the two prices you found.",
+        feedback: "Averaging two prices from different dates produces a number that isn't real — pricing pages change, and the older figure is likely just outdated." },
+      { id: "o2", correct: true,
+        text: "Check the vendor's own pricing page directly and report that, noting the date you checked.",
+        feedback: "Correct. The vendor's own current pricing page is the primary source and most likely to be accurate right now — note the date you checked it." },
+      { id: "o3", correct: false,
+        text: "Report the older $8 figure, since it was the first price you found and it's the lower of the two.",
+        feedback: "The two-year-old figure is very likely stale — pricing changes, and reporting it without checking currency risks giving the client wrong information." },
+    ] }],
+  };
+  window.PVAGALesson = { n: 8, choices: CHOICES };
 
-  const gatedSteps = { 5: false, 6: false, 7: false, 8: false };
+  /* ---- Step 5: judge the sources (l08-sources) ---- */
+  A.SortActivity({
+    container: document.getElementById("sourcesActivity"),
+    requirementId: "l08-sources",
+    bins: [{ id: "primary", label: "Primary source" }, { id: "secondary", label: "Reputable secondary" }, { id: "caution", label: "Treat with caution" }],
+    items: [
+      { id: "s1", text: "The software vendor's own official pricing page", bin: "primary" },
+      { id: "s2", text: "The vendor's official product documentation", bin: "primary" },
+      { id: "s3", text: "A well-known tech review site's comparison, published this month", bin: "secondary" },
+      { id: "s4", text: "A reputable industry publication's roundup, checked for date", bin: "secondary" },
+      { id: "s5", text: "An anonymous forum comment with no sources given", bin: "caution" },
+      { id: "s6", text: "A 5-year-old blog post about pricing", bin: "caution" },
+    ],
+  });
 
-  function buildRail() {
-    rail.innerHTML = "";
-    for (let i = 1; i <= TOTAL_STEPS - 1; i++) {
-      const seg = document.createElement("div");
-      seg.className = "seg" + (i < current ? " done" : i === current ? " active" : "");
-      rail.appendChild(seg);
-    }
-  }
-
-  function show(step) {
-    current = step;
-    panels.forEach((p) => p.classList.toggle("active", Number(p.dataset.step) === step));
-    buildRail();
-    if (step >= TOTAL_STEPS) {
-      stepNav.style.display = "none";
-      label.textContent = "Complete";
-      window.PVAFT.markLessonComplete(LESSON_ID);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    stepNav.style.display = "flex";
-    label.textContent = "Step " + step + " of " + (TOTAL_STEPS - 1);
-    prevBtn.style.visibility = step === 1 ? "hidden" : "visible";
-    nextBtn.textContent = step === TOTAL_STEPS - 1 ? "Finish Lesson →" : "Continue →";
-    updateGate();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function updateGate() {
-    if (gatedSteps.hasOwnProperty(current)) nextBtn.disabled = !gatedSteps[current];
-    else nextBtn.disabled = false;
-  }
-
-  prevBtn.addEventListener("click", () => { if (current > 1) show(current - 1); });
-  nextBtn.addEventListener("click", () => { if (current < TOTAL_STEPS) show(current + 1); });
-
-  // ---- Step 5: sort sources by quality ----
-  const sortItems = [
-    { text: "The software vendor's own official pricing page", answer: "primary" },
-    { text: "The vendor's official product documentation", answer: "primary" },
-    { text: "A well-known tech review site's comparison, published this month", answer: "secondary" },
-    { text: "A reputable industry publication's roundup, checked for date", answer: "secondary" },
-    { text: "An anonymous forum comment with no sources given", answer: "caution" },
-    { text: "A 5-year-old blog post about pricing", answer: "caution" },
+  /* ---- Step 6: compare the options (l08-compare) ---- */
+  const cmpEl = document.getElementById("researchRows");
+  const CMP = [
+    { key: "tool", label: "Tool", type: "text" },
+    { key: "price", label: "Price checked", type: "text", placeholder: "As published, or \"not published\"" },
+    { key: "features", label: "Key features", type: "textarea" },
+    { key: "pros", label: "Pros", type: "textarea" },
+    { key: "cons", label: "Cons", type: "textarea" },
+    { key: "source", label: "Source", type: "text", placeholder: "Link or publisher, e.g. vendor pricing page" },
+    { key: "checked", label: "Date checked", type: "text", placeholder: "e.g. 11 Nov 2026" },
   ];
-  let sortCorrectCount = 0;
-  let sortSelectedChip = null;
+  const cmp = A.RowTable({ container: cmpEl, idPrefix: "l08-compare", rowNoun: "Tool", addLabel: "+ Add another tool", columns: CMP, startRows: 3 });
+  A.WrittenWork({
+    container: document.getElementById("researchCheck"),
+    requirementId: "l08-compare",
+    ruleName: "l08-compare",
+    watch: [cmpEl],
+    collect: () => ({ rows: cmp.getRows() }),
+  });
 
-  function initSort() {
-    const pool = document.getElementById("sortPool");
-    const shuffled = [...sortItems].sort(() => Math.random() - 0.5);
-    shuffled.forEach((item, idx) => {
-      const chip = document.createElement("div");
-      chip.className = "sort-chip";
-      chip.textContent = item.text;
-      chip.draggable = true;
-      chip.dataset.answer = item.answer;
-      chip.dataset.id = "schip-" + idx;
-      chip.tabIndex = 0;
-      chip.setAttribute("role", "button");
-      chip.setAttribute("aria-label", item.text + " — draggable, or press Enter then choose a bin");
-      chip.addEventListener("dragstart", (e) => e.dataTransfer.setData("text/plain", chip.dataset.id));
-      chip.addEventListener("click", () => {
-        if (chip.getAttribute("draggable") === "false") return;
-        document.querySelectorAll(".sort-chip.tap-selected").forEach((c) => c.classList.remove("tap-selected"));
-        chip.classList.add("tap-selected");
-        sortSelectedChip = chip;
-      });
-      chip.id = chip.dataset.id;
-      pool.appendChild(chip);
+  /* ---- Step 7: conflicting prices (l08-conflict) ---- */
+  A.ChoiceActivity({ container: document.getElementById("conflictActivity"), requirementId: "l08-conflict", items: CHOICES["l08-conflict"] });
+
+  /* ---- Step 8: fact, assumption, or needs checking? (l08-fact, new check 4) ---- */
+  A.TriageActivity({
+    container: document.getElementById("factActivity"),
+    requirementId: "l08-fact",
+    categories: [{ value: "fact", label: "Fact (sourced)" }, { value: "assumption", label: "Assumption" }, { value: "verify", label: "Needs verification" }],
+    hint: "For each statement ask two questions. Does a source you can check actually say it? How current and direct is that source? Predictions and estimates have no source.",
+    items: A.shuffle([
+      { id: "f1", text: "The vendor's pricing page, checked today, lists the Team plan at $10 per user per month.", accept: ["fact"], feedback: "Primary source; record the page and today's date." },
+      { id: "f2", text: "The vendor's help center says the free plan allows up to 3 projects.", accept: ["fact"], feedback: "Primary source; record the article and the date you checked it." },
+      { id: "f3", text: "This tool will probably be easy for the whole team to learn.", accept: ["assumption"], feedback: "A prediction; no source states it." },
+      { id: "f4", text: "Switching will save the team about 5 hours a week.", accept: ["assumption"], feedback: "Your estimate; label it as one in the brief." },
+      { id: "f5", text: "A 2023 forum post says the tool has no mobile app.", accept: ["verify"], feedback: "Old, unofficial source; check the vendor's site." },
+      { id: "f6", text: "A review site says it connects to Google Calendar, but doesn't link to the vendor.", accept: ["verify"], feedback: "Secondhand claim; confirm with the vendor." },
+    ]),
+  });
+
+  /* ---- Step 9: Client Research Brief (l08-ws) ---- */
+  const FIELDS = [
+    { key: "question", label: "Client question", type: "textarea", rows: 2, placeholder: "Write it as a question, ending with ?" },
+    { key: "criteria", label: "Criteria", type: "textarea", rows: 2, placeholder: "e.g. price, core features, team size fit" },
+    { key: "findings", label: "Findings", type: "textarea", rows: 4 },
+    { key: "caveats", label: "Important caveats", type: "textarea", rows: 2, placeholder: "e.g. prices checked on a specific date and may change" },
+    { key: "sources", label: "Sources", type: "textarea", rows: 2, placeholder: "One per line, each with where it came from and the date checked" },
+  ];
+  const briefEl = document.getElementById("briefWork");
+  const work = A.WrittenWork({
+    container: briefEl,
+    requirementId: "l08-ws",
+    ruleName: "l08-ws",
+    fields: FIELDS,
+    reviewNote: "Before you save it, review your completed brief: is every price and claim traceable to a source and a date, and are your own estimates labelled as assumptions?",
+  });
+  const rows = () => FIELDS.map((f) => ({ part: f.label, text: work.inputs[f.key].value }));
+  A.livePreview(document.getElementById("exportPreview"), { columns: [{ key: "part", label: "Section" }, { key: "text", label: "Brief" }], getRows: rows, label: "Research brief preview", watch: [briefEl] });
+
+  document.getElementById("printBtn").addEventListener("click", () => {
+    const tools = cmp.getRows().filter((r) => (r.tool || "").trim());
+    A.printWorkSample({
+      title: "Client Research Brief",
+      subtitle: "Lesson 8 · Internet Research & Information Management",
+      sections: rows().map((r) => ({ heading: r.part, text: r.text })).concat(tools.length
+        ? [{ heading: "Comparison", table: { columns: CMP.map((c) => c.label), rows: tools.map((r) => CMP.map((c) => r[c.key])) } }]
+        : []),
     });
+  });
 
-    ["binPrimary", "binSecondary", "binCaution"].forEach((id) => {
-      const bin = document.getElementById(id);
-      bin.addEventListener("dragover", (e) => { e.preventDefault(); bin.classList.add("dragover"); });
-      bin.addEventListener("dragleave", () => bin.classList.remove("dragover"));
-      bin.addEventListener("drop", (e) => {
-        e.preventDefault();
-        bin.classList.remove("dragover");
-        const cid = e.dataTransfer.getData("text/plain");
-        const chip = document.getElementById(cid);
-        if (chip) placeChip(chip, bin);
-      });
-      bin.addEventListener("click", () => {
-        if (sortSelectedChip) { placeChip(sortSelectedChip, bin); sortSelectedChip = null; }
-      });
-    });
-  }
-
-  function placeChip(chip, bin) {
-    if (chip.getAttribute("draggable") === "false") return;
-    const correct = chip.dataset.answer === bin.dataset.bin;
-    chip.classList.add(correct ? "placed-correct" : "placed-incorrect");
-    chip.setAttribute("draggable", "false");
-    chip.classList.remove("tap-selected");
-    chip.style.cursor = "default";
-    bin.querySelector(".bin-contents").appendChild(chip);
-    if (correct) sortCorrectCount++;
-    document.getElementById("sortScore").textContent = sortCorrectCount + " of " + sortItems.length + " placed correctly.";
-    if (document.querySelectorAll(".sort-chip[draggable='false']").length === sortItems.length) {
-      gatedSteps[5] = true;
-      updateGate();
-    }
-  }
-  initSort();
-
-  // ---- Step 6: comparison table ----
-  const researchRows = document.getElementById("researchRows");
-
-  function addResearchRow(prefill) {
-    prefill = prefill || {};
-    const row = document.createElement("div");
-    row.className = "research-row";
-    row.innerHTML = `
-      <div><div class="col-label">Tool</div><input type="text" class="r-tool" value="${esc(prefill.tool || "")}"></div>
-      <div><div class="col-label">Price checked</div><input type="text" class="r-price" value="${esc(prefill.price || "")}"></div>
-      <div><div class="col-label">Key features</div><textarea class="r-features" rows="2">${esc(prefill.features || "")}</textarea></div>
-      <div><div class="col-label">Pros</div><textarea class="r-pros" rows="2"></textarea></div>
-      <div><div class="col-label">Cons</div><textarea class="r-cons" rows="2"></textarea></div>
-      <div><div class="col-label">Source</div><input type="text" class="r-source" value="${esc(prefill.source || "")}"></div>
-    `;
-    researchRows.appendChild(row);
-    row.querySelectorAll("input, textarea").forEach((el) => el.addEventListener("input", checkResearchGate));
-    checkResearchGate();
-  }
-
-  function checkResearchGate() {
-    const rows = Array.from(researchRows.querySelectorAll(".research-row"));
-    let filled = 0;
-    rows.forEach((row) => {
-      const tool = row.querySelector(".r-tool").value.trim();
-      if (tool.length > 0) filled++;
-    });
-    gatedSteps[6] = filled >= 2;
-    updateGate();
-  }
-
-  document.getElementById("addRowBtn").addEventListener("click", () => addResearchRow());
-  addResearchRow({ tool: "" });
-  addResearchRow({ tool: "" });
-  addResearchRow({ tool: "" });
-
-  // ---- Step 7: decision scenario ----
-  (function wireScenario() {
-    const container = document.getElementById("scenarioOptions");
-    const feedback = document.getElementById("scenarioFeedback");
-    const buttons = Array.from(container.querySelectorAll(".option-btn"));
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const correct = btn.dataset.correct === "true";
-        buttons.forEach((b) => (b.disabled = true));
-        btn.classList.add(correct ? "selected-correct" : "selected-incorrect");
-        feedback.textContent = (correct ? "✓ " : "✗ ") + btn.dataset.feedback;
-        feedback.className = "feedback-box show " + (correct ? "correct" : "incorrect");
-        gatedSteps[7] = true;
-        updateGate();
-      });
-    });
-  })();
-
-  // ---- Step 8: Client Research Brief ----
-  const briefInputs = Array.from(document.querySelectorAll(".brief-input"));
-  const exportPreview = document.getElementById("exportPreview");
-  const briefLabels = { question: "Client question", criteria: "Criteria", findings: "Findings", caveats: "Important caveats", sources: "Sources" };
-
-  function updateBriefExport() {
-    let filled = 0;
-    let html = "";
-    briefInputs.forEach((input) => {
-      const val = input.value.trim();
-      if (val.length > 0) filled++;
-      html += `<div style="margin-bottom:12px;"><strong>${briefLabels[input.dataset.key]}:</strong><br>${esc(val) || "<span class='small'>Not written yet.</span>"}</div>`;
-    });
-    exportPreview.innerHTML = html;
-    gatedSteps[8] = filled >= 3;
-    updateGate();
-  }
-
-  function esc(str) {
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  briefInputs.forEach((input) => input.addEventListener("input", updateBriefExport));
-  document.getElementById("printBtn").addEventListener("click", () => window.print());
-  updateBriefExport();
-
-  show(1);
+  A.Stepper({ lesson: 8, gates: { 5: "l08-sources", 6: "l08-compare", 7: "l08-conflict", 8: "l08-fact", 9: "l08-ws" } });
 })();

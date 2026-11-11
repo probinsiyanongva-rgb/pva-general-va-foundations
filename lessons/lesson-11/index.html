@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
 <style>
   .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
   .lesson-hero .eyebrow{ color:#E7D3A8; }
@@ -33,7 +34,7 @@
   .completion-panel{ text-align:center; padding: 20px 0; }
 </style>
 </head>
-<body>
+<body class="ga-v2">
 
 <div class="route-bar no-print">
   <div class="wrap">
@@ -51,11 +52,11 @@
   </div>
 </header>
 
-<main class="lesson-body">
+<main class="lesson-body" id="main">
   <div class="wrap-narrow">
 
     <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
-    <p class="progress-label no-print" id="stepLabel">Step 1 of 7</p>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 8</p>
 
     <div class="step-card">
 
@@ -121,9 +122,7 @@
           "Hi! Can you draft a quick update for our vendor about the delayed shipment, remind me to call the accountant by Friday, and also please schedule a call with the new supplier sometime next week? Also, can you check if the invoice from last month (INV-2291) was already paid? Thanks!" — Dana, Coastal Pet Supplies
         </div>
         <p>An AI tool drafted this action list from the email above. Check the boxes for items that are <strong>accurate and safe to use as-is</strong> — leave unchecked anything that's wrong, invented, or needs correction.</p>
-        <div id="aiItems"></div>
-        <button class="btn btn-ghost no-print" id="verifyCheckBtn" type="button">Check my answer</button>
-        <div class="feedback-box" id="verifyFeedback"></div>
+        <div id="verifyActivity"></div>
       </section>
 
       <!-- STEP 6: Privacy scenario -->
@@ -134,24 +133,28 @@
           <div class="scenario-msg">You want to draft a reply to a customer complaint faster, so you consider pasting the customer's full name, order number, and complaint details into a free public AI chatbot.</div>
           <p style="margin-bottom:0;">What should you do?</p>
         </div>
-        <div class="option-list" id="scenarioOptions">
-          <button class="option-btn" data-correct="false" data-feedback="Pasting real customer data into a public AI tool just because it's convenient is exactly what the privacy rule warns against — convenience isn't a good enough reason." >Paste it in — it's faster and the chatbot is well-known.</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. Use a version with names/identifying details replaced with placeholders, or use only a client-approved AI tool/configuration — follow the client's policy rather than defaulting to whatever's fastest." >Remove or replace identifying details before using AI, or use only a tool the client has approved for this kind of data.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Skipping AI assistance entirely isn't necessary — the issue is how it's used, not whether it's used at all. A safer approach (redacting details, using an approved tool) solves the actual problem." >Don't use AI at all for this task.</button>
-        </div>
-        <div class="feedback-box" id="scenarioFeedback"></div>
+        <div id="privacyActivity"></div>
       </section>
 
-      <!-- STEP 7: Work sample -->
-      <section class="step-panel" data-step="7" id="workSampleStep">
+      <!-- STEP 7: Where AI fits (new check, l11-uses) -->
+      <section class="step-panel" data-step="7" id="usesStep">
+        <div class="step-tag">Practice</div>
+        <h2>Where does AI fit?</h2>
+        <p>Sort each task into a bin.</p>
+        <div id="usesActivity"></div>
+      </section>
+
+      <!-- STEP 8: Work sample -->
+      <section class="step-panel" data-step="8" id="workSampleStep">
         <div class="step-tag">Apply</div>
         <h2>Work sample: AI-Assisted Administrative Workflow</h2>
         <p>Document one AI-assisted task: what the AI contributed, and how you verified it. The four rows from the curriculum's own workflow are started — adapt them to your own example.</p>
 
-        <div id="workflowRows"></div>
+        <div id="workflowRows" class="no-print"></div>
+        <div id="workflowCheck" class="no-print"></div>
 
         <div class="save-reminder no-print">
-          💾 <strong>Save your work now.</strong> Copy this into a Google Doc — that's part of your starter portfolio.
+          💾 <strong>Save your work now.</strong> Your answers are saved only in this browser, and clearing site data or switching devices loses them. Copy your workflow into a Google Doc or Drive folder, or use Print / Save as PDF below, so it's part of your portfolio.
         </div>
 
         <div class="export-box" id="exportBox">
@@ -162,7 +165,7 @@
       </section>
 
       <!-- COMPLETION -->
-      <section class="step-panel" data-step="8" id="completionStep">
+      <section class="step-panel" data-step="9" id="completionStep">
         <div class="completion-panel">
           <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 11 Processed</div>
           <h2 style="margin-top:18px;">Nice work.</h2>
@@ -190,8 +193,10 @@
   </div>
 </footer>
 
-<script src="/shared/progress.js"></script>
-<script src="/shared/lessons-data.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/activities.js"></script>
 <script src="lesson.js"></script>
 </body>
 </html>

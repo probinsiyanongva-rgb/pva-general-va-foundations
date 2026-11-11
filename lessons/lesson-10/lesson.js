@@ -1,190 +1,130 @@
+/* ==========================================================================
+   Lesson 10 — Task Management, Priorities & Deadlines   (v2.0, WP3b)
+   --------------------------------------------------------------------------
+   Lesson data + wiring only; behaviour comes from shared/ga/activities.js.
+     l10-sort        step 4  sort         6/6 (one item reworded per U-03, approved A4)
+     l10-dependency  step 5  scenario     "Why is Task B late?"
+     l10-conflict    step 6  scenario     "Two urgent requests"
+     l10-workload    step 7  scenario     NEW check 6 (wording approved 2026-11-11)
+     l10-ws          step 8  work sample  Administrative Task Tracker, rule "l10-ws"
+   Scenarios: correct answers and feedback unchanged; wrong options reworded so the
+   correct answer is not the longest (audit M-01). The tracker gains Owner (m-04).
+   ========================================================================== */
 (function () {
-  const LESSON_ID = 10;
-  const TOTAL_STEPS = 8; // 7 content steps + completion
-  let current = 1;
+  "use strict";
+  const A = window.PVAGAActivities;
+  A.initPage({ lesson: 10 });
 
-  const panels = Array.from(document.querySelectorAll(".step-panel"));
-  const rail = document.getElementById("stepRail");
-  const label = document.getElementById("stepLabel");
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  const stepNav = document.getElementById("stepNav");
+  const CHOICES = {
+    "l10-dependency": [{ options: [
+      { id: "o1", correct: false,
+        text: "Apologize, say you're running behind on Task B, and promise you'll try to finish it sooner than planned.",
+        feedback: "Apologizing without explaining the real cause leaves the client thinking you're behind schedule, when the actual blocker is outside your control." },
+      { id: "o2", correct: true,
+        text: "Explain that Task B depends on final copy from the product team, which hasn't arrived yet, and ask if they can help follow up.",
+        feedback: "Correct. Naming the dependency clearly shows the client exactly what's blocking progress and who needs to act — not just that you're \"behind.\"" },
+      { id: "o3", correct: false,
+        text: "Start drafting Task B with placeholder content now, so that something is ready to show if the client checks in this afternoon.",
+        feedback: "Starting on placeholder content risks wasted work and confusion once real copy arrives — better to flag the dependency and wait or follow up." },
+    ] }],
+    "l10-conflict": [{ options: [
+      { id: "o1", correct: false,
+        text: "The vendor email first, since it's marked \"URGENT\" and the vendor will be waiting on your answer.",
+        feedback: "A vendor's own \"URGENT\" label doesn't override the client's stated deadline — the client's priorities are what actually define priority here, not how loudly a sender frames their request." },
+      { id: "o2", correct: true,
+        text: "The report due at noon, since that's the client's own deadline — with a brief \"got it, will reply shortly\" to the vendor.",
+        feedback: "Correct. The client-defined deadline (today by noon) is a real commitment; the vendor's self-labeled urgency isn't automatically higher priority. A brief acknowledgment to the vendor buys time without dropping the report." },
+      { id: "o3", correct: false,
+        text: "Try to do both at the same time, switching between the report and the vendor reply so that neither one is left waiting too long.",
+        feedback: "Splitting focus on both at once usually means neither gets done well, and the deadline that actually matters (the client's) is the one that slips." },
+    ] }],
+    "l10-workload": [{
+      hint: "Add up the estimated hours and compare them with the time you have left. Who should decide what happens to the work that won't fit?",
+      options: [
+        { id: "w1", correct: false,
+          text: "Start with the shortest task and keep working into the evening, so all three are done today without asking the client.",
+          feedback: "Unplanned overtime hides the real workload, and rushed work raises errors. The client can't plan around what they don't know." },
+        { id: "w2", correct: false,
+          text: "Work through the requests in the order they arrived, then tell the client at 5:00 PM which ones did not get finished.",
+          feedback: "Arrival order isn't priority, and 5:00 PM is too late for the client to adjust." },
+        { id: "w3", correct: true,
+          text: "Reply now: the three requests total about 9 hours, you have about 5 hours left today, so ask which tasks come first.",
+          feedback: "Correct. Communicate workload early, with numbers, and let the client set priorities." },
+        { id: "w4", correct: false,
+          text: "Do a quick, partial version of all three tasks so each one is at least started, then send everything at 5:00 PM.",
+          feedback: "Three unfinished results usually help less than one or two finished ones. Ask first." },
+      ],
+    }],
+  };
+  window.PVAGALesson = { n: 10, choices: CHOICES };
 
-  const gatedSteps = { 4: false, 5: false, 6: false, 7: false };
+  /* ---- Step 4: urgency and importance (l10-sort) ---- */
+  A.SortActivity({
+    container: document.getElementById("sortActivity"),
+    requirementId: "l10-sort",
+    bins: [
+      { id: "do_first", label: "Do first (urgent & important)" },
+      { id: "schedule", label: "Schedule (important, not urgent)" },
+      { id: "quick", label: "Quick or flag (urgent, low impact)" },
+      { id: "later", label: "Batch for later (neither)" },
+    ],
+    items: [
+      { id: "p1", text: "Client's website is down right now", bin: "do_first" },
+      { id: "p2", text: "Software subscription expires and renews tomorrow", bin: "do_first" },
+      { id: "p3", text: "Prepare a monthly report due in three weeks", bin: "schedule" },
+      { id: "p4", text: "Update the tracker before tomorrow's 9 AM handoff", bin: "schedule" },
+      { id: "p5", text: "Vendor marks a routine email 'ASAP' though it isn't client priority", bin: "quick" },
+      { id: "p6", text: "Reply to a low-priority newsletter comment", bin: "later" },
+    ],
+  });
 
-  function buildRail() {
-    rail.innerHTML = "";
-    for (let i = 1; i <= TOTAL_STEPS - 1; i++) {
-      const seg = document.createElement("div");
-      seg.className = "seg" + (i < current ? " done" : i === current ? " active" : "");
-      rail.appendChild(seg);
-    }
-  }
+  A.ChoiceActivity({ container: document.getElementById("dependencyActivity"), requirementId: "l10-dependency", items: CHOICES["l10-dependency"] });
+  A.ChoiceActivity({ container: document.getElementById("conflictActivity"), requirementId: "l10-conflict", items: CHOICES["l10-conflict"] });
+  A.ChoiceActivity({ container: document.getElementById("workloadActivity"), requirementId: "l10-workload", items: CHOICES["l10-workload"] });
 
-  function show(step) {
-    current = step;
-    panels.forEach((p) => p.classList.toggle("active", Number(p.dataset.step) === step));
-    buildRail();
-    if (step >= TOTAL_STEPS) {
-      stepNav.style.display = "none";
-      label.textContent = "Complete";
-      window.PVAFT.markLessonComplete(LESSON_ID);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    stepNav.style.display = "flex";
-    label.textContent = "Step " + step + " of " + (TOTAL_STEPS - 1);
-    prevBtn.style.visibility = step === 1 ? "hidden" : "visible";
-    nextBtn.textContent = step === TOTAL_STEPS - 1 ? "Finish Lesson →" : "Continue →";
-    updateGate();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function updateGate() {
-    if (gatedSteps.hasOwnProperty(current)) nextBtn.disabled = !gatedSteps[current];
-    else nextBtn.disabled = false;
-  }
-
-  prevBtn.addEventListener("click", () => { if (current > 1) show(current - 1); });
-  nextBtn.addEventListener("click", () => { if (current < TOTAL_STEPS) show(current + 1); });
-
-  // ---- Step 4: urgency/importance sort ----
-  const sortItems = [
-    { text: "Client's website is down right now", answer: "do_first" },
-    { text: "Software subscription expires and renews tomorrow", answer: "do_first" },
-    { text: "Prepare a monthly report due in three weeks", answer: "schedule" },
-    { text: "Update today's task tracker with completed items", answer: "schedule" },
-    { text: "Vendor marks a routine email 'ASAP' though it isn't client priority", answer: "quick" },
-    { text: "Reply to a low-priority newsletter comment", answer: "later" },
+  /* ---- Step 8: Administrative Task Tracker (l10-ws) ---- */
+  const rowsEl = document.getElementById("trackerRows");
+  const COLS = [
+    { key: "task", label: "Task", type: "text" },
+    { key: "owner", label: "Owner", type: "text", placeholder: "Who does it" },
+    { key: "priority", label: "Priority", type: "select", options: ["High", "Medium", "Low"] },
+    { key: "due", label: "Due", type: "text" },
+    { key: "dependency", label: "Dependency", type: "text", placeholder: "What it waits on, or \"—\"" },
+    { key: "status", label: "Status", type: "select", options: ["Not started", "In progress", "Waiting", "Done", "Blocked"] },
+    { key: "next", label: "Next action", type: "text" },
+    { key: "followup", label: "Follow-up", type: "text", placeholder: "e.g. Thu 2 PM" },
   ];
-  let sortCorrectCount = 0;
-  let sortSelectedChip = null;
+  const table = A.RowTable({
+    container: rowsEl,
+    idPrefix: "l10-ws",
+    rowNoun: "Task",
+    addLabel: "+ Add another task",
+    columns: COLS,
+    examples: [
+      { task: "Reply to vendor 'urgent' email", owner: "You", priority: "Low", due: "Today", dependency: "—", status: "Not started", next: "Send brief acknowledgment", followup: "Tomorrow" },
+      { task: "Finish monthly report", owner: "You", priority: "High", due: "Today, noon", dependency: "—", status: "In progress", next: "Finalize numbers section", followup: "—" },
+    ],
+    startRows: 3,
+  });
+  A.livePreview(document.getElementById("exportPreview"), { columns: COLS, getRows: () => table.getRows(), label: "Task tracker preview", watch: [rowsEl] });
 
-  function initSort() {
-    const pool = document.getElementById("sortPool");
-    const shuffled = [...sortItems].sort(() => Math.random() - 0.5);
-    shuffled.forEach((item, idx) => {
-      const chip = document.createElement("div");
-      chip.className = "sort-chip";
-      chip.textContent = item.text;
-      chip.draggable = true;
-      chip.dataset.answer = item.answer;
-      chip.dataset.id = "tchip-" + idx;
-      chip.tabIndex = 0;
-      chip.setAttribute("role", "button");
-      chip.setAttribute("aria-label", item.text + " — draggable, or press Enter then choose a bin");
-      chip.addEventListener("dragstart", (e) => e.dataTransfer.setData("text/plain", chip.dataset.id));
-      chip.addEventListener("click", () => {
-        if (chip.getAttribute("draggable") === "false") return;
-        document.querySelectorAll(".sort-chip.tap-selected").forEach((c) => c.classList.remove("tap-selected"));
-        chip.classList.add("tap-selected");
-        sortSelectedChip = chip;
-      });
-      chip.id = chip.dataset.id;
-      pool.appendChild(chip);
+  A.WrittenWork({
+    container: document.getElementById("trackerCheck"),
+    requirementId: "l10-ws",
+    ruleName: "l10-ws",
+    watch: [rowsEl],
+    collect: () => ({ rows: table.getRows() }),
+    reviewNote: "Before you save it, review your completed tracker: does every task have one owner and a clear next action, and would the client see at a glance what is blocked and why?",
+  });
+
+  document.getElementById("printBtn").addEventListener("click", () => {
+    const filled = table.getRows().filter((r) => COLS.some((c) => r[c.key] && String(r[c.key]).trim()));
+    A.printWorkSample({
+      title: "Administrative Task Tracker",
+      subtitle: "Lesson 10 · Task Management, Priorities & Deadlines",
+      sections: [{ heading: "Task tracker", table: { columns: COLS.map((c) => c.label), rows: filled.map((r) => COLS.map((c) => r[c.key])) } }],
     });
+  });
 
-    ["binDoFirst", "binSchedule", "binQuick", "binLater"].forEach((id) => {
-      const bin = document.getElementById(id);
-      bin.addEventListener("dragover", (e) => { e.preventDefault(); bin.classList.add("dragover"); });
-      bin.addEventListener("dragleave", () => bin.classList.remove("dragover"));
-      bin.addEventListener("drop", (e) => {
-        e.preventDefault();
-        bin.classList.remove("dragover");
-        const cid = e.dataTransfer.getData("text/plain");
-        const chip = document.getElementById(cid);
-        if (chip) placeChip(chip, bin);
-      });
-      bin.addEventListener("click", () => {
-        if (sortSelectedChip) { placeChip(sortSelectedChip, bin); sortSelectedChip = null; }
-      });
-    });
-  }
-
-  function placeChip(chip, bin) {
-    if (chip.getAttribute("draggable") === "false") return;
-    const correct = chip.dataset.answer === bin.dataset.bin;
-    chip.classList.add(correct ? "placed-correct" : "placed-incorrect");
-    chip.setAttribute("draggable", "false");
-    chip.classList.remove("tap-selected");
-    chip.style.cursor = "default";
-    bin.querySelector(".bin-contents").appendChild(chip);
-    if (correct) sortCorrectCount++;
-    document.getElementById("sortScore").textContent = sortCorrectCount + " of " + sortItems.length + " placed correctly.";
-    if (document.querySelectorAll(".sort-chip[draggable='false']").length === sortItems.length) {
-      gatedSteps[4] = true;
-      updateGate();
-    }
-  }
-  initSort();
-
-  // ---- Step 5 & 6: scenarios ----
-  function wireScenario(containerId, feedbackId, gateStep) {
-    const container = document.getElementById(containerId);
-    const feedback = document.getElementById(feedbackId);
-    const buttons = Array.from(container.querySelectorAll(".option-btn"));
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const correct = btn.dataset.correct === "true";
-        buttons.forEach((b) => (b.disabled = true));
-        btn.classList.add(correct ? "selected-correct" : "selected-incorrect");
-        feedback.textContent = (correct ? "✓ " : "✗ ") + btn.dataset.feedback;
-        feedback.className = "feedback-box show " + (correct ? "correct" : "incorrect");
-        gatedSteps[gateStep] = true;
-        updateGate();
-      });
-    });
-  }
-  wireScenario("scenarioOptions", "scenarioFeedback", 5);
-  wireScenario("conflictOptions", "conflictFeedback", 6);
-
-  // ---- Step 7: work sample ----
-  const rowsContainer = document.getElementById("trackerRows");
-  const exportPreview = document.getElementById("exportPreview");
-  const COLS = ["task", "priority", "due", "dependency", "status", "next", "followup"];
-  const COL_LABELS = ["Task", "Priority", "Due", "Dependency", "Status", "Next action", "Follow-up"];
-
-  function addRow(prefill) {
-    prefill = prefill || {};
-    const row = document.createElement("div");
-    row.className = "tracker-row";
-    row.innerHTML = COLS.map((c, i) => `
-      <div>
-        <div class="col-label">${COL_LABELS[i]}</div>
-        <input type="text" class="f-${c}" value="${esc(prefill[c] || "")}">
-      </div>
-    `).join("");
-    rowsContainer.appendChild(row);
-    row.querySelectorAll("input").forEach((el) => el.addEventListener("input", updateExport));
-    updateExport();
-  }
-
-  function updateExport() {
-    const rows = Array.from(rowsContainer.querySelectorAll(".tracker-row"));
-    let filled = 0;
-    let html = '<table class="ref-table"><tr>' + COL_LABELS.map((l) => `<th>${l}</th>`).join("") + "</tr>";
-    rows.forEach((row) => {
-      const vals = COLS.map((c) => row.querySelector(".f-" + c).value.trim());
-      if (vals.some((v) => v.length > 0)) filled++;
-      html += "<tr>" + vals.map((v) => `<td>${esc(v) || "—"}</td>`).join("") + "</tr>";
-    });
-    html += "</table>";
-    exportPreview.innerHTML = html;
-    gatedSteps[7] = filled >= 3;
-    updateGate();
-  }
-
-  function esc(str) {
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  document.getElementById("addRowBtn").addEventListener("click", () => addRow());
-  document.getElementById("printBtn").addEventListener("click", () => window.print());
-
-  addRow({ task: "Reply to vendor 'urgent' email", priority: "Low", due: "Today", dependency: "—", status: "Not started", next: "Send brief acknowledgment", followup: "Tomorrow" });
-  addRow({ task: "Finish monthly report", priority: "High", due: "Today, noon", dependency: "—", status: "In progress", next: "Finalize numbers section", followup: "—" });
-
-  show(1);
+  A.Stepper({ lesson: 10, gates: { 4: "l10-sort", 5: "l10-dependency", 6: "l10-conflict", 7: "l10-workload", 8: "l10-ws" } });
 })();

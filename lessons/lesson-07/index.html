@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
 <style>
   .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
   .lesson-hero .eyebrow{ color:#E7D3A8; }
@@ -45,7 +46,7 @@
   .completion-panel{ text-align:center; padding: 20px 0; }
 </style>
 </head>
-<body>
+<body class="ga-v2">
 
 <div class="route-bar no-print">
   <div class="wrap">
@@ -63,11 +64,11 @@
   </div>
 </header>
 
-<main class="lesson-body">
+<main class="lesson-body" id="main">
   <div class="wrap-narrow">
 
     <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
-    <p class="progress-label no-print" id="stepLabel">Step 1 of 8</p>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 9</p>
 
     <div class="step-card">
 
@@ -137,18 +138,15 @@
       <section class="step-panel" data-step="5" id="stdStep">
         <div class="step-tag">Practice</div>
         <h2>Pick the standardized version</h2>
-        <div id="stdItems"></div>
-        <p class="small" id="stdScore">0 of 4 checked.</p>
+        <div id="stdActivity"></div>
       </section>
 
       <!-- STEP 6: Practice — spot the duplicates -->
       <section class="step-panel" data-step="6" id="dupStep">
         <div class="step-tag">Practice</div>
         <h2>Spot the duplicates</h2>
-        <p>Eight records below include two people entered twice, each with slightly different formatting. Click the <strong>later, duplicate</strong> entry for each — not the first occurrence.</p>
-        <div id="dupList"></div>
-        <button class="btn btn-ghost no-print" id="dupCheckBtn" type="button">Check my answer</button>
-        <div class="feedback-box" id="dupFeedback"></div>
+        <p>Eight records below include two people entered twice, each with slightly different formatting. Tick the <strong>later, duplicate</strong> entry for each — not the first occurrence.</p>
+        <div id="dupActivity"></div>
       </section>
 
       <!-- STEP 7: Decision scenario -->
@@ -159,30 +157,28 @@
           <div class="scenario-msg">While cleaning a contact list, you find a record missing a required email address. The client didn't say what to do about missing fields.</div>
           <p style="margin-bottom:0;">What's the right move?</p>
         </div>
-        <div class="option-list" id="scenarioOptions">
-          <button class="option-btn" data-correct="false" data-feedback="Deleting an incomplete record could mean losing a real contact the client still needs — that's a bigger risk than leaving it flagged." >Delete the incomplete record so the sheet looks clean.</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. Flag it clearly (e.g. a &quot;Missing info&quot; column or note) and let the client decide — don't guess or quietly remove data." >Flag the record for the client's review and leave the field blank with a note.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Inventing a placeholder email creates false data that looks real — worse than an honest blank, since nobody would know to double-check it." >Fill in a placeholder email so no field is blank.</button>
-        </div>
-        <div class="feedback-box" id="scenarioFeedback"></div>
+        <div id="missingActivity"></div>
       </section>
 
-      <!-- STEP 8: Work sample -->
-      <section class="step-panel" data-step="8" id="workSampleStep">
+      <!-- STEP 8: Count and filter (new check, l07-formula) -->
+      <section class="step-panel" data-step="8" id="formulaStep">
+        <div class="step-tag">Practice</div>
+        <h2>Count and filter without losing data</h2>
+        <p>Answer both questions about the contact sheet.</p>
+        <div id="formulaActivity"></div>
+      </section>
+
+      <!-- STEP 9: Work sample -->
+      <section class="step-panel" data-step="9" id="workSampleStep">
         <div class="step-tag">Apply</div>
         <h2>Work sample: Cleaned Client Spreadsheet</h2>
         <p>Keep both the original and cleaned version of a few records, and document the rules you used so another person can understand your changes.</p>
 
-        <div id="cleanRows"></div>
-        <button class="btn btn-ghost no-print" id="addRowBtn" type="button">+ Add another record</button>
-
-        <div class="field" style="margin-top:16px;">
-          <label for="rulesUsed">Rules you used (capitalization, date format, phone format, etc.)</label>
-          <textarea id="rulesUsed" rows="2" placeholder="e.g. Title Case names, dates as YYYY-MM-DD, phone as +63XXXXXXXXXX"></textarea>
-        </div>
+        <div id="cleanRows" class="no-print"></div>
+        <div id="cleanCheck" class="no-print"></div>
 
         <div class="save-reminder no-print">
-          💾 <strong>Save your work now.</strong> Copy this into a Google Sheet — that's part of your starter portfolio.
+          💾 <strong>Save your work now.</strong> Your answers are saved only in this browser, and clearing site data or switching devices loses them. Copy your cleaned spreadsheet into a Google Doc or Drive folder, or use Print / Save as PDF below, so it's part of your portfolio.
         </div>
 
         <div class="export-box" id="exportBox">
@@ -193,7 +189,7 @@
       </section>
 
       <!-- COMPLETION -->
-      <section class="step-panel" data-step="9" id="completionStep">
+      <section class="step-panel" data-step="10" id="completionStep">
         <div class="completion-panel">
           <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 7 Processed</div>
           <h2 style="margin-top:18px;">Nice work.</h2>
@@ -221,8 +217,10 @@
   </div>
 </footer>
 
-<script src="/shared/progress.js"></script>
-<script src="/shared/lessons-data.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/activities.js"></script>
 <script src="lesson.js"></script>
 </body>
 </html>

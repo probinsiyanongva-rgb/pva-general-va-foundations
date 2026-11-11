@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
 <style>
   .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
   .lesson-hero .eyebrow{ color:#E7D3A8; }
@@ -36,7 +37,7 @@
   .completion-panel{ text-align:center; padding: 20px 0; }
 </style>
 </head>
-<body>
+<body class="ga-v2">
 
 <div class="route-bar no-print">
   <div class="wrap">
@@ -54,7 +55,7 @@
   </div>
 </header>
 
-<main class="lesson-body">
+<main class="lesson-body" id="main">
   <div class="wrap-narrow">
 
     <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
@@ -128,9 +129,7 @@
       <section class="step-panel" data-step="6" id="triageStep">
         <div class="step-tag">Practice</div>
         <h2>Classify the inbox</h2>
-        <p>Pick a category for each message, then check your answer.</p>
-        <div id="triageItems"></div>
-        <p class="small" id="triageScore">0 of 6 checked.</p>
+        <div id="triageActivity"></div>
       </section>
 
       <!-- STEP 7: Authority scenario -->
@@ -141,12 +140,7 @@
           <div class="scenario-msg">Customer email: "If I don't get a full refund today, I'm leaving a 1-star review." This situation isn't covered by the client's standard refund policy.</div>
           <p style="margin-bottom:0;">What should you do?</p>
         </div>
-        <div class="option-list" id="scenarioOptions">
-          <button class="option-btn" data-correct="false" data-feedback="Promising a refund outside policy is a financial commitment — outside a General Admin VA's authority, even under pressure like a review threat.">Reply promising the refund to prevent a bad review.</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. This is a Client review case (outside standard policy) with real urgency. Flag it to the client with the details and let them decide — that's the professional move, not a delay." >Flag it to the client as Client review, noting it's outside standard policy and time-sensitive.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Ignoring an urgent, policy-adjacent email doesn't protect the client — it just lets the situation get worse while nobody who has authority knows about it." >Leave it in the inbox until you have time — it's just one customer.</button>
-        </div>
-        <div class="feedback-box" id="scenarioFeedback"></div>
+        <div id="authorityActivity"></div>
       </section>
 
       <!-- STEP 8: Work sample -->
@@ -155,11 +149,11 @@
         <h2>Work sample: Inbox Triage Sheet</h2>
         <p>Build a real triage sheet. Two rows are started from this lesson's practice — add your own fictional messages too.</p>
 
-        <div id="triageRows"></div>
-        <button class="btn btn-ghost no-print" id="addRowBtn" type="button">+ Add another message</button>
+        <div id="triageRows" class="no-print"></div>
+        <div id="triageCheck" class="no-print"></div>
 
         <div class="save-reminder no-print">
-          💾 <strong>Save your work now.</strong> Copy your Triage Sheet into a Google Doc or Sheet — that's part of your starter portfolio.
+          💾 <strong>Save your work now.</strong> Your answers are saved only in this browser, and clearing site data or switching devices loses them. Copy your Triage Sheet into a Google Doc or Drive folder, or use Print / Save as PDF below, so it's part of your portfolio.
         </div>
 
         <div class="export-box" id="exportBox">
@@ -198,8 +192,10 @@
   </div>
 </footer>
 
-<script src="/shared/progress.js"></script>
-<script src="/shared/lessons-data.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/activities.js"></script>
 <script src="lesson.js"></script>
 </body>
 </html>

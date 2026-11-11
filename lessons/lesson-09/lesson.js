@@ -1,160 +1,113 @@
+/* ==========================================================================
+   Lesson 9 — SOPs, Checklists & Definition of Done   (v2.0, WP3b)
+   --------------------------------------------------------------------------
+   Lesson data + wiring only; behaviour comes from shared/ga/activities.js.
+     l09-gap        step 3  identify     per-element feedback; Purpose and Steps
+                                         accepted either way (U-01, approved A4)
+     l09-practice   step 4  written      8 SOP parts, rule "l09-practice"; model after it passes
+     l09-exception  step 5  scenario     "The SOP doesn't cover this"
+     l09-follow     step 6  scenario     NEW check 5 (approved as written 2026-11-11)
+     l09-ws         step 7  work sample  Administrative SOP, rule "l09-ws"
+   Scenario: correct answer and feedback unchanged; wrong options reworded so the
+   correct answer is not the longest (audit M-01).
+   ========================================================================== */
 (function () {
-  const LESSON_ID = 9;
-  const TOTAL_STEPS = 7; // 6 content steps + completion
-  let current = 1;
+  "use strict";
+  const A = window.PVAGAActivities;
+  A.initPage({ lesson: 9 });
 
-  const panels = Array.from(document.querySelectorAll(".step-panel"));
-  const rail = document.getElementById("stepRail");
-  const label = document.getElementById("stepLabel");
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  const stepNav = document.getElementById("stepNav");
-
-  const gatedSteps = { 3: false, 4: false, 5: false, 6: false };
-
-  function buildRail() {
-    rail.innerHTML = "";
-    for (let i = 1; i <= TOTAL_STEPS - 1; i++) {
-      const seg = document.createElement("div");
-      seg.className = "seg" + (i < current ? " done" : i === current ? " active" : "");
-      rail.appendChild(seg);
-    }
-  }
-
-  function show(step) {
-    current = step;
-    panels.forEach((p) => p.classList.toggle("active", Number(p.dataset.step) === step));
-    buildRail();
-    if (step >= TOTAL_STEPS) {
-      stepNav.style.display = "none";
-      label.textContent = "Complete";
-      window.PVAFT.markLessonComplete(LESSON_ID);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    stepNav.style.display = "flex";
-    label.textContent = "Step " + step + " of " + (TOTAL_STEPS - 1);
-    prevBtn.style.visibility = step === 1 ? "hidden" : "visible";
-    nextBtn.textContent = step === TOTAL_STEPS - 1 ? "Finish Lesson →" : "Continue →";
-    updateGate();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function updateGate() {
-    if (gatedSteps.hasOwnProperty(current)) nextBtn.disabled = !gatedSteps[current];
-    else nextBtn.disabled = false;
-  }
-
-  prevBtn.addEventListener("click", () => { if (current > 1) show(current - 1); });
-  nextBtn.addEventListener("click", () => { if (current < TOTAL_STEPS) show(current + 1); });
-
-  // ---- Step 3: spot-the-gap checklist ----
-  const ELEMENTS = ["Purpose", "Trigger", "Inputs", "Tools/access", "Steps", "Exceptions", "Escalation", "Definition of done"];
-  const MISSING = new Set(["Inputs", "Tools/access", "Steps", "Exceptions", "Escalation", "Definition of done"]);
-
-  function initGap() {
-    const container = document.getElementById("gapChecklist");
-    ELEMENTS.forEach((el, idx) => {
-      const label = document.createElement("label");
-      label.innerHTML = `<input type="checkbox" value="${el}" id="gapChk${idx}"> ${el}`;
-      container.appendChild(label);
-    });
-  }
-  initGap();
-
-  document.getElementById("gapCheckBtn").addEventListener("click", () => {
-    const checked = new Set(Array.from(document.querySelectorAll("#gapChecklist input:checked")).map((c) => c.value));
-    const correct = checked.size === MISSING.size && [...checked].every((v) => MISSING.has(v));
-    const feedback = document.getElementById("gapFeedback");
-    if (correct) {
-      feedback.textContent = "✓ Exactly right — Purpose and Trigger are reasonably clear (why, and when), but Inputs, Tools/access, Steps, Exceptions, Escalation, and Definition of done are all left vague.";
-      feedback.className = "feedback-box show correct";
-    } else {
-      feedback.textContent = "✗ Not quite. The instruction leaves Inputs, Tools/access, Steps, Exceptions, Escalation, and Definition of done vague — only Purpose and Trigger are reasonably clear (why the process exists, and when it starts).";
-      feedback.className = "feedback-box show incorrect";
-    }
-    document.querySelectorAll("#gapChecklist input").forEach((c) => (c.disabled = true));
-    gatedSteps[3] = true;
-    updateGate();
-  });
-
-  // ---- Step 4: write-a-stronger-SOP practice ----
   const SOP_FIELDS = ["Purpose", "Trigger", "Inputs", "Tools/access", "Steps", "Exceptions", "Escalation", "Definition of done"];
 
-  function buildSopFields(containerId, gateStep) {
-    const container = document.getElementById(containerId);
-    SOP_FIELDS.forEach((f) => {
-      const div = document.createElement("div");
-      div.className = "sop-field";
-      div.innerHTML = `<label>${f}</label><textarea rows="2" data-field="${f}"></textarea>`;
-      container.appendChild(div);
-    });
-    if (gateStep) {
-      container.querySelectorAll("textarea").forEach((el) => el.addEventListener("input", () => checkSopGate(container, gateStep)));
-    }
-    return container;
-  }
+  const CHOICES = {
+    "l09-exception": [{ options: [
+      { id: "o1", correct: false,
+        text: "Send the standard reminder anyway, since the SOP says to send one for every overdue invoice.",
+        feedback: "The SOP is a guide, not a substitute for judgment — sending an automatic reminder to a client who's actively disputing the charge could make a delicate situation worse." },
+      { id: "o2", correct: true,
+        text: "Pause, flag this specific case to the client, and note it as a gap in the SOP for later.",
+        feedback: "Correct. Pause on this one case, flag it to the client, and note the gap so the SOP can be updated — that's exactly what \"identify missing steps and exceptions\" means in practice." },
+      { id: "o3", correct: false,
+        text: "Skip this invoice quietly and move on to the next one, so the rest of the run isn't delayed.",
+        feedback: "Silently skipping the invoice without telling anyone leaves the client unaware there's an issue — flagging it is what turns a gap into something the process can improve from." },
+    ] }],
+    "l09-follow": [{
+      hint: "Find where you are in the SOP's numbered steps. What comes next, and does anything here make these invoices an exception?",
+      options: [
+        { id: "f1", correct: false,
+          text: "Write a friendlier reminder for the three clients yourself, because the approved template sounds too formal to you.",
+          feedback: "The SOP says to use the approved reminder. Suggest a template change to the client separately." },
+        { id: "f2", correct: true,
+          text: "Update the tracker status for each of the three invoices, then send the approved reminder email to those clients.",
+          feedback: "Correct. Steps 3 and 4, in order, with the approved template." },
+        { id: "f3", correct: false,
+          text: "Send the reminders right away and update the tracker on Monday, so the clients hear from you before the weekend.",
+          feedback: "Skipping step 3 leaves the tracker wrong over the weekend. The Definition of done requires it updated today." },
+        { id: "f4", correct: false,
+          text: "Save the tracker in Drive now and hold the reminders until next Friday, so you can check the invoices once more.",
+          feedback: "Overdue invoices that aren't exceptions get a reminder this week. Holding them breaks the SOP." },
+      ],
+    }],
+  };
+  window.PVAGALesson = { n: 9, choices: CHOICES };
 
-  function checkSopGate(container, gateStep) {
-    const filled = Array.from(container.querySelectorAll("textarea")).filter((t) => t.value.trim().length > 0).length;
-    gatedSteps[gateStep] = filled >= 4;
-    updateGate();
-  }
-
-  buildSopFields("sopPracticeFields", 4);
-
-  document.getElementById("sopRevealBtn").addEventListener("click", () => {
-    document.getElementById("sopModel").classList.add("show");
-    gatedSteps[4] = true;
-    updateGate();
+  /* ---- Step 3: spot what's missing (l09-gap) ---- */
+  const GAP = {
+    "Purpose": ["either", "Arguable either way. The instruction implies why it exists (keeping overdue invoices followed up) but never says so — ticked or not, this is accepted."],
+    "Trigger": [false, "\"Every Friday\" says when the process starts, so the trigger is reasonably clear."],
+    "Inputs": [true, "It doesn't say which invoice list or which tracker to start from."],
+    "Tools/access": [true, "It doesn't name the system, the tracker or the Drive folder, or what access you need."],
+    "Steps": ["either", "Arguable either way. There is a rough order (check, update, email, save) but no detail on how to do each step — ticked or not, this is accepted."],
+    "Exceptions": [true, "Nothing says what to do with a disputed invoice or a client on a payment plan."],
+    "Escalation": [true, "Nothing says when the client should be involved."],
+    "Definition of done": [true, "Nothing says what \"finished\" looks like."],
+  };
+  A.IdentifyActivity({
+    container: document.getElementById("gapActivity"),
+    requirementId: "l09-gap",
+    prompt: "Tick each element the instruction leaves vague or undefined.",
+    keepOrder: true,
+    explainAll: true,
+    options: SOP_FIELDS.map((f, i) => ({ id: `g${i + 1}`, text: f, correct: GAP[f][0], note: GAP[f][1] })),
   });
 
-  // ---- Step 5: exception scenario ----
-  (function wireScenario() {
-    const container = document.getElementById("scenarioOptions");
-    const feedback = document.getElementById("scenarioFeedback");
-    const buttons = Array.from(container.querySelectorAll(".option-btn"));
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const correct = btn.dataset.correct === "true";
-        buttons.forEach((b) => (b.disabled = true));
-        btn.classList.add(correct ? "selected-correct" : "selected-incorrect");
-        feedback.textContent = (correct ? "✓ " : "✗ ") + btn.dataset.feedback;
-        feedback.className = "feedback-box show " + (correct ? "correct" : "incorrect");
-        gatedSteps[5] = true;
-        updateGate();
-      });
+  /* ---- Step 4: write a stronger SOP (l09-practice); model only after it passes ---- */
+  const sopFields = () => SOP_FIELDS.map((f) => ({ key: f, label: f, type: "textarea", rows: 2 }));
+  A.WrittenWork({
+    container: document.getElementById("sopPracticeFields"),
+    requirementId: "l09-practice",
+    ruleName: "l09-practice",
+    fields: sopFields(),
+    collect: (inputs) => ({ fields: Object.fromEntries(SOP_FIELDS.map((f) => [f, inputs[f].value])) }),
+    revealButton: document.getElementById("sopRevealBtn"),
+    revealPanel: document.getElementById("sopModel"),
+  });
+
+  /* ---- Step 5: the SOP doesn't cover this (l09-exception) ---- */
+  A.ChoiceActivity({ container: document.getElementById("exceptionActivity"), requirementId: "l09-exception", items: CHOICES["l09-exception"] });
+
+  /* ---- Step 6: follow the SOP (l09-follow, new check 5) ---- */
+  A.ChoiceActivity({ container: document.getElementById("followActivity"), requirementId: "l09-follow", items: CHOICES["l09-follow"] });
+
+  /* ---- Step 7: Administrative SOP (l09-ws) ---- */
+  const finalEl = document.getElementById("sopFinalFields");
+  const work = A.WrittenWork({
+    container: finalEl,
+    requirementId: "l09-ws",
+    ruleName: "l09-ws",
+    fields: sopFields(),
+    collect: (inputs) => ({ fields: Object.fromEntries(SOP_FIELDS.map((f) => [f, inputs[f].value])) }),
+    reviewNote: "Before you save it, review your completed SOP: could someone who has never done this task follow it, handle the exceptions, and know when it's done?",
+  });
+  const rows = () => SOP_FIELDS.map((f) => ({ part: f, text: work.inputs[f].value }));
+  A.livePreview(document.getElementById("exportPreview"), { columns: [{ key: "part", label: "SOP part" }, { key: "text", label: "Your SOP" }], getRows: rows, label: "SOP preview", watch: [finalEl] });
+
+  document.getElementById("printBtn").addEventListener("click", () => {
+    A.printWorkSample({
+      title: "Administrative SOP",
+      subtitle: "Lesson 9 · SOPs, Checklists & Definition of Done",
+      sections: rows().map((r) => ({ heading: r.part, text: r.text })),
     });
-  })();
+  });
 
-  // ---- Step 6: work sample (final SOP) ----
-  const finalContainer = buildSopFields("sopFinalFields", null);
-  const exportPreview = document.getElementById("exportPreview");
-
-  function updateFinalExport() {
-    const fields = Array.from(finalContainer.querySelectorAll("textarea"));
-    let filled = 0;
-    let html = '<table class="ref-table">';
-    fields.forEach((f) => {
-      const val = f.value.trim();
-      if (val.length > 0) filled++;
-      html += `<tr><td><strong>${f.dataset.field}</strong></td><td>${esc(val) || "—"}</td></tr>`;
-    });
-    html += "</table>";
-    exportPreview.innerHTML = html;
-    gatedSteps[6] = filled >= 4;
-    updateGate();
-  }
-
-  function esc(str) {
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  finalContainer.querySelectorAll("textarea").forEach((el) => el.addEventListener("input", updateFinalExport));
-  document.getElementById("printBtn").addEventListener("click", () => window.print());
-  updateFinalExport();
-
-  show(1);
+  A.Stepper({ lesson: 9, gates: { 3: "l09-gap", 4: "l09-practice", 5: "l09-exception", 6: "l09-follow", 7: "l09-ws" } });
 })();

@@ -221,3 +221,25 @@ body.ga-v2 .ga-review-note { font-size: 0.92rem; margin: 10px 0 0; padding-top: 
 /* WP3a revision: .btn { display:inline-flex } in styles.css overrode the hidden
    attribute, so "Try again" showed before any answer and after a correct one. */
 body.ga-v2 [hidden] { display: none !important; }
+
+/* WP3b: per-item explanations after a sort check */
+body.ga-v2 .ga-sort-notes { margin: 10px 0 0; padding-left: 1.2em; font-size: 0.92rem; }
+body.ga-v2 .ga-sort-notes li { margin: 4px 0; }
+
+/* WP3b: model answers are shown/hidden with the hidden attribute (revealed only after a valid attempt, M-02). */
+body.ga-v2 .model-answer { display: block; }
+
+/* WP3b: Yes/No checklist rows (Lesson 12) */
+body.ga-v2 fieldset.ga-yn { border: 1px solid #857D6C; border-radius: 10px; padding: 12px 14px; margin: 0 0 12px; min-width: 0; }
+body.ga-v2 .ga-yn-choices { display: flex; gap: 18px; margin: 6px 0 10px; }
+body.ga-v2 .ga-radio { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+body.ga-v2 .ga-radio input { width: 20px; height: 20px; margin: 0; }
+
+/* WP3b: long URLs and file names in pasted reports wrap instead of widening the page (L13, 320px) */
+body.ga-v2 .report-box, body.ga-v2 .email-box, body.ga-v2 .scenario-msg, body.ga-v2 .example-msg { overflow-wrap: anywhere; }
+/* Long item names wrap inside the box (a fieldset legend otherwise sits on the border). */
+body.ga-v2 fieldset.ga-yn > legend { float: left; width: 100%; padding: 0; margin: 0 0 4px; }
+body.ga-v2 fieldset.ga-yn > legend + * { clear: both; }
+
+/* WP3b: schedule time pickers (L5) at body size with a comfortable touch target */
+body.ga-v2 .ga-schedule-row select { font: inherit; min-height: 40px; padding: 4px 8px; border: 1px solid #857D6C; border-radius: 8px; background: #fff; color: inherit; }

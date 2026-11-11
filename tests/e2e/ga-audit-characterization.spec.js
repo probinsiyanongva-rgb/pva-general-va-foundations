@@ -2,15 +2,15 @@
 // A "minimal-effort" learner chooses wrong answers wherever possible and types the
 // fewest filler characters. Correct behaviour is that this learner CANNOT finish.
 //
-// Today every page CAN be finished this way, so each test is marked test.fail():
-// the suite stays green while documenting the defect. When WP3/WP4 fix a page,
-// its test starts passing and Playwright reports "expected to fail but passed" --
-// remove the test.fail() for that page in the same commit.
+// On the v1 pages every page could be finished this way, so each test was marked
+// test.fail(). WP3a/WP3b converted all 13 lessons; only the Final Project (WP4)
+// remains a known defect. When WP4 lands, its test starts passing and Playwright
+// reports "expected to fail but passed" -- empty KNOWN_DEFECT in that commit.
 const { test, expect } = require("@playwright/test");
 
 const LESSONS = Array.from({ length: 13 }, (_, i) => `/lessons/lesson-${String(i + 1).padStart(2, "0")}/`);
-// WP3a: Lesson 1 converted to the v2.0 activity library -- no longer a known defect.
-const CONVERTED = new Set(["/lessons/lesson-01/"]);
+// Lessons converted to the v2.0 activity library (WP3a pilot, WP3b) -- no longer known defects.
+const CONVERTED = new Set(LESSONS); // WP3a (Lesson 1) + WP3b (Lessons 2–13)
 const KNOWN_DEFECT = new Set([...LESSONS, "/final-project/"].filter((u) => !CONVERTED.has(u))); // shrink as WP3/WP4 land
 
 async function nextEnabled(page) {
@@ -64,7 +64,12 @@ async function tryUnlock(page) {
   if (await nextEnabled(page)) return;
 
   const sels = p.locator("select");
-  for (let i = 0; i < (await sels.count()); i++) await sels.nth(i).selectOption("reply");
+  for (let i = 0; i < (await sels.count()); i++) {
+    const sel = sels.nth(i);
+    if (await sel.isDisabled()) continue;
+    const values = await sel.locator("option").evaluateAll((os) => os.map((o) => o.value).filter(Boolean));
+    if (values.length) await sel.selectOption(values.includes("reply") ? "reply" : values[0]); // first choice, no thought
+  }
   for (let i = 0; i < (await p.locator(".check-btn").count()); i++) await p.locator(".check-btn").nth(i).click();
   if (await nextEnabled(page)) return;
 
@@ -73,7 +78,9 @@ async function tryUnlock(page) {
   }
   if (await nextEnabled(page)) return;
 
-  if (await p.locator(".reveal-btn").count()) await p.locator(".reveal-btn").first().click();
+  // v1: the reveal unlocked the step. v2: it stays disabled until the work passes (M-02).
+  const reveal = p.locator(".reveal-btn").first();
+  if ((await reveal.count()) && (await reveal.isEnabled())) await reveal.click();
   if (await nextEnabled(page)) return;
 
   const tog = p.locator('.yn-toggle button[data-val="no"], .yn-toggle button[data-val="fail"]');

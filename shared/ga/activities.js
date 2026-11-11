@@ -74,6 +74,17 @@
   }
   const passed = (id) => getStore().requirementStatus(id).passed;
 
+  // Hint shown after the second failed check (spec: new checks). Never reveals the answer.
+  function hintBox(hint) {
+    const el = h("p", { class: "ga-hint", hidden: true });
+    let fails = 0;
+    return {
+      el,
+      fail() { fails++; if (hint && fails >= 2) { el.textContent = "Hint: " + hint; el.hidden = false; } },
+      pass() { el.hidden = true; },
+    };
+  }
+
   /* ---------------- storage banner (M-03) ---------------- */
   function mountStorageBanner(target) {
     const host = target || document.querySelector("main") || document.body;
@@ -177,9 +188,11 @@
      Sort activity — keyboard + touch + drag (C-03, M-15, m-08)
      ====================================================================== */
   // bins: [{ id, label }], items: [{ id, text, bin, feedback? }]
-  function SortActivity({ container, requirementId, bins, items, random, instructions }) {
+  function SortActivity({ container, requirementId, bins, items, random, instructions, hint }) {
     const s = getStore();
     const already = passed(requirementId);
+    const hints = hintBox(hint);
+    const notesEl = h("ul", { class: "ga-sort-notes", hidden: true });
     const placement = {}; // itemId -> binId
     let selected = null;
     const region = liveRegion();
@@ -223,6 +236,11 @@
       }
       const all = right === items.length;
       if (!restoring) s.recordAttempt(requirementId, { passed: all, answer: all ? { placement } : undefined });
+      // Explanations (when the lesson provides them): wrong items after a check; all items once correct.
+      const explain = items.filter((it) => it.feedback && (all || placement[it.id] !== it.bin));
+      notesEl.replaceChildren(...explain.map((it) => h("li", {}, h("strong", {}, `“${it.text}”`), ` — ${it.feedback}`)));
+      notesEl.hidden = explain.length === 0;
+      if (!restoring) { if (all) hints.pass(); else hints.fail(); }
       if (all) {
         say(region, true, `All ${items.length} items are in the right bin.`);
         Object.values(chips).forEach((c) => { c.disabled = true; });
@@ -257,7 +275,7 @@
 
     container.append(
       h("p", { class: "small" }, instructions || "Select an item (click, tap, or Tab + Enter), then choose “Place selected item here” in a bin. You can move items until you check."),
-      pool, board, h("div", { class: "ga-actions" }, checkBtn), region);
+      pool, board, h("div", { class: "ga-actions" }, checkBtn), region, notesEl, hints.el);
 
     if (already) {
       for (const it of items) { placement[it.id] = it.bin; selected = it.id; placeInto(it.bin); }
@@ -270,9 +288,10 @@
      Triage — one select per item (L4, L8 new 4, FP T1)
      ====================================================================== */
   // categories: [{ value, label }], items: [{ id, text, accept:[values], feedback }]
-  function TriageActivity({ container, requirementId, categories, items, legend }) {
+  function TriageActivity({ container, requirementId, categories, items, legend, hint }) {
     const s = getStore();
     const already = passed(requirementId);
+    const hints = hintBox(hint);
     const region = liveRegion();
     const selects = {};
     const lines = {};
@@ -304,12 +323,13 @@
       }
       const all = right === items.length;
       if (!restoring) s.recordAttempt(requirementId, { passed: all, answer: all ? Object.fromEntries(items.map((i) => [i.id, selects[i.id].value])) : undefined });
+      if (!restoring) { if (all) hints.pass(); else hints.fail(); }
       if (all) { say(region, true, `All ${items.length} categorised correctly.`); Object.values(selects).forEach((x) => { x.disabled = true; }); checkBtn.disabled = true; }
       else say(region, false, `${right} of ${items.length} correct${answered < items.length ? `, ${items.length - answered} not answered` : ""}. Change the ones marked ✗ and check again.`);
     }
     checkBtn.addEventListener("click", () => check());
     if (legend) container.append(legend instanceof Node ? legend : h("p", { class: "small" }, legend));
-    container.append(list, h("div", { class: "ga-actions" }, checkBtn), region);
+    container.append(list, h("div", { class: "ga-actions" }, checkBtn), region, hints.el);
     if (already) { for (const it of items) selects[it.id].value = it.accept[0]; check(true); }
     return { isPassed: () => passed(requirementId) };
   }
@@ -317,10 +337,13 @@
   /* ======================================================================
      Identify — tick exactly the right set (L7 dupes, L9 gap, L11 verify, L12 new 8, L13 find)
      ====================================================================== */
-  // options: [{ id, text, correct, note }]
-  function IdentifyActivity({ container, requirementId, options, prompt, random, keepOrder }) {
+  // options: [{ id, text, correct: true | false | "either", note }]
+  //   "either" — ticked or not, both are accepted (U-01); its note explains why.
+  // explainAll — after a check, show every option's note (per-element feedback), not only the wrong ones.
+  function IdentifyActivity({ container, requirementId, options, prompt, random, keepOrder, hint, explainAll = false, successText }) {
     const s = getStore();
     const already = passed(requirementId);
+    const hints = hintBox(hint);
     const region = liveRegion();
     const boxes = {};
     const notes = {};
@@ -340,18 +363,23 @@
         const ticked = boxes[o.id].checked;
         const note = notes[o.id];
         note.replaceChildren();
-        if (ticked === !!o.correct) continue;
+        const ok = o.correct === "either" || ticked === !!o.correct;
+        if (ok) {
+          if ((explainAll || o.correct === "either") && o.note) note.append(mark(true), h("span", { class: "ga-visually-hidden" }, "Accepted. "), o.note);
+          continue;
+        }
         if (o.correct) missed++; else extra++;
         note.append(mark(false), h("span", { class: "ga-visually-hidden" }, "Not quite. "), o.note || (o.correct ? "This one should be ticked." : "This one should not be ticked."));
       }
       const all = missed === 0 && extra === 0;
-      if (!restoring) s.recordAttempt(requirementId, { passed: all, answer: all ? options.filter((o) => o.correct).map((o) => o.id) : undefined });
-      if (all) { say(region, true, "Exactly right."); Object.values(boxes).forEach((b) => { b.disabled = true; }); checkBtn.disabled = true; }
+      if (!restoring) s.recordAttempt(requirementId, { passed: all, answer: all ? options.filter((o) => boxes[o.id].checked).map((o) => o.id) : undefined });
+      if (!restoring) { if (all) hints.pass(); else hints.fail(); }
+      if (all) { say(region, true, successText || "Exactly right."); Object.values(boxes).forEach((b) => { b.disabled = true; }); checkBtn.disabled = true; }
       else say(region, false, `Not yet: ${missed ? `${missed} missed` : ""}${missed && extra ? ", " : ""}${extra ? `${extra} ticked that shouldn't be` : ""}. Adjust and check again.`);
     }
     checkBtn.addEventListener("click", () => check());
-    container.append(group, h("div", { class: "ga-actions" }, checkBtn), region);
-    if (already) { for (const o of options) boxes[o.id].checked = !!o.correct; check(true); }
+    container.append(group, h("div", { class: "ga-actions" }, checkBtn), region, hints.el);
+    if (already) { for (const o of options) boxes[o.id].checked = o.correct === true; check(true); }
     return { isPassed: () => passed(requirementId) };
   }
 
@@ -365,13 +393,15 @@
   function WrittenWork({ container, requirementId, ruleName, fields = [], collect, extraEls = [], watch = [], revealButton, revealPanel, reviewNote }) {
     const s = getStore();
     const inputs = {};
+    // Draft ids must be lowercase [a-z0-9:_-]; answer keys keep the rule's own names ("versionRule", "Tools/access").
+    const draftId = (key) => `${requirementId}:${String(key).toLowerCase().replace(/[^a-z0-9_-]+/g, "-")}`;
     for (const f of fields) {
       const id = uid("fld");
       const input = f.type === "text"
         ? h("input", { type: "text", id })
         : h("textarea", { id, rows: f.rows || 3 });
       if (f.placeholder) input.placeholder = f.placeholder;
-      input.value = s.getDraft(`${requirementId}:${f.key}`, "");
+      input.value = s.getDraft(draftId(f.key), "");
       inputs[f.key] = input;
       container.append(h("div", { class: "ga-field" }, h("label", { for: id }, f.label),
         f.hint ? h("div", { class: "hint small" }, f.hint) : null, input));
@@ -392,10 +422,11 @@
       status.textContent = V.__meta.statusLabel(res);
       status.className = `ga-status ${res.ok ? "is-complete" : "is-missing"}`;
       if (revealButton) revealButton.disabled = !res.ok; // M-02: model only after a valid attempt
+      if (revealNote) revealNote.hidden = res.ok;
       if (!res.ok && revealPanel) revealPanel.hidden = true;
     }
     const save = () => {
-      for (const [k, el] of Object.entries(inputs)) s.saveDraft(`${requirementId}:${k}`, el.value);
+      for (const [k, el] of Object.entries(inputs)) s.saveDraft(draftId(k), el.value);
       const a = answer();
       s.recordAttempt(requirementId, { answer: a });
       render(V[ruleName](a));
@@ -408,8 +439,12 @@
     window.addEventListener("pagehide", () => debounced.flush());
     // RowTable "+ Add" changes the answer without an input event
     for (const el of watch) el.addEventListener("click", (e) => { if (e.target.closest(".btn")) debounced(); });
+    let revealNote = null;
     if (revealButton) {
       revealButton.disabled = true;
+      revealNote = h("p", { class: "small ga-reveal-note", id: uid("reveal") }, "Available once the required parts above are complete.");
+      revealButton.after(revealNote);
+      revealButton.setAttribute("aria-describedby", revealNote.id);
       revealButton.addEventListener("click", () => { if (revealPanel) revealPanel.hidden = !revealPanel.hidden; });
     }
     render(V[ruleName](answer()));
@@ -417,11 +452,12 @@
   }
 
   /* ---------------- row builder for table-like work samples ---------------- */
-  // columns: [{ key, label, type:'text'|'textarea'|'select', options:[values], placeholder? }]
+  // columns: [{ key, label, type:'text'|'textarea'|'select', options:[values | {value,label}], placeholder? }]
   // examples: rows shown pre-filled and marked "Example"; the rules ignore them unchanged.
+  // allowAdd: false for a fixed number of rows (e.g. a four-step workflow)
   // starters: rows pre-filled as a starting point (e.g. an area name) that the learner completes;
   //           they are NOT examples and count once the learner fills the rest.
-  function RowTable({ container, idPrefix, columns, examples = [], starters = [], startRows = 1, addLabel = "+ Add another row", rowNoun = "Row" }) {
+  function RowTable({ container, idPrefix, columns, examples = [], starters = [], startRows = 1, addLabel = "+ Add another row", rowNoun = "Row", allowAdd = true }) {
     const s = getStore();
     const wrap = h("div", { class: "ga-rows" });
     const rows = [];
@@ -434,7 +470,9 @@
       for (const col of columns) {
         const id = uid("cell");
         let input;
-        if (col.type === "select") input = h("select", { id }, h("option", { value: "" }, "Choose…"), ...col.options.map((o) => h("option", { value: o }, o)));
+        // select options: "Label" (value = label) or { value, label } when the rule needs a code
+        if (col.type === "select") input = h("select", { id }, h("option", { value: "" }, "Choose…"),
+          ...col.options.map((o) => (typeof o === "object" ? h("option", { value: o.value }, o.label) : h("option", { value: o }, o))));
         else if (col.type === "textarea") input = h("textarea", { id, rows: 2 });
         else input = h("input", { type: "text", id });
         input.value = values[col.key] == null ? "" : String(values[col.key]); // set via DOM, never HTML (E-04)
@@ -443,7 +481,7 @@
         grid.append(h("div", { class: "ga-field" }, h("label", { for: id }, col.label, h("span", { class: "ga-visually-hidden" }, ` — ${rowNoun.toLowerCase()} ${n}`)), input));
       }
       const row = h("div", { class: "ga-row", "data-example": isExample ? "true" : null },
-        isExample ? h("div", { class: "ga-example-badge" }, "Example — doesn't count unless you change it") : null, grid);
+        isExample ? h("div", { class: "ga-example-badge" }, "Example from the lesson — doesn't count toward the check") : null, grid);
       rows.push({ els, isExample });
       wrap.append(row);
       return row;
@@ -466,15 +504,15 @@
     addBtn.addEventListener("click", () => { const r = addRow({}); persist(); r.querySelector("input, textarea, select").focus(); });
     wrap.addEventListener("input", persist);
     wrap.addEventListener("change", persist);
-    container.append(wrap, h("div", { class: "ga-actions" }, addBtn));
+    container.append(wrap, allowAdd ? h("div", { class: "ga-actions" }, addBtn) : null);
     return { getRows, addRow };
   }
 
   /* ======================================================================
      Schedule activity (L5, FP T2) — structured placements + flags (T4)
      ====================================================================== */
-  // items: [{ key, label }], times: ['9:00', ...], days?: ['Mon', ...], flags: [{ key, label }], noteLabel?
-  function ScheduleActivity({ container, requirementId, ruleName, items, times, days, flags = [], noteLabel }) {
+  // items: [{ key, label }], times: ['9:00', ...], days?: ['Mon', ...], flags: [{ key, label }], noteLabel?, formatTime?(t) -> option text
+  function ScheduleActivity({ container, requirementId, ruleName, items, times, days, flags = [], noteLabel, formatTime = (t) => t }) {
     const s = getStore();
     const draftKey = `${requirementId}:state`;
     let saved = {};
@@ -482,7 +520,7 @@
     const sel = {};
     for (const it of items) {
       const tId = uid("time");
-      const timeSel = h("select", { id: tId }, h("option", { value: "" }, "Start time…"), ...times.map((t) => h("option", { value: t }, t)));
+      const timeSel = h("select", { id: tId }, h("option", { value: "" }, "Start time…"), ...times.map((t) => h("option", { value: t }, formatTime(t))));
       let daySel = null;
       const row = h("div", { class: "ga-schedule-row" }, h("label", { for: tId }, it.label));
       if (days) {
@@ -540,6 +578,62 @@
     container.addEventListener("input", update);
     render(V[ruleName](collect()));
     return { collect, isPassed: () => passed(requirementId) };
+  }
+
+  /* ---------------- checklist rows: one radio choice + a note per item (L12, L13) ---------------- */
+  // items: [label], choices: [{ value, label }]. Drafts persist per row; collect() -> [{ answer, note }]
+  function ChoiceRows({ container, idPrefix, items, choices, noteLabel = "Note", notePlaceholder = "" }) {
+    const s = getStore();
+    const rows = items.map((item, i) => {
+      const name = `${idPrefix}-${i}`;
+      const radios = choices.map((c) => {
+        const id = `${name}-${c.value}`;
+        const input = h("input", { type: "radio", name, id, value: c.value });
+        input.checked = s.getDraft(`${idPrefix}:answer-${i}`, "") === c.value;
+        return { input, el: h("span", { class: "ga-radio" }, input, h("label", { for: id }, c.label)) };
+      });
+      const noteId = `${name}-note`;
+      const note = h("input", { type: "text", id: noteId, placeholder: notePlaceholder });
+      note.value = s.getDraft(`${idPrefix}:note-${i}`, "");
+      container.append(h("fieldset", { class: "ga-row ga-yn" },
+        h("legend", { class: "ga-item-prompt" }, item),
+        h("div", { class: "ga-yn-choices" }, ...radios.map((r) => r.el)),
+        h("div", { class: "ga-field" }, h("label", { for: noteId }, noteLabel, h("span", { class: "ga-visually-hidden" }, ` — ${item}`)), note)));
+      return { radios, note };
+    });
+    const answerOf = (r) => (r.radios.find((x) => x.input.checked) || { input: { value: "" } }).input.value;
+    const collect = () => rows.map((r) => ({ answer: answerOf(r), note: r.note.value }));
+    const persist = () => rows.forEach((r, i) => { s.saveDraft(`${idPrefix}:answer-${i}`, answerOf(r)); s.saveDraft(`${idPrefix}:note-${i}`, r.note.value); });
+    container.addEventListener("change", persist);
+    container.addEventListener("input", persist);
+    return { collect, labelOf: (v) => (choices.find((c) => c.value === v) || {}).label || "" };
+  }
+
+  /* ======================================================================
+     Work-sample preview (approved in the Lesson 1 pilot): desktop table;
+     at <= 600px (v2.css) one stacked card per row with its own labels.
+     Built with textContent only. columns: [{ key, label }]
+     ====================================================================== */
+  function renderPreview(container, { columns, rows, label = "Preview" }) {
+    const val = (text) => (text != null && String(text).trim() ? String(text) : "—");
+    const desktop = h("table", { class: "ref-table ga-preview-table" },
+      h("tr", {}, ...columns.map((c) => h("th", {}, c.label))),
+      ...rows.map((r) => h("tr", {}, ...columns.map((c) => h("td", {}, val(r[c.key]))))));
+    const mobile = h("ol", { class: "ga-preview-cards", "aria-label": label },
+      ...rows.map((r) => h("li", { class: "ga-preview-card" },
+        h("dl", {}, ...columns.map((c) => h("div", { class: "ga-preview-field" }, h("dt", {}, c.label), h("dd", {}, val(r[c.key]))))))));
+    container.replaceChildren(desktop, mobile);
+  }
+  // Keeps a preview in sync with the inputs inside the given elements.
+  function livePreview(container, { columns, getRows, label, watch = [] }) {
+    const draw = () => renderPreview(container, { columns, rows: getRows(), label });
+    for (const el of watch) {
+      el.addEventListener("input", draw);
+      el.addEventListener("change", draw);
+      el.addEventListener("click", (e) => { if (e.target.closest(".btn")) setTimeout(draw, 0); });
+    }
+    draw();
+    return { refresh: draw };
   }
 
   /* ======================================================================
@@ -650,7 +744,7 @@
   }
 
   root.PVAGAActivities = {
-    version: "2.0.0-wp2",
+    version: "2.0.0-wp3",
     getStore,
     initPage,
     shuffle,
@@ -660,9 +754,12 @@
     IdentifyActivity,
     WrittenWork,
     RowTable,
+    ChoiceRows,
     ScheduleActivity,
     Stepper,
     printWorkSample,
+    renderPreview,
+    livePreview,
     _h: h,
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

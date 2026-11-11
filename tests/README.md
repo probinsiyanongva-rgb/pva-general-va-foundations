@@ -22,6 +22,8 @@ PVA_BASE_URL=https://<preview>.pages.dev ./run_all.sh   # against a Cloudflare p
 | `e2e/activities.spec.js` | WP2 activity library on `fixtures/activities-harness.html`: mastery and retry, shuffle, keyboard sorting, written-work checklist, autosave, reveal gating, print sheet, storage banner, contrast, axe-core, 375/320 px |
 | `e2e/ga-audit-characterization.spec.js` | Audit C-01/C-02: a wrong-answer, minimal-typing learner must not finish. Pages still affected are marked `test.fail()`; remove a page from `KNOWN_DEFECT` when WP3/WP4 fixes it |
 | `e2e/lesson-01.spec.js` | WP3a pilot, Lesson 1 page: wrong answers and filler cannot finish, genuine completion recorded in the v2 store (V1 key untouched), keyboard sort, reload restore with step cap, completed banner, print sheet, axe-core per gated step, no overflow at 375/320 px. `PVA_SHOTS_DIR=<dir>` writes screenshots |
+| `e2e/lessons-v2.spec.js` | WP3b, Lessons 2–13 (data in `e2e/lesson-solutions.js`): every gated step starts locked; a genuine learner finishes and completion is recorded in the v2 store; axe-core on each gated step before and after solving; no overflow at 320 px on any step; the correct answer is never the longest option (M-01) and, for the 8 new checks, never the shortest. `PVA_SHOTS_DIR=<dir>` writes screenshots |
+| `e2e/lessons-v2-checks.spec.js` | WP3b behaviours: the 8 new checks (wrong answer explained, Continue locked, hint only after the 2nd wrong attempt); U-01 either-answer items; M-09 renewal key; M-02 model answers locked until the work passes; M-10 reload restore and completed banner |
 
 Baselines in `fixtures/` were recorded on `main` @ 5778df5. Never regenerate them on a
 later commit: `UPDATE_BASELINE=1` exists only to rebuild them on the baseline itself.

@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
 <style>
   .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
   .lesson-hero .eyebrow{ color:#E7D3A8; }
@@ -31,7 +32,7 @@
   .completion-panel{ text-align:center; padding: 20px 0; }
 </style>
 </head>
-<body>
+<body class="ga-v2">
 
 <div class="route-bar no-print">
   <div class="wrap">
@@ -49,7 +50,7 @@
   </div>
 </header>
 
-<main class="lesson-body">
+<main class="lesson-body" id="main">
   <div class="wrap-narrow">
 
     <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
@@ -132,12 +133,9 @@
         <div class="step-tag">Practice</div>
         <h2>Write the message</h2>
         <div class="example-msg">Your client asks you to schedule a meeting with John, but there are two contacts named John.</div>
-        <div class="field">
-          <label for="johnAnswer">Write the message you'd send.</label>
-          <textarea id="johnAnswer" rows="3" placeholder="Hi ..."></textarea>
-        </div>
+        <div id="johnWork"></div>
         <button class="btn btn-ghost reveal-btn no-print" id="johnRevealBtn" type="button">Show suggested answer</button>
-        <div class="model-answer" id="johnModel">
+        <div class="model-answer" id="johnModel" hidden>
           <strong>Suggested answer:</strong> "I have two contacts listed as John. Could you confirm which one you'd like me to schedule with?"
         </div>
       </section>
@@ -150,12 +148,7 @@
           <div class="scenario-msg">A vendor emails asking you to sign and return an updated service contract on the client's behalf, with new pricing terms.</div>
           <p style="margin-bottom:0;">What should you do?</p>
         </div>
-        <div class="option-list" id="scenarioOptions">
-          <button class="option-btn" data-correct="false" data-feedback="Signing anything with new pricing/contract terms is a decision that exceeds a General Admin VA's authority — this is exactly the kind of thing to escalate first, not handle to save time." >Sign it — it keeps things moving and the vendor is waiting.</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. This is a contractual/financial decision, squarely outside your authority. Flag it to the client with the relevant details and let them decide how to proceed." >Escalate to the client — explain what the vendor sent and ask how they'd like to proceed.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Ignoring the email doesn't protect the client — it just delays a decision they need to make, and leaves the vendor unanswered." >Don't reply — it's not really an admin task.</button>
-        </div>
-        <div class="feedback-box" id="scenarioFeedback"></div>
+        <div id="escalateActivity"></div>
       </section>
 
       <!-- STEP 8: Work sample -->
@@ -164,29 +157,10 @@
         <h2>Work sample: Client Communication Pack</h2>
         <p>Write five messages. You can adapt the examples from this lesson or write your own — just make each one specific to a fictional situation.</p>
 
-        <div class="pack-field">
-          <div class="col-label">1. Clarification request</div>
-          <textarea class="pack-input" data-key="clarify" rows="2" placeholder="what you understand + what's unclear + the specific question"></textarea>
-        </div>
-        <div class="pack-field">
-          <div class="col-label">2. Progress update</div>
-          <textarea class="pack-input" data-key="progress" rows="2" placeholder="Context + Status + Action + Next step"></textarea>
-        </div>
-        <div class="pack-field">
-          <div class="col-label">3. Completion update</div>
-          <textarea class="pack-input" data-key="completion" rows="2" placeholder="What was completed, what matters, anything pending"></textarea>
-        </div>
-        <div class="pack-field">
-          <div class="col-label">4. Delay notice</div>
-          <textarea class="pack-input" data-key="delay" rows="2" placeholder="the issue + likely impact + a practical option"></textarea>
-        </div>
-        <div class="pack-field">
-          <div class="col-label">5. Error report</div>
-          <textarea class="pack-input" data-key="error" rows="2" placeholder="what happened → what you did → what remains → what you recommend"></textarea>
-        </div>
+        <div id="packWork" class="no-print"></div>
 
         <div class="save-reminder no-print">
-          💾 <strong>Save your work now.</strong> Copy these five messages into a Google Doc or Drive folder — that's part of your starter portfolio.
+          💾 <strong>Save your work now.</strong> Your answers are saved only in this browser, and clearing site data or switching devices loses them. Copy your five messages into a Google Doc or Drive folder, or use Print / Save as PDF below, so they're part of your portfolio.
         </div>
 
         <div class="export-box" id="exportBox">
@@ -225,8 +199,10 @@
   </div>
 </footer>
 
-<script src="/shared/progress.js"></script>
-<script src="/shared/lessons-data.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/activities.js"></script>
 <script src="lesson.js"></script>
 </body>
 </html>

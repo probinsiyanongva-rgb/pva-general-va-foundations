@@ -102,27 +102,14 @@
   });
   const collect = () => ({ rows: table.getRows() });
 
-  // Preview, built with textContent only. Desktop: the v1 three-column table.
-  // Narrow screens (v2.css, <= 600px): one stacked card per area with its own
-  // Area / Tasks / Skills labels. CSS shows exactly one of the two.
-  const preview = document.getElementById("exportPreview");
-  function renderPreview() {
-    const rows = table.getRows();
-    const val = (text) => (text && String(text).trim() ? String(text) : "—");
-    const cell = (tag, text) => h(tag, {}, val(text));
-    const desktop = h("table", { class: "ref-table ga-preview-table" },
-      h("tr", {}, cell("th", "Area"), cell("th", "Tasks"), cell("th", "Skills")),
-      ...rows.map((r) => h("tr", {}, cell("td", r.area), cell("td", r.tasks), cell("td", r.skills))));
-    const field = (label, text) => h("div", { class: "ga-preview-field" }, h("dt", {}, label), h("dd", {}, val(text)));
-    const mobile = h("ol", { class: "ga-preview-cards", "aria-label": "Task Map preview" },
-      ...rows.map((r) => h("li", { class: "ga-preview-card" },
-        h("dl", {}, field("Area", r.area), field("Tasks", r.tasks), field("Skills", r.skills)))));
-    preview.replaceChildren(desktop, mobile);
-  }
+  // Preview: desktop table; stacked labelled cards on narrow screens (library helper).
   const rowsEl = document.getElementById("taskMapRows");
-  rowsEl.addEventListener("input", renderPreview);
-  rowsEl.addEventListener("click", (e) => { if (e.target.closest(".btn")) setTimeout(renderPreview, 0); });
-  renderPreview();
+  A.livePreview(document.getElementById("exportPreview"), {
+    columns: [{ key: "area", label: "Area" }, { key: "tasks", label: "Tasks" }, { key: "skills", label: "Skills" }],
+    getRows: () => table.getRows(),
+    label: "Task Map preview",
+    watch: [rowsEl],
+  });
 
   A.WrittenWork({
     container: document.getElementById("taskMapCheck"),

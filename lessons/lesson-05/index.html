@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
 <style>
   .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
   .lesson-hero .eyebrow{ color:#E7D3A8; }
@@ -30,7 +31,7 @@
   .completion-panel{ text-align:center; padding: 20px 0; }
 </style>
 </head>
-<body>
+<body class="ga-v2">
 
 <div class="route-bar no-print">
   <div class="wrap">
@@ -48,11 +49,11 @@
   </div>
 </header>
 
-<main class="lesson-body">
+<main class="lesson-body" id="main">
   <div class="wrap-narrow">
 
     <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
-    <p class="progress-label no-print" id="stepLabel">Step 1 of 8</p>
+    <p class="progress-label no-print" id="stepLabel">Step 1 of 9</p>
 
     <div class="step-card">
 
@@ -127,25 +128,24 @@
             <li>Prospect call "any time Tuesday afternoon"</li>
           </ul>
         </div>
-        <div class="field">
-          <label for="dayAnswer">Create a conflict-free schedule, explain any decision you made, and identify anything that needs client confirmation.</label>
-          <textarea id="dayAnswer" rows="5" placeholder="e.g. 10-11 Team meeting, 11-12 Vendor call, ..."></textarea>
-        </div>
+        <p>Choose a start time for each item so the day follows every client rule. If something cannot fit, flag it for a client decision.</p>
+        <div id="scheduleActivity"></div>
         <button class="btn btn-ghost reveal-btn no-print" id="dayRevealBtn" type="button">Show a model schedule</button>
-        <div class="model-answer" id="dayModel">
-          <strong>One reasonable schedule:</strong>
+        <div class="model-answer" id="dayModel" hidden>
+          <strong>One schedule that meets every rule:</strong>
           <table class="ref-table" style="margin-top:8px;">
             <tr><th>Time</th><th>Item</th></tr>
             <tr><td>9:00–10:00</td><td>Open / prep</td></tr>
             <tr><td>10:00–11:00</td><td>Team meeting (as requested)</td></tr>
             <tr><td>11:00–12:00</td><td>Vendor call (as requested)</td></tr>
             <tr><td>12:00–1:00</td><td>Lunch (protected)</td></tr>
-            <tr><td>1:00–2:45</td><td>Prospect call (within "Tuesday afternoon")</td></tr>
+            <tr><td>1:00–1:30</td><td>Prospect call (within "Tuesday afternoon")</td></tr>
+            <tr><td>1:30–2:45</td><td>Open</td></tr>
             <tr><td>2:45–3:00</td><td>15-minute buffer before presentation</td></tr>
             <tr><td>3:00–4:00</td><td>Presentation (as requested)</td></tr>
             <tr><td>4:00–5:00</td><td>Open / wrap-up</td></tr>
           </table>
-          <p style="margin:10px 0 0;"><strong>Needs client confirmation:</strong> the exact time of the 2-hour focus block, since it wasn't specified and could conflict with any of the above; and whether "Tuesday afternoon" has a preferred window for the prospect call.</p>
+          <p style="margin:10px 0 0;"><strong>Needs a client decision:</strong> the 2-hour focus block. With every request kept at its requested time, no 2-hour gap is left on this day, so ask the client whether to move a meeting or protect focus time on another day. Also confirm whether "Tuesday afternoon" has a preferred window for the prospect call.</p>
         </div>
       </section>
 
@@ -157,25 +157,31 @@
           <div class="scenario-msg">The client says, "Let's meet with the Berlin team at 3 PM." The client is in Manila, the Berlin team is in Germany.</div>
           <p style="margin-bottom:0;">What should you do before sending the invite?</p>
         </div>
-        <div class="option-list" id="scenarioOptions">
-          <button class="option-btn" data-correct="false" data-feedback="3 PM Manila time and 3 PM Berlin time are different moments — sending the invite without confirming whose 3 PM this is risks a real scheduling mistake." >Send the invite at 3 PM Manila time, since that's the client's time zone.</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. Confirm which time zone the client meant, then build the invite with both time zones clearly visible so nobody has to guess." >Confirm with the client which time zone they meant, then send the invite showing both time zones.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Guessing which time zone is convenient for the Berlin team isn't your call to make silently — confirm with the client instead of assuming." >Just pick whichever time zone seems more convenient for the Berlin team.</button>
-        </div>
-        <div class="feedback-box" id="scenarioFeedback"></div>
+        <div id="tzActivity"></div>
       </section>
 
-      <!-- STEP 8: Work sample -->
-      <section class="step-panel" data-step="8" id="workSampleStep">
+      <!-- STEP 8: Reschedule a confirmed call (new check, l05-resched) -->
+      <section class="step-panel" data-step="8" id="reschedStep">
+        <div class="step-tag">Practice → Decide</div>
+        <h2>Reschedule a confirmed call</h2>
+        <div class="scenario">
+          <div class="scenario-msg">Your client lets you reschedule vendor calls within her working hours. Her Thursday 2:00 PM call with the bookkeeper was confirmed yesterday. This morning the bookkeeper writes: "Sorry, something came up — I can't make Thursday at 2."</div>
+          <p style="margin-bottom:0;">What do you do?</p>
+        </div>
+        <div id="reschedActivity"></div>
+      </section>
+
+      <!-- STEP 9: Work sample -->
+      <section class="step-panel" data-step="9" id="workSampleStep">
         <div class="step-tag">Apply</div>
         <h2>Work sample: Client Calendar Plan</h2>
         <p>Log the four requests from this lesson's practice — or your own fictional events — as a real calendar plan.</p>
 
-        <div id="calRows"></div>
-        <button class="btn btn-ghost no-print" id="addRowBtn" type="button">+ Add another event</button>
+        <div id="calRows" class="no-print"></div>
+        <div id="calCheck" class="no-print"></div>
 
         <div class="save-reminder no-print">
-          💾 <strong>Save your work now.</strong> Copy your Calendar Plan into a Google Doc or Sheet — that's part of your starter portfolio.
+          💾 <strong>Save your work now.</strong> Your answers are saved only in this browser, and clearing site data or switching devices loses them. Copy your Calendar Plan into a Google Doc or Drive folder, or use Print / Save as PDF below, so it's part of your portfolio.
         </div>
 
         <div class="export-box" id="exportBox">
@@ -186,7 +192,7 @@
       </section>
 
       <!-- COMPLETION -->
-      <section class="step-panel" data-step="9" id="completionStep">
+      <section class="step-panel" data-step="10" id="completionStep">
         <div class="completion-panel">
           <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 5 Processed</div>
           <h2 style="margin-top:18px;">Nice work.</h2>
@@ -214,8 +220,10 @@
   </div>
 </footer>
 
-<script src="/shared/progress.js"></script>
-<script src="/shared/lessons-data.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/activities.js"></script>
 <script src="lesson.js"></script>
 </body>
 </html>

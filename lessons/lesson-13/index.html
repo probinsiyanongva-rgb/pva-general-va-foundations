@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
 <style>
   .lesson-hero{ background: var(--forest-dark); color:#fff; padding: 34px 0 30px; }
   .lesson-hero .eyebrow{ color:#E7D3A8; }
@@ -36,7 +37,7 @@
   .completion-panel{ text-align:center; padding: 20px 0; }
 </style>
 </head>
-<body>
+<body class="ga-v2">
 
 <div class="route-bar no-print">
   <div class="wrap">
@@ -54,7 +55,7 @@
   </div>
 </header>
 
-<main class="lesson-body">
+<main class="lesson-body" id="main">
   <div class="wrap-narrow">
 
     <div class="progress-rail no-print" id="stepRail" aria-hidden="true"></div>
@@ -115,22 +116,22 @@
       <section class="step-panel" data-step="4" id="findStep">
         <div class="step-tag">Practice</div>
         <h2>Find the mistakes</h2>
-        <p>This "completed" update was sent to a client. It contains at least ten real issues. Read it carefully, then check off every issue type you can find.</p>
+        <p>This "completed" update was sent to a client. It contains several real issues — and some of the issue types listed below are not in it. Read it carefully, then tick every issue type you can find.</p>
         <div class="report-box">Weekly Invoice Update — sent Friday, March 32, 2026
 
 Hi Team,
 
 Here's this week's invoice status. All invoices have been reviewed and the tracker is fully updated.
 
-Status: 12 invoices processed. 3 are marked "Overdue", 2 are marked "overdue" (lowercase), and 1 is marked "OVERDUE - FOLLOW UP".
+Status: 12 invoices processed. 3 are marked "Overdue", 2 are marked "overdue", and 1 is marked "OVERDUE - FOLLOW UP".
 
 Total amount collected this week: =SUM(B2:B10)*2
 
 Attached: Invoice_Tracker_v2_final_reallyfinal.xlsx
-(no file actually attached to this email)
+Attachments (0)
 
 Client dashboard link: https://client-portal.example.com/reports/invoices
-(link returns a 404 error)
+→ Opening the link shows: 404 Not Found
 
 Duplicate entry found for "Ana Reyes" — also listed separately under "Ana R." — left in the tracker as-is.
 
@@ -139,9 +140,7 @@ Note: I assumed you wanted duplicates removed automatically, so I deleted 3 reco
 One invoice (INV-2291) turned out to be a special case outside our normal process. I handled it my own way and didn't mention it until just now.
 
 Let me know if you have questions!</div>
-        <div class="find-checklist" id="findChecklist"></div>
-        <button class="btn btn-ghost no-print" id="findCheckBtn" type="button">Check my answers</button>
-        <div class="feedback-box" id="findFeedback"></div>
+        <div id="findActivity"></div>
       </section>
 
       <!-- STEP 5: Fix-it-yourself vs escalate scenario -->
@@ -152,23 +151,19 @@ Let me know if you have questions!</div>
           <div class="scenario-msg">During your final check, you spot a typo in the client's name (easy fix) — and you also notice the report references a $200 discount you don't have authority to approve.</div>
           <p style="margin-bottom:0;">What's the right move?</p>
         </div>
-        <div class="option-list" id="fixOptions">
-          <button class="option-btn" data-correct="false" data-feedback="Escalating a typo wastes the client's attention on something you're fully capable of fixing yourself — not every issue needs their involvement." >Escalate both the typo and the discount to the client.</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. Fix the ordinary mistake (the typo) yourself — it's safe and within your authority. Flag the discount, since approving spend isn't your call to make." >Fix the typo yourself, and flag the discount amount to the client for approval.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Ignoring the authority issue means an unapproved discount could go out under the client's name — that's exactly the kind of thing that needs to be flagged, not skipped." >Leave both as-is since the report is otherwise mostly done.</button>
-        </div>
-        <div class="feedback-box" id="fixFeedback"></div>
+        <div id="fixActivity"></div>
       </section>
 
       <!-- STEP 6: Work sample -->
       <section class="step-panel" data-step="6" id="workSampleStep">
         <div class="step-tag">Apply</div>
         <h2>Work sample: QA Checklist</h2>
-        <p>Run the five-question check against a piece of your own work from this course (or the flawed report above) and mark Pass or Fail for each.</p>
-        <div id="qaRows"></div>
+        <p>Run the five-question check against a piece of your own work from this course (or the flawed report above), mark Pass or Fail for each with your evidence, then write a short issue report.</p>
+        <div id="qaRows" class="no-print"></div>
+        <div id="qaCheck" class="no-print"></div>
 
         <div class="save-reminder no-print">
-          💾 <strong>Save your work now.</strong> Copy this checklist into a Google Doc — it's the last piece of your starter portfolio.
+          💾 <strong>Save your work now.</strong> Your answers are saved only in this browser, and clearing site data or switching devices loses them. Copy your QA checklist into a Google Doc or Drive folder, or use Print / Save as PDF below, so it's part of your portfolio.
         </div>
 
         <div class="export-box" id="exportBox">
@@ -207,8 +202,10 @@ Let me know if you have questions!</div>
   </div>
 </footer>
 
-<script src="/shared/progress.js"></script>
-<script src="/shared/lessons-data.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/activities.js"></script>
 <script src="lesson.js"></script>
 </body>
 </html>

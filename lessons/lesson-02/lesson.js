@@ -1,139 +1,93 @@
+/* ==========================================================================
+   Lesson 2 — The Administrative Workflow: Request to Done   (v2.0, WP3b)
+   --------------------------------------------------------------------------
+   Lesson data + wiring only; behaviour comes from shared/ga/activities.js.
+   Requirements (shared/ga/manifest.js):
+     l02-clarify  step 6  written      clarification questions, rule "l02-clarify"
+     l02-skip     step 7  scenario     "Spot the skipped stage"
+     l02-ws       step 8  work sample  Client Request → Action Plan, rule "l02-ws"
+   Correct answers and all feedback are unchanged from v1. The wrong options were
+   reworded so the correct answer is not the longest (audit M-01). The action plan
+   gains Priority and Depends on (lesson objective: priority and dependencies).
+   ========================================================================== */
 (function () {
-  const LESSON_ID = 2;
-  const TOTAL_STEPS = 9;
-  let current = 1;
+  "use strict";
+  const A = window.PVAGAActivities;
+  A.initPage({ lesson: 2 });
 
-  const panels = Array.from(document.querySelectorAll(".step-panel"));
-  const rail = document.getElementById("stepRail");
-  const label = document.getElementById("stepLabel");
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  const stepNav = document.getElementById("stepNav");
+  const CHOICES = {
+    "l02-skip": [{ options: [
+      { id: "o1", correct: false,
+        text: "Plan — the VA never worked out the priority or the deadline before starting on the cleanup.",
+        feedback: "Plan was fine here — the VA knew what to do and when. The problem showed up after the work was done, not before it started." },
+      { id: "o2", correct: true,
+        text: "Check — the VA reported completion without reviewing accuracy and completeness first.",
+        feedback: "Correct. Reporting \"Done\" without reviewing accuracy and completeness first skips the Check stage — that's exactly how avoidable mistakes reach the client." },
+      { id: "o3", correct: false,
+        text: "Close — the VA didn't update the task tracker after sending the finished file.",
+        feedback: "Close is about updating trackers/folders after the work is confirmed complete — it's a later problem than this one, which is about work that wasn't actually finished." },
+    ] }],
+  };
+  window.PVAGALesson = { n: 2, choices: CHOICES };
 
-  const gatedSteps = { 6: false, 7: false, 8: false };
-
-  function buildRail() {
-    rail.innerHTML = "";
-    for (let i = 1; i <= TOTAL_STEPS - 1; i++) {
-      const seg = document.createElement("div");
-      seg.className = "seg" + (i < current ? " done" : i === current ? " active" : "");
-      rail.appendChild(seg);
-    }
-  }
-
-  function show(step) {
-    current = step;
-    panels.forEach((p) => p.classList.toggle("active", Number(p.dataset.step) === step));
-    buildRail();
-
-    if (step >= TOTAL_STEPS) {
-      stepNav.style.display = "none";
-      label.textContent = "Complete";
-      window.PVAFT.markLessonComplete(LESSON_ID);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    stepNav.style.display = "flex";
-    label.textContent = "Step " + step + " of " + (TOTAL_STEPS - 1);
-    prevBtn.style.visibility = step === 1 ? "hidden" : "visible";
-    nextBtn.textContent = step === TOTAL_STEPS - 1 ? "Finish Lesson →" : "Continue →";
-    updateGate();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function updateGate() {
-    if (gatedSteps.hasOwnProperty(current)) {
-      nextBtn.disabled = !gatedSteps[current];
-    } else {
-      nextBtn.disabled = false;
-    }
-  }
-
-  prevBtn.addEventListener("click", () => { if (current > 1) show(current - 1); });
-  nextBtn.addEventListener("click", () => { if (current < TOTAL_STEPS) show(current + 1); });
-
-  // Step 6: clarification text-entry + model answer reveal
-  const clarifyAnswer = document.getElementById("clarifyAnswer");
-  clarifyAnswer.addEventListener("input", () => {
-    gatedSteps[6] = clarifyAnswer.value.trim().length > 10;
-    updateGate();
-  });
-  document.getElementById("clarifyRevealBtn").addEventListener("click", () => {
-    document.getElementById("clarifyModel").classList.add("show");
-    gatedSteps[6] = true;
-    updateGate();
+  /* ---- Step 6: clarification questions (l02-clarify); model only after a valid attempt ---- */
+  A.WrittenWork({
+    container: document.getElementById("clarifyWork"),
+    requirementId: "l02-clarify",
+    ruleName: "l02-clarify",
+    fields: [{ key: "text", label: "Write three clarification questions you'd send back.", type: "textarea", rows: 4, placeholder: "1) ...\n2) ...\n3) ..." }],
+    revealButton: document.getElementById("clarifyRevealBtn"),
+    revealPanel: document.getElementById("clarifyModel"),
   });
 
-  // Step 7: scenario
-  (function wireScenario() {
-    const container = document.getElementById("scenarioOptions");
-    const feedback = document.getElementById("scenarioFeedback");
-    const buttons = Array.from(container.querySelectorAll(".option-btn"));
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const correct = btn.dataset.correct === "true";
-        buttons.forEach((b) => (b.disabled = true));
-        btn.classList.add(correct ? "selected-correct" : "selected-incorrect");
-        feedback.textContent = (correct ? "✓ " : "✗ ") + btn.dataset.feedback;
-        feedback.className = "feedback-box show " + (correct ? "correct" : "incorrect");
-        gatedSteps[7] = true;
-        updateGate();
-      });
+  /* ---- Step 7: spot the skipped stage (l02-skip) ---- */
+  A.ChoiceActivity({ container: document.getElementById("skipActivity"), requirementId: "l02-skip", items: CHOICES["l02-skip"] });
+
+  /* ---- Step 8: Client Request → Action Plan (l02-ws) ---- */
+  const rowsEl = document.getElementById("planRows");
+  const COLS = [
+    { key: "request", label: "Request", type: "textarea" },
+    { key: "outcome", label: "Desired outcome", type: "textarea" },
+    { key: "questions", label: "Questions", type: "textarea", placeholder: "The questions you'd ask the client" },
+    { key: "steps", label: "Steps", type: "textarea", placeholder: "One step per line, or number them 1. 2. 3." },
+    { key: "deadline", label: "Deadline", type: "text", placeholder: "e.g. Tomorrow, 10 AM" },
+    { key: "dod", label: "Definition of done", type: "textarea" },
+    { key: "priority", label: "Priority", type: "select", options: ["High", "Medium", "Low"] },
+    { key: "dependsOn", label: "Depends on", type: "text", placeholder: "What this waits for, or \"none\"" },
+  ];
+  const table = A.RowTable({
+    container: rowsEl,
+    idPrefix: "l02-ws",
+    rowNoun: "Request",
+    addLabel: "+ Add another request",
+    columns: COLS,
+    starters: [{ request: "Organize the attached contacts spreadsheet and have it ready by tomorrow." }],
+    startRows: 0,
+  });
+  const PREVIEW = [
+    { key: "request", label: "Request" }, { key: "outcome", label: "Outcome" }, { key: "questions", label: "Questions" },
+    { key: "steps", label: "Steps" }, { key: "deadline", label: "Deadline" }, { key: "dod", label: "Def. of done" },
+    { key: "priority", label: "Priority" }, { key: "dependsOn", label: "Depends on" },
+  ];
+  A.livePreview(document.getElementById("exportPreview"), { columns: PREVIEW, getRows: () => table.getRows(), label: "Action plan preview", watch: [rowsEl] });
+
+  A.WrittenWork({
+    container: document.getElementById("planCheck"),
+    requirementId: "l02-ws",
+    ruleName: "l02-ws",
+    watch: [rowsEl],
+    collect: () => ({ rows: table.getRows() }),
+    reviewNote: "Before you save it, review your completed Action Plan: could someone else follow your steps, and would they know exactly when the work is done?",
+  });
+
+  document.getElementById("printBtn").addEventListener("click", () => {
+    const rows = table.getRows().filter((r) => PREVIEW.some((c) => r[c.key] && String(r[c.key]).trim()));
+    A.printWorkSample({
+      title: "Client Request → Action Plan",
+      subtitle: "Lesson 2 · The Administrative Workflow: Request to Done",
+      sections: rows.map((r, i) => ({ heading: `Request ${i + 1}`, table: { columns: ["Part", "Plan"], rows: PREVIEW.map((c) => [c.label, r[c.key]]) } })),
     });
-  })();
+  });
 
-  // Step 8: work sample — Client Request → Action Plan
-  const rowsContainer = document.getElementById("planRows");
-  const exportPreview = document.getElementById("exportPreview");
-
-  function addRow(prefill) {
-    const row = document.createElement("div");
-    row.className = "plan-row";
-    row.innerHTML = `
-      <div><div class="col-label">Request</div><textarea class="f-request" rows="2">${prefill && prefill.request ? prefill.request : ""}</textarea></div>
-      <div><div class="col-label">Desired outcome</div><textarea class="f-outcome" rows="2"></textarea></div>
-      <div><div class="col-label">Questions</div><textarea class="f-questions" rows="2"></textarea></div>
-      <div><div class="col-label">Steps</div><textarea class="f-steps" rows="2"></textarea></div>
-      <div><div class="col-label">Deadline</div><input type="text" class="f-deadline"></div>
-      <div><div class="col-label">Definition of done</div><textarea class="f-dod" rows="2"></textarea></div>
-    `;
-    rowsContainer.appendChild(row);
-    row.querySelectorAll("input, textarea").forEach((el) => el.addEventListener("input", updateExport));
-    updateExport();
-  }
-
-  function updateExport() {
-    const rows = Array.from(rowsContainer.querySelectorAll(".plan-row"));
-    let filled = 0;
-    let html = '<table class="ref-table"><tr><th>Request</th><th>Outcome</th><th>Questions</th><th>Steps</th><th>Deadline</th><th>Def. of done</th></tr>';
-    rows.forEach((row) => {
-      const vals = {
-        request: row.querySelector(".f-request").value.trim(),
-        outcome: row.querySelector(".f-outcome").value.trim(),
-        questions: row.querySelector(".f-questions").value.trim(),
-        steps: row.querySelector(".f-steps").value.trim(),
-        deadline: row.querySelector(".f-deadline").value.trim(),
-        dod: row.querySelector(".f-dod").value.trim(),
-      };
-      if (Object.values(vals).some((v) => v.length > 0)) filled++;
-      html += `<tr><td>${esc(vals.request) || "—"}</td><td>${esc(vals.outcome) || "—"}</td><td>${esc(vals.questions) || "—"}</td><td>${esc(vals.steps) || "—"}</td><td>${esc(vals.deadline) || "—"}</td><td>${esc(vals.dod) || "—"}</td></tr>`;
-    });
-    html += "</table>";
-    exportPreview.innerHTML = html;
-    gatedSteps[8] = filled >= 1 && rowsContainer.querySelectorAll(".plan-row").length > 0 && filled >= 1;
-    updateGate();
-  }
-
-  function esc(str) {
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  document.getElementById("addRowBtn").addEventListener("click", () => addRow());
-  document.getElementById("printBtn").addEventListener("click", () => window.print());
-
-  addRow({ request: "Organize the attached contacts spreadsheet and have it ready by tomorrow." });
-
-  show(1);
+  A.Stepper({ lesson: 2, gates: { 6: "l02-clarify", 7: "l02-skip", 8: "l02-ws" } });
 })();
