@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>WP2 activity library — test harness (not course content)</title>
+<link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
+<style> .harness-block{ margin: 28px 0; } </style>
+</head>
+<body class="ga-v2">
+<!-- Test-only page used by tests/e2e/activities.spec.js. Sample items are placeholders,
+     not course content; real lesson content is wired in WP3. -->
+<main class="lesson-body"><div class="wrap-narrow">
+  <h1>Activity library harness</h1>
+
+  <div id="stepperArea">
+    <div class="progress-rail" id="stepRail" aria-hidden="true"></div>
+    <p class="progress-label" id="stepLabel">Step 1</p>
+    <div class="step-card">
+      <section class="step-panel active" data-step="1"><h2>Intro</h2><p>Ungated step.</p></section>
+      <section class="step-panel" data-step="2"><h2>Scenario</h2><div id="scenario"></div></section>
+      <section class="step-panel" data-step="3"><h2>Sort</h2><div id="sort"></div></section>
+      <section class="step-panel" data-step="4"><h2>Work sample</h2><div id="rows"></div><div id="written"></div>
+        <button type="button" class="btn btn-ghost" id="printBtn">Print / Save as PDF</button></section>
+      <section class="step-panel" data-step="5"><h2>Done</h2><p id="doneText">Lesson complete.</p></section>
+      <div class="step-nav" id="stepNav">
+        <button class="btn btn-ghost" id="prevBtn" type="button">← Back</button>
+        <button class="btn btn-primary" id="nextBtn" type="button">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="harness-block"><h2>Triage</h2><div id="triage"></div></div>
+  <div class="harness-block"><h2>Identify</h2><div id="identify"></div></div>
+  <div class="harness-block"><h2>Schedule</h2><div id="schedule"></div></div>
+  <div class="harness-block"><h2>Written with model answer</h2><div id="john"></div>
+    <button type="button" class="btn btn-ghost" id="johnReveal">Show suggested answer</button>
+    <div id="johnModel" hidden><p>Model answer text.</p></div></div>
+  <div class="harness-block"><h2>Choice set</h2><div id="choiceSet"></div></div>
+  <div class="harness-block"><button class="btn btn-kraft" type="button">Kraft button</button> <span class="eyebrow">Eyebrow</span></div>
+</div></main>
+
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/activities.js"></script>
+<script>
+(function () {
+  const A = PVAGAActivities;
+  // ?seed=N makes shuffles deterministic; default is Math.random (tests check variation).
+  const seed = Number(new URLSearchParams(location.search).get("seed"));
+  let x = seed || 0;
+  const random = seed ? () => ((x = (x * 1103515245 + 12345) % 2147483648) / 2147483648) : Math.random;
+  A.initPage({ lesson: 1 });
+
+  A.ChoiceActivity({ container: document.getElementById("scenario"), requirementId: "l01-pay", random, items: [{
+    hint: "Think about what makes work reliable.",
+    options: [
+      { id: "a", text: "Option A (wrong, first in source)", correct: false, feedback: "Feedback for A." },
+      { id: "b", text: "Option B (right)", correct: true, feedback: "Feedback for B." },
+      { id: "c", text: "Option C (wrong)", correct: false, feedback: "Feedback for C." },
+    ] }] });
+
+  A.SortActivity({ container: document.getElementById("sort"), requirementId: "l01-sort", random,
+    bins: [{ id: "task", label: "Task" }, { id: "skill", label: "Skill" }],
+    items: [
+      { id: "i1", text: "Schedule a meeting", bin: "task" },
+      { id: "i2", text: "Attention to detail", bin: "skill" },
+      { id: "i3", text: "Clean a spreadsheet", bin: "task" },
+      { id: "i4", text: "Time management", bin: "skill" },
+    ] });
+
+  const table = A.RowTable({ container: document.getElementById("rows"), idPrefix: "l01-ws", rowNoun: "Area",
+    columns: [{ key: "area", label: "Administrative area", type: "text" }, { key: "tasks", label: "Tasks you understand", type: "textarea" }, { key: "skills", label: "Skills needed", type: "textarea" }],
+    examples: [{ area: "Communication", tasks: "", skills: "" }], startRows: 2 });
+  A.WrittenWork({ container: document.getElementById("written"), requirementId: "l01-ws", ruleName: "l01-ws", watch: [document.getElementById("rows")], collect: () => ({ rows: table.getRows() }) });
+  document.getElementById("printBtn").addEventListener("click", () => {
+    const rows = table.getRows();
+    A.printWorkSample({ title: "General Admin Task Map", subtitle: "Lesson 1", sections: [{ heading: "Task map", table: { columns: ["Area", "Tasks", "Skills"], rows: rows.map((r) => [r.area, r.tasks, r.skills]) } }, { heading: "Notes", text: "Line one\nLine two" }] });
+  });
+
+  A.Stepper({ lesson: 1, root: document.getElementById("stepperArea"), gates: { 2: "l01-pay", 3: "l01-sort", 4: "l01-ws" } });
+
+  A.TriageActivity({ container: document.getElementById("triage"), requirementId: "l04-triage",
+    categories: [{ value: "reply", label: "Reply" }, { value: "client_review", label: "Client review" }, { value: "action", label: "Action" }],
+    items: [{ id: "m1", text: "Meeting moved", accept: ["action"], feedback: "Update the calendar." }, { id: "m2", text: "Software renews for $499", accept: ["client_review"], feedback: "Spend needs approval." }] });
+
+  A.IdentifyActivity({ container: document.getElementById("identify"), requirementId: "l07-dupes", prompt: "Tick the later duplicate entries.", keepOrder: true,
+    options: [{ id: "r1", text: "1. Maria Cruz", correct: false }, { id: "r2", text: "2. MARIA CRUZ", correct: true }, { id: "r3", text: "3. Juan Dela Cruz", correct: false }, { id: "r5", text: "5. juan dela cruz", correct: true }] });
+
+  A.ScheduleActivity({ container: document.getElementById("schedule"), requirementId: "l05-schedule", ruleName: "l05-schedule",
+    items: Object.entries(PVAGAValidators.__meta.L05.items).map(([key, v]) => ({ key, label: v.label })),
+    times: ["9:00", "9:30", "10:00", "11:00", "12:00", "13:00", "13:30", "14:00", "14:45", "15:00", "16:00"],
+    flags: [{ key: "focusCannotFit", label: "The 2-hour focus block cannot fit today — flag for a client decision" }] });
+
+  A.WrittenWork({ container: document.getElementById("john"), requirementId: "l03-john", ruleName: "l03-john",
+    fields: [{ key: "text", label: "Write the message you'd send", type: "textarea" }],
+    revealButton: document.getElementById("johnReveal"), revealPanel: document.getElementById("johnModel") });
+
+  A.ChoiceActivity({ container: document.getElementById("choiceSet"), requirementId: "l12-situations", random, items: [
+    { prompt: "Situation 1", options: [{ id: "x", text: "Wrong 1", correct: false }, { id: "y", text: "Right 1", correct: true }] },
+    { prompt: "Situation 2", options: [{ id: "x", text: "Wrong 2", correct: false }, { id: "y", text: "Right 2", correct: true }] },
+  ] });
+})();
+</script>
+</body>
+</html>

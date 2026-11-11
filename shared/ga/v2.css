@@ -1,0 +1,188 @@
+/* ==========================================================================
+   General Admin VA v2.0 — accessibility, activity and print styles
+   --------------------------------------------------------------------------
+   Loaded ONLY by General Admin pages, after shared/styles.css (spec T3).
+   shared/styles.css is unchanged, so the Customer Support pathway is unaffected.
+   Everything here is scoped to body.ga-v2.
+
+   Contrast (WCAG 2.2, audit M-13), computed against the course backgrounds:
+     --ga-kraft-btn  #8E5E25  white text 5.56:1   (was #C98F4B, 2.79:1)
+     --ga-kraft-ink  #7A5320  >= 5.81:1 on white/paper/paper-dim (was #A8712F, 3.54-4.14:1)
+     --ga-sage-tab   #56652F  white text 6.37:1   (was #6E7F3F, 4.40:1)
+     --ga-line-strong #857D6C >= 3.49:1 vs white/paper/paper-dim (was #DCD5C4, 1.46:1)
+     --ga-focus      #1F3D2F  11.89:1 on white; #F0D58E on dark bands 10.68:1
+   ========================================================================== */
+
+body.ga-v2 {
+  --ga-kraft-btn: #8E5E25;
+  --ga-kraft-ink: #7A5320;
+  --ga-sage-tab: #56652F;
+  --ga-line-strong: #857D6C;
+  --ga-focus: #1F3D2F;
+  --ga-focus-on-dark: #F0D58E;
+  --ga-ok-bg: #EEF6EE;
+  --ga-bad-bg: #FBEEEC;
+}
+
+/* ---------- contrast fixes (M-13) ---------- */
+body.ga-v2 .btn-kraft { background: var(--ga-kraft-btn); color: #fff; }
+body.ga-v2 .btn-kraft:hover { background: #754D1E; }
+body.ga-v2 .eyebrow,
+body.ga-v2 .step-tag,
+body.ga-v2 .col-label,
+body.ga-v2 .stage-num,
+body.ga-v2 .lnum { color: var(--ga-kraft-ink); }
+body.ga-v2 .hero .eyebrow,
+body.ga-v2 .lesson-hero .eyebrow,
+body.ga-v2 .key-idea .eyebrow,
+body.ga-v2 .final-card .lnum { color: #E7D3A8; }
+body.ga-v2 .folder-tab::before { background: var(--ga-sage-tab); }
+body.ga-v2 .field textarea,
+body.ga-v2 .field input[type="text"],
+body.ga-v2 .ga-field textarea,
+body.ga-v2 .ga-field input[type="text"],
+body.ga-v2 .ga-field select,
+body.ga-v2 select { border: 1.5px solid var(--ga-line-strong); }
+body.ga-v2 .sort-bin,
+body.ga-v2 .ga-bin { border-color: var(--ga-line-strong); }
+
+/* Focus: always visible, 3:1+ against its background */
+body.ga-v2 a:focus-visible,
+body.ga-v2 button:focus-visible,
+body.ga-v2 input:focus-visible,
+body.ga-v2 select:focus-visible,
+body.ga-v2 textarea:focus-visible,
+body.ga-v2 [tabindex]:focus-visible {
+  outline: 3px solid var(--ga-focus);
+  outline-offset: 2px;
+}
+body.ga-v2 .route-bar :focus-visible,
+body.ga-v2 .hero :focus-visible,
+body.ga-v2 .lesson-hero :focus-visible,
+body.ga-v2 .site-footer :focus-visible { outline-color: var(--ga-focus-on-dark); }
+/* Step headings receive focus programmatically on step change (m-03) */
+body.ga-v2 .step-panel h2:focus { outline: none; }
+body.ga-v2 .step-panel h2:focus-visible { outline: 3px solid var(--ga-focus); outline-offset: 4px; }
+
+/* ---------- skip link (m-03) ---------- */
+.ga-skip {
+  position: absolute; left: 12px; top: -60px; z-index: 1000;
+  background: #fff; color: var(--forest-dark); padding: 10px 16px;
+  border: 2px solid var(--forest); border-radius: 6px; font-weight: 600;
+}
+.ga-skip:focus { top: 12px; }
+.ga-visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- storage banner (M-03) ---------- */
+.ga-storage-banner {
+  background: #FBEEEC; border: 2px solid var(--danger); color: #5A1F15;
+  border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-size: 0.95rem;
+}
+.ga-storage-banner strong { color: #5A1F15; }
+
+/* ---------- completed / earlier-version banners (m-09, T2) ---------- */
+.ga-note-banner {
+  border: 1px solid var(--ga-line-strong); border-left: 5px solid var(--sage);
+  background: #F7F9F1; border-radius: 8px; padding: 12px 16px; margin: 0 0 16px; font-size: 0.94rem;
+}
+
+/* ---------- choice / scenario activities ---------- */
+.ga-options { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+.ga-option {
+  text-align: left; background: #fff; border: 2px solid var(--ga-line-strong);
+  border-radius: var(--radius-sm); padding: 14px 16px; font: inherit; font-size: 0.98rem;
+  color: var(--ink); cursor: pointer;
+}
+.ga-option:hover:not(:disabled) { border-color: var(--sage); background: #F7F9F1; }
+.ga-option:disabled { cursor: default; }
+.ga-option.is-correct { border-color: var(--ok); background: var(--ga-ok-bg); }
+.ga-option.is-wrong { border-color: var(--danger); background: var(--ga-bad-bg); }
+.ga-mark { font-weight: 700; margin-right: 6px; }
+.ga-mark-ok { color: var(--ok); }
+.ga-mark-bad { color: var(--danger); }
+.ga-feedback {
+  margin-top: 12px; padding: 12px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--line); background: #fff;
+}
+.ga-feedback:empty { display: none; }
+.ga-feedback.is-ok { border-left: 4px solid var(--ok); }
+.ga-feedback.is-bad { border-left: 4px solid var(--danger); }
+.ga-hint { margin-top: 8px; font-size: 0.92rem; color: var(--ink-soft); }
+.ga-item { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 14px; background: var(--paper-dim); }
+.ga-item-prompt { font-weight: 600; margin-bottom: 4px; }
+.ga-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+
+/* ---------- sort activity (C-03, M-15, M-16, m-08) ---------- */
+.ga-pool { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; min-height: 44px; }
+.ga-chip {
+  background: var(--paper-dim); border: 2px solid var(--ga-line-strong); border-radius: 20px;
+  padding: 8px 14px; font: inherit; font-size: 0.92rem; color: var(--ink); cursor: pointer;
+  min-height: 44px; text-align: left;
+}
+.ga-chip[aria-pressed="true"] {
+  border-color: var(--forest); background: #fff; box-shadow: 0 0 0 3px rgba(31, 61, 47, 0.25);
+  font-weight: 600;
+}
+.ga-chip[aria-pressed="true"]::before { content: "\25B6\FE0E  Selected: "; font-weight: 700; color: var(--forest); }
+.ga-chip.is-correct { border-color: var(--ok); background: var(--ga-ok-bg); }
+.ga-chip.is-wrong { border-color: var(--danger); background: var(--ga-bad-bg); }
+.ga-board { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 14px 0; }
+@media (min-width: 640px) { .ga-board { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 900px) { .ga-board[data-cols="3"] { grid-template-columns: 1fr 1fr 1fr; } }
+.ga-bin { background: #fff; border: 2px dashed var(--ga-line-strong); border-radius: var(--radius-md); padding: 12px; min-height: 120px; }
+.ga-bin.dragover { border-color: var(--kraft); background: #FBF4E8; }
+.ga-bin-title { font-family: var(--font-mono); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--forest); margin: 0 0 8px; }
+.ga-bin-place { width: 100%; margin-bottom: 8px; }
+.ga-bin-items { display: flex; flex-direction: column; gap: 6px; }
+
+/* ---------- triage / identify ---------- */
+.ga-triage-row { display: grid; gap: 8px; }
+@media (min-width: 640px) { .ga-triage-row { grid-template-columns: 1.4fr 1fr; align-items: center; } }
+.ga-triage-row select { font: inherit; padding: 8px 10px; border-radius: 6px; background: #fff; min-height: 44px; }
+.ga-check { display: flex; gap: 10px; align-items: flex-start; background: #fff; border: 1.5px solid var(--ga-line-strong); border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; }
+.ga-check input { margin-top: 4px; width: 20px; height: 20px; }
+.ga-result-line { font-size: 0.9rem; margin-top: 6px; }
+
+/* ---------- schedule activity (T4) ---------- */
+.ga-schedule-row { display: grid; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
+@media (min-width: 640px) { .ga-schedule-row { grid-template-columns: 1.5fr 1fr 1fr; align-items: center; } }
+
+/* ---------- written work + structure checklist (C-02, clarification 3) ---------- */
+.ga-field { margin-bottom: 14px; }
+.ga-field label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem; color: var(--forest-dark); }
+.ga-field textarea, .ga-field input[type="text"], .ga-field select {
+  width: 100%; font: inherit; font-size: 0.98rem; padding: 10px 12px; border-radius: var(--radius-sm); background: #fff; color: var(--ink);
+}
+.ga-rows { display: flex; flex-direction: column; gap: 12px; }
+.ga-row { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--paper-dim); }
+.ga-row-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 860px) { .ga-row-grid { grid-template-columns: repeat(var(--ga-cols, 3), 1fr); } }
+.ga-example-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; background: #fff; border: 1px solid var(--ga-line-strong); border-radius: 4px; padding: 2px 8px; margin-bottom: 8px; color: var(--ga-kraft-ink); }
+.ga-structure {
+  border: 1px solid var(--ga-line-strong); border-radius: var(--radius-md); background: #fff;
+  padding: 14px 18px; margin: 16px 0;
+}
+.ga-structure h3 { font-family: var(--font-mono); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--forest); margin: 0 0 8px; }
+.ga-structure ul { list-style: none; padding: 0; margin: 0 0 10px; }
+.ga-structure li { padding: 3px 0; font-size: 0.93rem; }
+.ga-structure .ga-status { font-weight: 700; margin: 6px 0; }
+.ga-structure .ga-status.is-complete { color: var(--ok); }
+.ga-structure .ga-status.is-missing { color: #8A3424; }
+.ga-transparency { font-size: 0.86rem; color: var(--ink-soft); margin: 8px 0 0; }
+
+/* ---------- print sheet (M-14) ---------- */
+.print-sheet { display: none; }
+@media print {
+  body.ga-v2.ga-printing > *:not(.print-sheet) { display: none !important; }
+  body.ga-v2.ga-printing .print-sheet { display: block !important; color: #000; font-size: 11pt; }
+  .print-sheet h1 { font-size: 16pt; margin: 0 0 4pt; color: #000; }
+  .print-sheet .ps-meta { font-size: 9.5pt; margin: 0 0 12pt; color: #222; }
+  .print-sheet h2 { font-size: 12pt; margin: 14pt 0 4pt; color: #000; }
+  .print-sheet .ps-text { white-space: pre-wrap; margin: 0 0 6pt; }
+  .print-sheet table { width: 100%; border-collapse: collapse; margin: 6pt 0; }
+  .print-sheet th, .print-sheet td { border: 1px solid #888; padding: 4pt 6pt; vertical-align: top; text-align: left; white-space: pre-wrap; font-size: 9.5pt; }
+  .print-sheet .ps-footer { margin-top: 16pt; font-size: 8.5pt; color: #333; border-top: 1px solid #999; padding-top: 6pt; }
+}
