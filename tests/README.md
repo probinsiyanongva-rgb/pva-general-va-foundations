@@ -16,6 +16,8 @@ PVA_BASE_URL=https://<preview>.pages.dev ./run_all.sh   # against a Cloudflare p
 | `unit/cs-isolation.test.js` | RT-36 (files): Customer Support files and the shared files it loads are byte-identical to the baseline |
 | `e2e/customer-support-baseline.spec.js` | RT-36 (behaviour): every Customer Support page renders as on the baseline |
 | `e2e/site-integrity.spec.js` | Internal links, Cloudflare headers, 404 page |
+| `unit/progress-core.test.js` | WP1: storage normalisation, failure modes, V1 read, mastery and rule semantics, Final Project completion, eligibility, `completedAt`, certificate record, backup/restore |
+| `e2e/progress-core-browser.spec.js` | WP1 in Chrome: script loading, real localStorage, V1 key untouched, blocked storage |
 | `e2e/ga-audit-characterization.spec.js` | Audit C-01/C-02: a wrong-answer, minimal-typing learner must not finish. Pages still affected are marked `test.fail()`; remove a page from `KNOWN_DEFECT` when WP3/WP4 fixes it |
 
 Baselines in `fixtures/` were recorded on `main` @ 5778df5. Never regenerate them on a
