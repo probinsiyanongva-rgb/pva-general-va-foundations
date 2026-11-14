@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
 <style>
   .hero{ background: linear-gradient(180deg, var(--forest-dark) 0%, var(--forest) 100%); color:#fff; padding: 56px 0 72px; position: relative; }
   .hero .wrap{ display: grid; grid-template-columns: 1fr; gap: 32px; }
@@ -65,7 +66,7 @@
   .reset-row button{ background:none; border:none; color: var(--forest); text-decoration: underline; cursor:pointer; font-size: 0.85rem; padding:0; }
 </style>
 </head>
-<body>
+<body class="ga-v2">
 
 <div class="route-bar no-print">
   <div class="wrap">
@@ -78,7 +79,7 @@
     <div>
       <span class="eyebrow">Free · Self-paced · No account needed</span>
       <h1>General Administrative VA — Beginner Foundations</h1>
-      <p class="lede">Learn what General Admin VA work actually involves, practice on realistic (fictional) client situations, and leave with beginner-level work samples — not just a certificate.</p>
+      <p class="lede">Learn what General Admin VA work actually involves, practice on realistic (fictional) client situations, and leave with beginner-level work samples — plus a Certificate of Completion once you finish all 13 lessons and the Final Project.</p>
       <div class="hero-badges">
         <span class="hero-badge">13 lessons</span>
         <span class="hero-badge">1 simulated client project</span>
@@ -115,7 +116,7 @@
           <div><span class="count" id="progressCount">0</span> <span class="small">of 13 lessons completed</span></div>
         </div>
         <div class="progress-rail" id="progressRail" style="flex:1;min-width:180px;max-width:340px;margin:0;"></div>
-        <div class="reset-row">Saved automatically in this browser. <button id="resetProgressBtn" type="button">Reset progress</button></div>
+        <div class="reset-row">Saved automatically in this browser. <a href="/certificate/#backup">Back up or restore</a> · <button id="resetProgressBtn" type="button">Reset progress</button></div>
       </div>
     </div>
   </section>
@@ -127,13 +128,20 @@
       <p class="wrap-narrow" style="padding:0;">Work through them in order — later lessons build on earlier ones (Lesson 9's SOP thinking leans on Lesson 2's workflow; Lesson 13's QA check applies to everything before it).</p>
 
       <div class="lesson-grid" id="lessonGrid">
-        <!-- Lesson cards injected by script.js from LESSONS data, with real status -->
+        <!-- Lesson cards injected by shared/ga/hub.js from the v2 progress store, with live status -->
       </div>
 
       <a class="folder-tab final-card" data-tab="FINAL PROJECT" href="/final-project/" style="display:block;margin-top:34px;padding:26px 24px;">
         <div class="lnum">Simulated client engagement</div>
         <h3>Your First Simulated Client — Northstar Home Services</h3>
         <p class="output">Combine everything from Lessons 1–13 into one engagement: triage an inbox, build a calendar, clean a spreadsheet, research software, write an SOP, manage a task tracker, use AI responsibly, and handle a security situation. <strong>Output:</strong> Final Simulated Client Project</p>
+        <div class="status-row" style="margin-top:14px;"><span class="stamp pending" id="finalStatus">Not started</span></div>
+      </a>
+      <a class="folder-tab lesson-card ga-hub-cert" id="certCard" data-tab="CERTIFICATE" href="/certificate/" style="display:block;margin-top:34px;padding:22px 24px;">
+        <div class="lnum">Certificate of Completion</div>
+        <h3>Your certificate</h3>
+        <p class="output">Unlocks when all 13 lessons and the Final Project are complete. Check what remains, then add your name and generate it.</p>
+        <div class="status-row"><span class="stamp pending" id="certStatus">Locked — 0 of 14 complete</span></div>
       </a>
     </div>
   </section>
@@ -191,8 +199,10 @@
   </div>
 </footer>
 
-<script src="/shared/progress.js"></script>
 <script src="/shared/lessons-data.js"></script>
-<script src="/script.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/hub.js"></script>
 </body>
 </html>

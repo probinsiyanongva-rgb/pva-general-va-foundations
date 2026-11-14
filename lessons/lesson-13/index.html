@@ -177,8 +177,8 @@ Let me know if you have questions!</div>
       <section class="step-panel" data-step="7" id="completionStep">
         <div class="completion-panel">
           <div class="stamp" style="font-size:1rem;padding:10px 20px;">✓ Lesson 13 Processed</div>
-          <h2 style="margin-top:18px;">All 13 lessons complete.</h2>
-          <p class="wrap-narrow" style="padding:0;">You've built a full starter portfolio and practiced the judgment behind General Admin VA work — not just the software. One thing left: bring it all together in the Final Project.</p>
+          <h2 style="margin-top:18px;" id="l13DoneHeading">Lesson 13 complete.</h2>
+          <p class="wrap-narrow" style="padding:0;" id="l13DoneText"></p>
           <div class="hero-cta center" style="justify-content:center;">
             <a class="btn btn-kraft" href="/final-project/">Start the Final Project →</a>
             <a class="btn btn-ghost" href="/">Back to Course Map</a>
@@ -207,5 +207,29 @@ Let me know if you have questions!</div>
 <script src="/shared/ga/validators.js"></script>
 <script src="/shared/ga/activities.js"></script>
 <script src="lesson.js"></script>
+<script>
+  /* WP5 (m-07, W2): the completion screen states actual progress, not "All 13 lessons complete." */
+  (function () {
+    var store = window.PVAGAActivities.getStore();
+    var heading = document.getElementById("l13DoneHeading");
+    var text = document.getElementById("l13DoneText");
+    function sync() {
+      var ev = store.evaluate();
+      var left = ev.lessons.filter(function (l) { return !l.complete && l.n !== 13; }).map(function (l) { return l.n; });
+      if (left.length === 0) {
+        heading.textContent = "All 13 lessons complete.";
+        text.textContent = ev.finalProject.complete
+          ? "You've built a full starter portfolio and practiced the judgment behind General Admin VA work — not just the software. Your Final Project is complete too, so your certificate is ready on the Certificate page."
+          : "You've built a full starter portfolio and practiced the judgment behind General Admin VA work — not just the software. One thing left: bring it all together in the Final Project.";
+      } else {
+        heading.textContent = "Lesson 13 complete.";
+        text.textContent = left.length + " other lesson" + (left.length === 1 ? "" : "s") + " still to finish (Lesson" + (left.length === 1 ? " " : "s ") + left.join(", ") +
+          "). Finish " + (left.length === 1 ? "it" : "them") + " and the Final Project to complete the course.";
+      }
+    }
+    store.on("progress", sync);
+    sync();
+  })();
+</script>
 </body>
 </html>

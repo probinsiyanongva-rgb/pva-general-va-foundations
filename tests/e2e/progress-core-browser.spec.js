@@ -1,6 +1,6 @@
 // WP1 in a real browser: the core and manifest load as plain <script> files on the
-// Cloudflare runtime, use real localStorage, and handle blocked storage. No page uses
-// them yet (wiring is WP2+), so the scripts are injected into the hub page here.
+// Cloudflare runtime, use real localStorage, and handle blocked storage. The scripts are
+// injected again into the hub page here (the hub has loaded them itself since WP5).
 const { test, expect } = require("@playwright/test");
 
 async function loadCore(page) {
@@ -23,9 +23,11 @@ test("core + manifest expose PVACore/PVAGA and persist to localStorage", async (
 });
 
 test("the V1 key is read but left untouched; V1 lessons do not count", async ({ page }) => {
-  await page.goto("/");
+  // A returning V1 learner: the V1 key exists before any v2 page is opened (the hub reads the store since WP5).
+  await page.goto("/404-seed");
   const v1 = JSON.stringify({ lessons: { 1: { complete: true, at: "2026-09-01T00:00:00Z" } }, finalProject: {} });
-  await page.evaluate((v) => localStorage.setItem("pva-gadmin-ft-progress", v), v1);
+  await page.evaluate((v) => { localStorage.clear(); localStorage.setItem("pva-gadmin-ft-progress", v); }, v1);
+  await page.goto("/");
   await page.addScriptTag({ url: "/shared/pva-core/progress-core.js" });
   await page.addScriptTag({ url: "/shared/ga/manifest.js" });
   const r = await page.evaluate(() => {
@@ -36,9 +38,11 @@ test("the V1 key is read but left untouched; V1 lessons do not count", async ({ 
   expect(r.v1only).toEqual([1]);
   expect(r.done).toBe(0);
   expect(r.v1).toBe(v1);
-  // The current V1 hub still reads its own key correctly.
+  // WP5: the hub reads the v2 store; the V1 completion is shown as "earlier version", not counted.
   await page.reload();
-  await expect(page.locator("#progressCount")).toHaveText("1");
+  await expect(page.locator("#progressCount")).toHaveText("0");
+  await expect(page.locator('[data-lesson="1"] .stamp')).toHaveText("Completed in an earlier version — please redo the updated checks");
+  expect(await page.evaluate(() => localStorage.getItem("pva-gadmin-ft-progress"))).toBe(v1);
 });
 
 test("blocked storage: memory mode, event fired, nothing thrown", async ({ browser }) => {

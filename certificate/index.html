@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Certificate of Completion | General Admin VA Free Training | Probinsiyanong VA</title>
+<meta name="description" content="Check your progress and generate your Certificate of Completion for the free General Administrative VA — Beginner Foundations course.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
+</head>
+<body class="ga-v2 ga-cert-page">
+
+<div class="route-bar no-print">
+  <div class="wrap">
+    <a class="route-home" href="/">🏠 Free Training Home</a>
+    <span class="route-crumb-sep">/</span>
+    <span class="current">Certificate</span>
+  </div>
+</div>
+
+<header class="ga-cert-hero no-print">
+  <div class="wrap">
+    <span class="eyebrow">General Administrative VA — Beginner Foundations</span>
+    <h1>Certificate of Completion</h1>
+    <p>Your certificate unlocks when all 13 lessons and the Final Project are complete. Everything is checked from the progress saved in this browser.</p>
+  </div>
+</header>
+
+<main class="ga-cert-main" id="main">
+  <div class="wrap-narrow">
+
+    <section class="ga-cert-section no-print" aria-labelledby="statusHeading">
+      <h2 id="statusHeading">Your progress</h2>
+      <p class="ga-cert-status" id="certStatusLine" role="status" aria-live="polite"></p>
+      <ul class="ga-cert-remaining" id="remainingList"></ul>
+    </section>
+
+    <section class="ga-cert-section no-print" id="details" aria-labelledby="detailsHeading">
+      <h2 id="detailsHeading">Your details</h2>
+      <div class="ga-field">
+        <label for="certName">Your name, as it should appear on the certificate (up to 120 characters)</label>
+        <input type="text" id="certName" maxlength="120" autocomplete="name">
+      </div>
+      <div class="ga-cert-scope" id="scopeText"></div>
+      <div class="ga-check">
+        <input type="checkbox" id="certAck">
+        <label for="certAck">I've read the scope statement above and understand that this certificate recognises completion of the course, not professional competence.</label>
+      </div>
+      <div class="ga-actions">
+        <button class="btn btn-primary" id="generateBtn" type="button">Generate my certificate</button>
+        <button class="btn btn-ghost" id="correctNameBtn" type="button" hidden>Correct my name</button>
+        <button class="btn btn-primary" id="saveNameBtn" type="button" hidden>Save corrected name</button>
+      </div>
+      <p class="small" id="generateNote" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="ga-cert-section" id="certificate" aria-labelledby="certHeading" hidden>
+      <h2 id="certHeading" class="no-print">Your certificate</h2>
+      <div class="ga-cert-sheet" id="certSheet"></div>
+      <div class="ga-actions no-print">
+        <button class="btn btn-primary" id="printCertBtn" type="button">🖨️ Print / Save as PDF</button>
+        <button class="btn btn-ghost" id="svgCertBtn" type="button">⬇️ Download certificate (.svg)</button>
+      </div>
+    </section>
+    <p class="ga-note-banner ga-note-banner-warn no-print" id="certLocked" hidden></p>
+
+    <section class="ga-cert-section no-print" id="backup" aria-labelledby="backupHeading">
+      <h2 id="backupHeading">Back up or restore your progress</h2>
+      <p>Your progress is saved only in this browser. Download a backup to keep it safe or to move it to another device.</p>
+      <div class="ga-actions">
+        <button class="btn btn-ghost" id="backupBtn" type="button">⬇️ Download progress backup</button>
+      </div>
+      <div class="ga-field">
+        <label for="restoreFile">Restore from a backup file (.json)</label>
+        <input type="file" id="restoreFile" accept=".json,application/json">
+      </div>
+      <div class="ga-cert-restore" id="restorePanel" hidden>
+        <p id="restoreSummary"></p>
+        <div class="ga-actions">
+          <button class="btn btn-primary" id="restoreConfirmBtn" type="button">Replace my progress with this backup</button>
+          <button class="btn btn-ghost" id="restoreCancelBtn" type="button">Cancel</button>
+        </div>
+      </div>
+      <p class="small" id="restoreNote" role="status" aria-live="polite"></p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer no-print">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>Probinsiyanong VA — Free General Admin VA Training</div>
+    <a href="/">🏠 Free Training Home</a>
+  </div>
+</footer>
+
+<script src="/shared/lessons-data.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="certificate.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+// Genuine answers that pass every structure rule (shared by unit tests and the WP5 browser fixtures).
+const V = require("../../shared/ga/validators.js");
+const GOOD = {
+  "l01-ws": { rows: [
+    { area: "Communication", tasks: "Sorting incoming email and sending confirmations", skills: "Clarity, tone, prioritizing" },
+    { area: "Scheduling", tasks: "Booking client calls across time zones", skills: "Attention to detail, planning" },
+    { area: "Information", tasks: "Updating the contact spreadsheet every week", skills: "Accuracy, consistency, organization" },
+  ] },
+  "l02-clarify": { text: "Should I merge duplicate contacts or flag them for you? Which column order do you prefer? Where should I save the finished file and by what time tomorrow?" },
+  "l02-ws": { rows: [{ request: "Organize contacts", outcome: "A clean contact list the team can filter", questions: "Merge or flag duplicates? Which format for phone numbers?", steps: "1. Copy the file 2. Standardize names 3. Flag duplicates 4. Check and report", deadline: "Tomorrow 10 AM", dod: "Every row standardized and duplicates flagged for review", priority: "High", dependsOn: "Client answer on duplicates" }] },
+  "l03-john": { text: "Which John should I invite: John Reyes from accounting or John Lim from the supplier?" },
+  "l03-ws": {
+    clarify: "Thanks for the list of vendors. Before I start comparing them, could you tell me whether the budget limit is per month or per year so I compare the right figures?",
+    progress: "Quick update on the onboarding checklist: I have drafted the first two sections and checked them against the HR policy. Next I will add the IT access steps and share the draft tomorrow.",
+    completion: "The client list cleanup is finished. All 240 rows now use the same name and phone format, duplicates are flagged in column F, and the file is saved in the Reports folder as agreed.",
+    delay: "I need to flag a delay on the supplier comparison. Two vendors have not replied with prices yet, so I expect to finish by Thursday 3 PM instead of Wednesday. I can send a partial version today if helpful.",
+    error: "I noticed that yesterday's meeting invite went out with the wrong time zone, showing 2 PM Manila instead of 2 PM Sydney. I have already sent a corrected invite to all five attendees and confirmed with two of them. Three replies are still pending, so I recommend a short reminder tomorrow morning.",
+  },
+  "l04-ws": { rows: [
+    { subject: "Meeting moved from 10 AM to 2 PM", category: "action", priority: "Medium", action: "Update calendar" },
+    { subject: "Supplier invoice for March", category: "client_review", priority: "High", action: "Forward to client for approval" },
+    { subject: "Newsletter from industry group", category: "reference", priority: "Low", action: "Save to reading folder" },
+    { subject: "Waiting on contract from vendor", category: "waiting", priority: "Medium", action: "Track and follow up", followup: "Friday" },
+  ] },
+  "l05-schedule": { placements: { team: "10:00", vendor: "11:00", presentation: "15:00", buffer: "14:45", prospect: "13:30" }, cannotFit: "focus" },
+  "l05-ws": { rows: [
+    { event: "Team meeting", confirmed: "10:00 AM", tz: "Manila", notes: "", example: true },
+    { event: "Supplier call", confirmed: "2:00 PM", tz: "Manila (UTC+8)", notes: "Prep notes 15 min before" },
+    { event: "Dentist", confirmed: "9:00 AM", tz: "Manila", notes: "Travel buffer 30 min" },
+    { event: "Board review", confirmed: "4:00 PM", tz: "Sydney", notes: "Send deck" },
+    { event: "Weekly sync", confirmed: "11:00 AM", tz: "Manila", notes: "None" },
+  ] },
+  "l06-ws": { rows: [
+    { folder: "01_Admin", purpose: "x", naming: "YYYY-MM-DD_Topic_v01", access: "Admin" },
+    { folder: "04_Contracts", purpose: "Signed vendor contracts", naming: "YYYY_Vendor_Contract_v01", access: "Client only" },
+    { folder: "05_Marketing", purpose: "Campaign assets and reports", naming: "YYYY-MM_Campaign_Asset", access: "Marketing team" },
+  ], versionRule: "Drafts use v01, v02; the approved file is renamed with FINAL and the old drafts move to Archive" },
+  "l07-ws": { rows: [
+    { original: "maria cruz, 0917-123-4567, active", cleaned: "Maria Cruz, +63 917 123 4567, Active" },
+    { original: "PEDRO SY, 0918 111 2222, ACTIVE", cleaned: "Pedro Sy, +63 918 111 2222, Active" },
+    { original: "ana lim , 09193334444 , inactive", cleaned: "Ana Lim, +63 919 333 4444, Inactive" },
+    { original: "Ben  Tan,0920-555-6666,active", cleaned: "Ben Tan, +63 920 555 6666, Active" },
+    { original: "LIZA GO, +639217778888, Active", cleaned: "Liza Go, +63 921 777 8888, Active" },
+  ], rules: "Title Case names\nPhones as +63 XXX XXX XXXX\nStatus is Active or Inactive", qaCheck: "Spot-checked ten rows against the original file and sorted by status" },
+  "l08-compare": { rows: [
+    { tool: "Trello", price: "$5 per user per month", source: "https://trello.com/pricing", checked: "2026-11-11" },
+    { tool: "Asana", price: "Not published for Team tier", source: "Asana pricing page", checked: "Nov 11" },
+    { tool: "ClickUp", price: "$7 per user", source: "https://clickup.com/pricing", checked: "11 Nov 2026" },
+  ] },
+  "l08-ws": { question: "Which project tool fits a five-person remote team under $10 per user?", criteria: "Price, task views, mobile app", findings: "Three tools fit the budget. Trello is simplest and cheapest but limited for reporting. ClickUp has the most features and good mobile apps, though setup takes longer. Asana sits between them on price and ease, with strong task views and integrations the team already uses.", caveats: "Prices were checked on Nov 11 and may change", sources: "trello.com/pricing\nclickup.com/pricing\nasana.com/pricing" },
+  "l09-practice": { fields: { Purpose: "Follow up overdue invoices weekly", Trigger: "Every Friday at 4 PM", Inputs: "Invoice list and tracker", "Tools/access": "Accounting view access, Drive", Steps: "1. Pull list 2. Compare 3. Update tracker 4. Send reminders", Exceptions: "Disputed invoices are paused", Escalation: "Over 30 days goes to client", "Definition of done": "Tracker updated and reminders sent" } },
+  "l09-ws": { fields: { Purpose: "Publish the weekly social media posts on schedule", Trigger: "Every Monday at 9 AM", Inputs: "Approved captions and images", "Tools/access": "Meta Business Suite editor access", Steps: "1. Open the content calendar\n2. Upload approved posts\n3. Schedule them\n4. Log links in the tracker", Exceptions: "Missing approval or broken image link", Escalation: "Any post without approval goes back to the client before scheduling", "Definition of done": "All approved posts are scheduled and logged in the tracker with links" } },
+  "l10-ws": { rows: [
+    { task: "Finish monthly report", owner: "You", priority: "High", status: "In progress", next: "Finalize numbers section" },
+    { task: "Book venue for offsite", owner: "VA", priority: "Medium", status: "Not started", next: "Shortlist three venues", dependency: "Budget approval from client" },
+    { task: "Renew software license", owner: "Client", priority: "High", status: "Waiting", next: "Send renewal quote to client", followup: "Thursday" },
+    { task: "Update contact list", owner: "VA", priority: "Low", status: "Not started", next: "Merge new leads file" },
+  ] },
+  "l11-ws": { rows: [
+    { step: "Input", ai: "Summarize a vendor email thread", human: "Compare the summary with every email in the thread" },
+    { step: "Extract", ai: "List the deadlines mentioned", human: "Check each deadline date against the original emails" },
+    { step: "Organize", ai: "Group tasks by owner", human: "Confirm owners with the client before sharing the list" },
+    { step: "Output", ai: "Draft client update", human: "Review facts, tone, and authority before sending anything" },
+  ], neverPaste: "Customer names, phone numbers, addresses or payment details" },
+  "l12-ws": { items: [
+    { answer: "yes" }, { answer: "yes" }, { answer: "no", note: "Turn on MFA for email this week" },
+    { answer: "yes" }, { answer: "no", note: "Ask the client for the incident contact" }, { answer: "yes" },
+  ] },
+  "l13-ws": { checks: [
+    { result: "fail", evidence: "The date March 32 does not exist" },
+    { result: "fail", evidence: "Attachment mentioned but not actually attached" },
+    { result: "fail", evidence: "Status values written three different ways" },
+    { result: "fail", evidence: "Records deleted without the client's approval" },
+    { result: "pass", evidence: "The summary is short and easy to follow" },
+  ], issueReport: "I found that three records were deleted without approval and the date was invalid. I restored the records from the previous version and corrected the date. The status values still need one agreed format, and I recommend confirming it with the client." },
+  "fp-t2": { placements: { walkthrough: { day: "Wed", start: "13:00" }, supplier: { day: "Tue", start: "14:00" }, checkin: { day: "Mon", start: "10:00" }, insurance: { day: "Fri", start: "14:00" } }, note: "The new walk-through time needs the customer's agreement and the owner's confirmation before I send invites." },
+  "fp-t3": { records: V.__meta.FP_T3_RECORDS.map((r) => ({ id: r.id, ...r.clean, flag: r.flag, duplicateOf: r.duplicateOf || "", clarification: r.clarification || "" })),
+    rules: "Title Case names, single spaces\nPhones as +63 9XX XXX XXXX\nDates as YYYY-MM-DD\nStatus as Active or Inactive" },
+  "fp-t4": { rows: [
+    { tool: "Jobber", price: "$39 per month", source: "https://getjobber.com/pricing", checked: "2026-11-11", pros: "Built for home services", cons: "Higher price than others" },
+    { tool: "Housecall Pro", price: "Not published", source: "Housecall Pro sales page", checked: "Nov 11", pros: "Good scheduling and dispatch", cons: "Pricing needs a sales call" },
+    { tool: "Google Calendar", price: "$7 per user", source: "https://workspace.google.com/pricing", checked: "11 Nov 2026", pros: "Team already knows it", cons: "No dispatch or invoicing" },
+  ] },
+  "fp-t5": { fields: { Purpose: "Make sure every new booking is scheduled and confirmed", Trigger: "A new customer books a job", Inputs: "Booking form details", "Tools/access": "Scheduling app and SMS tool", Steps: "1. Add job to schedule\n2. Assign technician\n3. Send confirmation text", Exceptions: "Same-day emergency jobs", Escalation: "Any job outside service area goes to the owner", "Definition of done": "Job scheduled, technician assigned and customer confirmation sent" } },
+  "fp-t6": { rows: [
+    { task: "Owner attends the start of the approved kitchen installation", example: true },
+    { task: "Order replacement parts", owner: "VA", priority: "High", status: "Not started", next: "Get supplier quote", dependency: "Owner approves the budget" },
+    { task: "Reschedule Thursday jobs", owner: "VA", priority: "High", status: "In progress", next: "Call customers" },
+    { task: "Update price list", owner: "Owner", priority: "Low", status: "Waiting", next: "Send draft" },
+  ], conflictNote: "The installation start and the insurance renewal both need the owner on Thursday 8-10 AM, so I asked the owner to decide which one moves." },
+  "fp-t7": { used: "I used AI to extract action items from the subcontractor schedule email", verify: "I checked every name and date against the original email and confirmed no customer personal data was included", noConfidential: true },
+  "fp-t8": { correct: true, explanation: "I would not share the login. I tell the owner right away, and the owner sets up the subcontractor's own account so the job can start after access is granted." },
+  "fp-checklist": { checked: [true, true, true, true, true, true, true, true] },
+};
+module.exports = GOOD;
