@@ -113,7 +113,7 @@ const SOLUTIONS = {
         for (const [item, time] of [["Team meeting", "10:00 AM"], ["Vendor call", "11:00 AM"], ["Client presentation", "3:00 PM"], ["15-minute buffer", "2:45 PM"], ["Prospect call", "1:00 PM"]]) {
           await p.getByLabel(item).selectOption({ label: time });
         }
-        await p.getByLabel(/2-hour focus block cannot fit/).check();
+        await p.getByRole("button", { name: /^The 2-hour focus block — / }).click();
         await complete(page);
         await expect(p.locator("#dayRevealBtn")).toBeEnabled();
       },

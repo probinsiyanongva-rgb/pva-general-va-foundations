@@ -24,7 +24,7 @@
         text: "Remove or replace identifying details before using AI, or use only a tool the client has approved for this kind of data.",
         feedback: "Correct. Use a version with names/identifying details replaced with placeholders, or use only a client-approved AI tool/configuration — follow the client's policy rather than defaulting to whatever's fastest." },
       { id: "o3", correct: false,
-        text: "Don't use AI for any part of this reply, and write the whole thing by hand so that no customer information leaves your computer.",
+        text: "Don't use AI for any part of this reply, and write the whole thing yourself by hand.",
         feedback: "Skipping AI assistance entirely isn't necessary — the issue is how it's used, not whether it's used at all. A safer approach (redacting details, using an approved tool) solves the actual problem." },
     ] }],
   };

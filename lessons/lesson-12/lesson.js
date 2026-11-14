@@ -32,7 +32,7 @@
          ["Ask a coworker informally how they usually handle it, without involving the client.", false]]),
       situation("You accidentally send a confidential attachment to the wrong recipient.",
         "Report the incident promptly; don't hide it. Delay only makes the situation harder to contain.",
-        [["Say nothing and hope it goes unnoticed, since the recipient will probably just delete it.", false],
+        [["Say nothing and hope it goes unnoticed, since it was only one email.", false],
          ["Report the incident promptly according to the client's security/incident process.", true],
          ["Wait to see if the wrong recipient replies before doing anything about it.", false]]),
     ],
@@ -44,7 +44,7 @@
         text: "Wait until you're on a secured connection, or use a VPN if the client's policy allows one.",
         feedback: "Correct. Wait for a secured connection (or a client-approved VPN) before accessing sensitive systems — a few minutes' delay is a small cost next to the risk." },
       { id: "o3", correct: false,
-        text: "Log in, but close the tab and clear the browser history as soon as you've finished checking.",
+        text: "Log in, but finish as quickly as you can and close the tab straight afterwards.",
         feedback: "Speed doesn't protect data on an open network — the risk exists the moment you connect, however briefly." },
     ] }],
   };

@@ -143,10 +143,45 @@
 
   // The one progress store used by the hub, every lesson, the Final Project and
   // the certificate page. Options are for tests (fake storage, fixed clock, rules).
+  /* ---- Quick re-check state (WP3b correction pass, decision 5) ----
+     One draft per lesson, "lNN:recheck", holding
+       { v: 1, queue: [itemKey], items: { [itemKey]: { original: { wrong, firstWrongAt },
+                                                       recheck: { attempts, wrong, passedAt } } } }
+     `original` counts wrong answers on the lesson step; `recheck` counts re-check answers only.
+     The queue holds items still to answer correctly in the re-check, in order. */
+  const recheckDraftId = (n) => `l${String(n).padStart(2, "0")}:recheck`;
+  const KEY_RE = /^[a-z0-9-]+#[a-z0-9-]+$/;
+  const count = (v) => (Number.isInteger(v) && v >= 0 && v <= 100000 ? v : 0);
+  const iso = (v) => (typeof v === "string" && v.length <= 40 && !Number.isNaN(Date.parse(v)) ? v : null);
+  function readRecheck(n, getDraft) {
+    const out = { v: 1, queue: [], items: {} };
+    let raw = null;
+    try { raw = JSON.parse(getDraft(recheckDraftId(n), "null")); } catch (e) { raw = null; }
+    if (!raw || typeof raw !== "object" || Array.isArray(raw) || !raw.items || typeof raw.items !== "object") return out;
+    for (const [k, it] of Object.entries(raw.items)) {
+      if (!KEY_RE.test(k) || !it || typeof it !== "object") continue;
+      const o = it.original || {}, r = it.recheck || {};
+      out.items[k] = {
+        original: { wrong: count(o.wrong), firstWrongAt: iso(o.firstWrongAt) },
+        recheck: { attempts: count(r.attempts), wrong: count(r.wrong), passedAt: iso(r.passedAt) },
+      };
+    }
+    // An item initially answered wrong and not yet passed in the re-check is always pending,
+    // even if it has dropped out of a tampered queue.
+    const queue = Array.isArray(raw.queue) ? raw.queue.filter((k) => out.items[k]) : [];
+    for (const [k, it] of Object.entries(out.items)) if (it.original.wrong > 0 && !it.recheck.passedAt && !queue.includes(k)) queue.push(k);
+    out.queue = [...new Set(queue)].filter((k) => !out.items[k].recheck.passedAt);
+    return out;
+  }
+  const recheckPending = (n, getDraft) => readRecheck(n, getDraft).queue;
+
   function createProgress(opts = {}) {
     const rules = opts.rules || (typeof globalThis !== "undefined" && globalThis.PVAGAValidators) || {};
-    return PVACore.create({ ...config, manifest, rules, storage: opts.storage, now: opts.now });
+    return PVACore.create({
+      ...config, manifest, rules, storage: opts.storage, now: opts.now,
+      completionGuard: (n, { getDraft }) => recheckPending(n, getDraft).length === 0,
+    });
   }
 
-  return { MANIFEST_VERSION, manifest, config, ruleNames, createProgress };
+  return { MANIFEST_VERSION, manifest, config, ruleNames, createProgress, recheck: { draftId: recheckDraftId, read: readRecheck, pending: recheckPending } };
 });

@@ -47,7 +47,7 @@ test("scenario options are shuffled: the correct option appears in more than one
   expect(positions.size).toBeGreaterThan(1);
 });
 
-test("sort: keyboard only, visible selected state, wrong bins marked in text, move and re-check (RT-11, M-15, m-08)", async ({ page }) => {
+test("sort: keyboard only, visible selected state; two bins show counts only, move and re-check (RT-11, M-15, m-08, decision 5)", async ({ page }) => {
   await page.evaluate(() => {
     const s = PVAGAActivities.getStore();
     s.recordAttempt("l01-pay", { passed: true });
@@ -73,13 +73,15 @@ test("sort: keyboard only, visible selected state, wrong bins marked in text, mo
   }
   await sort.getByRole("button", { name: "Check my sorting" }).press("Enter");
   await expect(sort.locator(".ga-feedback")).toContainText("2 of 4");
-  await expect(sort.locator(".ga-chip.is-wrong")).toHaveCount(2);
-  await expect(sort.locator(".ga-chip.is-wrong").first()).toContainText("Wrong bin:");
+  // Two bins: a ✗ would give the answer away, so no item is marked (decision 5).
+  await expect(sort.locator(".ga-chip.is-wrong, .ga-chip.is-correct, .ga-chip .ga-mark")).toHaveCount(0);
+  await sort.getByRole("button", { name: "Check my sorting" }).press("Enter");
+  await expect(sort.locator(".ga-chip.is-wrong, .ga-chip .ga-mark")).toHaveCount(0);
   await expect(next(page)).toBeDisabled();
-  // Move the wrong ones to Skill.
-  for (let i = 0; i < 2; i++) {
-    const wrong = sort.locator(".ga-chip.is-wrong").first();
-    await wrong.focus();
+  // Move the skills to Skill.
+  for (const name of ["Attention to detail", "Time management"]) {
+    const chip = sort.locator(".ga-chip", { hasText: name });
+    await chip.focus();
     await page.keyboard.press("Enter");
     await sort.locator('.ga-bin[data-bin="skill"] .ga-bin-place').press("Enter");
   }
@@ -171,18 +173,26 @@ test("model answer: reveal stays disabled until a valid attempt and never sets t
   await expect(page.locator("#johnModel")).toBeVisible();
 });
 
-test("triage: wrong categories stay editable and name the accepted category; all correct passes", async ({ page }) => {
+test("triage: progressive disclosure — count, then ✗ without the accepted category, feedback once all correct (decision 5)", async ({ page }) => {
   const t = page.locator("#triage");
   await t.getByLabel("“Meeting moved”").selectOption("reply");
-  await t.getByLabel("“Software renews for $499”").selectOption("action");
+  await t.getByLabel("“Software renews for $499”").selectOption("client_review");
   await t.getByRole("button", { name: "Check all" }).click();
-  await expect(t.locator(".ga-feedback")).toContainText("0 of 2 correct");
-  await expect(t.locator(".ga-result-line").nth(1)).toContainText("Accepted: Client review");
+  await expect(t.locator(".ga-feedback")).toContainText("1 of 2 correct");
+  await expect(t.locator(".ga-result-line .ga-mark")).toHaveCount(0);
+  await expect(t).not.toContainText("Accepted");
+  await t.getByRole("button", { name: "Check all" }).click();
+  await expect(t.locator(".ga-result-line").nth(0)).toContainText("✗");
+  await expect(t.locator(".ga-result-line").nth(0)).toContainText("Not Reply.");
+  await expect(t.locator(".ga-result-line").nth(1)).toContainText("Right category.");
+  await expect(t).not.toContainText("Accepted");
+  await expect(t).not.toContainText("Update the calendar.");
   expect(await reqStatus(page, "l04-triage")).toBe(false);
   await t.getByLabel("“Meeting moved”").selectOption("action");
   await t.getByLabel("“Software renews for $499”").selectOption("client_review");
   await t.getByRole("button", { name: "Check all" }).click();
   await expect(t.locator(".ga-feedback")).toContainText("All 2 categorised correctly.");
+  await expect(t.locator(".ga-result-line").nth(0)).toContainText("Update the calendar.");
   expect(await reqStatus(page, "l04-triage")).toBe(true);
 });
 
@@ -202,7 +212,7 @@ test("identify: ticking everything or nothing fails; the exact set passes (M-08 
   expect(await reqStatus(page, "l07-dupes")).toBe(true);
 });
 
-test("schedule: each broken rule is listed; the focus-block flag is required (NT-05, M-05)", async ({ page }) => {
+test("schedule: each broken rule is listed; the can't-fit question is required (NT-05, M-05, decision 3)", async ({ page }) => {
   const sch = page.locator("#schedule");
   const set = async (label, v) => sch.getByLabel(label).selectOption(v);
   await set("Team meeting", "10:00"); await set("Vendor call", "11:00"); await set("Client presentation", "15:00");
@@ -210,9 +220,14 @@ test("schedule: each broken rule is listed; the focus-block flag is required (NT
   await expect(sch.locator(".ga-status")).toContainText("not met");
   await expect(sch.locator("li", { hasText: "Lunch (12–1 PM) kept free" })).toContainText("✗");
   await set("Prospect call (30 min)", "13:30");
-  await expect(sch.locator("li", { hasText: "focus block" })).toContainText("✗");
+  await expect(sch.locator("li", { hasText: "Identified the request that can't fit" })).toContainText("✗");
+  await expect(sch.locator(".ga-structure")).not.toContainText("focus");
   expect(await reqStatus(page, "l05-schedule")).toBe(false);
-  await sch.getByLabel(/2-hour focus block cannot fit/).check();
+  await sch.getByRole("button", { name: /prospect call \(harness\)/ }).click();
+  await expect(sch.locator(".ga-schedule-question .ga-feedback")).toContainText("Feedback for prospect.");
+  expect(await reqStatus(page, "l05-schedule")).toBe(false);
+  await sch.getByRole("button", { name: "Try again" }).click();
+  await sch.getByRole("button", { name: /focus block \(harness\)/ }).click();
   await expect(sch.locator(".ga-status")).toHaveText("All scheduling rules met.");
   expect(await reqStatus(page, "l05-schedule")).toBe(true);
 });
@@ -299,4 +314,35 @@ test("leaving or reloading a page never overwrites a stored passing answer with 
   await page.goto(HARNESS);
   expect(await reqStatus(page, "l01-ws")).toBe(true);
   expect(await page.evaluate(() => PVAGAActivities.getStore().getRecord("l01-ws").answer.rows[2].area)).toBe("C");
+});
+
+test("sort with three or more bins: count first, ✗ from the second failed check (never the right bin), explanations once right (decision 5)", async ({ page }) => {
+  const s3 = page.locator("#sort3");
+  const place = async (item, bin) => {
+    await s3.locator(".ga-chip", { hasText: item }).click();
+    await s3.locator(`.ga-bin[data-bin="${bin}"] .ga-bin-place`).click();
+  };
+  await place("Belongs in A", "b"); await place("Belongs in B", "a"); await place("Belongs in C", "c");
+  const check = s3.getByRole("button", { name: "Check my sorting" });
+  await check.click();
+  await expect(s3.locator(".ga-feedback")).toContainText("1 of 3 are in the right bin");
+  await expect(s3.locator(".ga-chip .ga-mark")).toHaveCount(0);
+  await expect(s3.locator(".ga-sort-notes")).toBeHidden();
+  await check.click();
+  await expect(s3.locator(".ga-chip.is-wrong")).toHaveCount(2);
+  await expect(s3.locator(".ga-feedback")).toContainText("Items marked ✗");
+  await expect(s3.locator(".ga-sort-notes")).toBeHidden();
+  await expect(s3).not.toContainText("Explanation for");
+  await place("Belongs in A", "a"); await place("Belongs in B", "b");
+  await check.click();
+  await expect(s3.locator(".ga-feedback")).toContainText("All 3 items are in the right bin.");
+  await expect(s3.locator(".ga-sort-notes li")).toHaveCount(3);
+});
+
+test("identify: failed checks show counts only, never per-item notes (decision 5)", async ({ page }) => {
+  const idf = page.locator("#identify");
+  await idf.getByLabel("1. Maria Cruz").check();
+  await idf.getByRole("button", { name: "Check my answer" }).click();
+  await expect(idf.locator(".ga-feedback")).toContainText("2 missed, 1 ticked that shouldn't be");
+  await expect(idf.locator(".ga-result-line .ga-mark")).toHaveCount(0);
 });

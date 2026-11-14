@@ -19,7 +19,7 @@
   const CHOICES = {
     "l08-conflict": [{ options: [
       { id: "o1", correct: false,
-        text: "Report $10/user/month as a reasonable average of the two prices you found.",
+        text: "Report $10/user/month as a reasonable average of the two prices, since both sources look credible.",
         feedback: "Averaging two prices from different dates produces a number that isn't real — pricing pages change, and the older figure is likely just outdated." },
       { id: "o2", correct: true,
         text: "Check the vendor's own pricing page directly and report that, noting the date you checked.",

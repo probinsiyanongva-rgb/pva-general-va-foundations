@@ -36,9 +36,15 @@
   // Words of 2+ letters/digits. Tokens with a run of 3+ identical LETTERS
   // ("aaaa", "xxx") are treated as filler and not counted. Numbers such as
   // "2000" or "1000" are real content and are kept.
+  // D5 (correction pass) — a heuristic, not a definition of a word: an ASCII-letter token of
+  // 3+ letters with no vowel (a e i o u y) is treated as a keyboard mash ("qwer zxcv") and not
+  // counted, unless it is a common abbreviation. Non-ASCII words, numbers and mixed tokens are kept.
+  const NO_VOWEL_OK = new Set(("sop sops crm crms pdf pdfs url urls sms csv csvs html http https www ftp sftp ssl vpn dns cms lms sql xml svg png jpg txt rtf ppt pptx xls xlsx " +
+    "ltd mrs mgr tbd qty pkg pst pdt cst cdt mst mdt gmt pht nyc bcc rsvp btw wfh ppc cpc cpm ctr dms pls thx nth std hrs mtg wk wks").split(" "));
+  const isMash = (w) => /^[b-df-hj-np-tv-xz]{3,}$/.test(w) && !NO_VOWEL_OK.has(w);
   function wordsOf(text) {
     return (str(text).toLowerCase().match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) || [])
-      .filter((w) => w.replace(/['’-]/g, "").length >= 2 && !/(\p{L})\1\1/u.test(w));
+      .filter((w) => w.replace(/['’-]/g, "").length >= 2 && !/(\p{L})\1\1/u.test(w) && !isMash(w.replace(/['’-]/g, "")));
   }
   // Meaningful word count: if fewer than 60% of words are distinct, only the
   // distinct words count (so "test test test test" counts as 1).
@@ -56,8 +62,51 @@
   const DATE_RE = new RegExp(`(\\b\\d{4}-\\d{1,2}-\\d{1,2}\\b|\\b\\d{1,2}/\\d{1,2}(/\\d{2,4})?\\b|\\b(${MONTHS})\\.?\\s+\\d{1,2}\\b|\\b\\d{1,2}\\s+(${MONTHS})\\b)`, "i");
   const DAYWORD_RE = new RegExp(`\\b(today|tomorrow|tonight|this (morning|afternoon|week)|next week|${DAYS})\\b`, "i");
   const hasTime = (t) => TIME_RE.test(str(t));
-  const hasDate = (t) => DATE_RE.test(str(t));
+  // D6: a time zone is a UTC/GMT offset, a zone abbreviation, or a real word of 3+ letters
+  // (a city, a country, "client's local time"). Not "ok", "tbd" or "n/a".
+  const TZ_ABBR = new Set("utc gmt pht phst pst pdt pt est edt et cst cdt ct mst mdt mt akst akdt hst aest aedt acst acdt awst nzst nzdt bst ist cet cest wet west eet eest jst kst sgt hkt msk".split(" "));
+  const TZ_PLACEHOLDERS = new Set(["tbd", "tba", "none", "unknown", "test", "same", "time", "zone", "timezone", "okay", "yes"]);
+  function hasTimeZone(t) {
+    const raw = str(t).toLowerCase();
+    if (/\b(utc|gmt)\s*([+\-−]\s*\d{1,2}(:?\d{2})?)?\b/.test(raw)) return true;
+    const ws = raw.match(/\p{L}+/gu) || [];
+    if (ws.some((w) => TZ_ABBR.has(w))) return true;
+    return ws.some((w) => w.length >= 3 && !isMash(w) && /[aeiouy]|[^\x00-\x7f]/.test(w) && !TZ_PLACEHOLDERS.has(w));
+  }
+  const VERSION_WORD = /\b(v\d+|v#|vx|ver\d*|versions?|versioning|versioned|drafts?|final|finals|finalised|finalized|archives?|archived|archiving|approved|approval|revisions?|rev\d*)\b/i;
+  const CHECK_VERB = /\b(compar(?:e|es|ed|ing)|check(?:s|ed|ing)?|double[- ]check(?:s|ed|ing)?|cross[- ]check(?:s|ed|ing)?|spot[- ]check(?:s|ed|ing)?|re-?check(?:s|ed|ing)?|verif(?:y|ies|ied|ying)|review(?:s|ed|ing)?|count(?:s|ed|ing)?|recount(?:s|ed|ing)?|match(?:es|ed|ing)?|confirm(?:s|ed|ing)?|inspect(?:s|ed|ing)?|audit(?:s|ed|ing)?|proofread(?:s|ing)?|test(?:s|ed|ing)?)\b/i;
+  const DATA_KIND = /\b(names?|full names?|phones?|phone numbers?|mobile numbers?|contact (?:numbers?|details|info)|address(?:es)?|e-?mails?|e-?mail address(?:es)?|bank(?:ing)?|accounts?|account numbers?|cards?|credit cards?|card numbers?|passwords?|logins?|pins?|ids?|id numbers?|passports?|ssns?|tins?|health|medical|salar(?:y|ies)|payroll|pay|contracts?|customer|customers|client data|client details|client information|client files|personal|private|confidential|birthdays?|birth ?dates?|date of birth|financial|finances|invoices?|order numbers?)\b/i;
+  // A genuine calendar date: 2026-11-11, 11/11/2026, 11/11, 11 Nov 2026, Nov 11, 2026.
+  // Day and month must be real (no 32/13, no 31 Feb). Numeric d/m forms accept either order.
+  const MONTH_NUM = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12 };
+  const monthOf = (name) => MONTH_NUM[name.toLowerCase().slice(0, name.toLowerCase().startsWith("sept") ? 4 : 3)];
+  const validDay = (d, m, y) => m >= 1 && m <= 12 && d >= 1 && d <= new Date(Date.UTC(y || 2024, m, 0)).getUTCDate();
+  function hasDate(t) {
+    const text = str(t);
+    let m;
+    const iso = /\b(\d{4})-(\d{1,2})-(\d{1,2})\b/g;
+    while ((m = iso.exec(text))) if (validDay(+m[3], +m[2], +m[1])) return true;
+    const num = /\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/g;
+    while ((m = num.exec(text))) {
+      const a = +m[1], b = +m[2], y = m[3] ? +m[3] : undefined;
+      if (validDay(a, b, y) || validDay(b, a, y)) return true;
+    }
+    const dm = new RegExp(`\\b(\\d{1,2})\\s+(${MONTHS})\\b\\.?(?:,?\\s+(\\d{4}))?`, "gi");
+    while ((m = dm.exec(text))) if (validDay(+m[1], monthOf(m[2]), m[3] ? +m[3] : undefined)) return true;
+    const md = new RegExp(`\\b(${MONTHS})\\.?\\s+(\\d{1,2})\\b(?:,?\\s+(\\d{4}))?`, "gi");
+    while ((m = md.exec(text))) if (validDay(+m[2], monthOf(m[1]), m[3] ? +m[3] : undefined)) return true;
+    return false;
+  }
   const hasWhen = (t) => hasTime(t) || hasDate(t) || DAYWORD_RE.test(str(t));
+  // An owner names a real person or role: at least one word of 3+ letters with a vowel that is not a
+  // placeholder, or the short forms "me", "VA". "xy", "tbd", "n/a", "test", "someone" do not count.
+  const OWNER_PLACEHOLDERS = new Set(["tbd", "tba", "tbc", "test", "asd", "asdf", "qwe", "qwer", "qwerty", "abc", "xyz", "none", "nobody", "someone", "anyone", "owner", "name", "person", "unknown", "nil", "null", "na", "n/a"]);
+  function meaningfulOwner(t) {
+    const raw = str(t).trim().toLowerCase();
+    if (!raw || OWNER_PLACEHOLDERS.has(raw)) return false;
+    const words = raw.match(/[\p{L}]+/gu) || [];
+    return words.some((w) => w === "me" || w === "va" || (w.length >= 3 && /[aeiou]/.test(w) && !OWNER_PLACEHOLDERS.has(w) && !/(\p{L})\1\1/u.test(w)));
+  }
   const hasURL = (t) => /https?:\/\/[^\s.]+\.[^\s]+/i.test(str(t));
 
   // Steps: numbered markers ("1." "2)") or separate lines with 2+ words.
@@ -186,15 +235,21 @@
       ]);
     },
     "l02-ws"(a) {
-      const row = rowsOf(a).find((r) => wordCount(r.outcome) >= 5) || rowsOf(a)[0] || {};
+      // A row counts as started once anything beyond the request is filled in (the first request
+      // is prefilled). Every started row must be complete, so extra rows are never silently ignored.
+      const PLAN = ["outcome", "questions", "steps", "deadline", "dod", "priority", "dependsOn"];
+      const started = rowsOf(a).filter((r) => PLAN.some((k) => str(r[k]).trim()));
+      const rows = started.length ? started : [{}];
+      const all = (fn) => rows.every(fn);
+      const label = (txt) => (rows.length > 1 ? `${txt} — every request` : txt);
       return result([
-        c("Desired outcome (5+ words)", wordCount(row.outcome) >= 5),
-        c("Questions include at least 2 question marks", questionCount(row.questions) >= 2),
-        c("At least 3 steps", stepCount(row.steps) >= 3),
-        c("Deadline names a day, date or time", hasWhen(row.deadline)),
-        c("Definition of done (6+ words)", wordCount(row.dod) >= 6),
-        c("Priority chosen", PRIORITIES.includes(norm(row.priority))),
-        c("Depends on: filled in (write \"none\" if nothing)", wordCount(row.dependsOn) >= 1),
+        c(label("Desired outcome (5+ words)"), all((r) => wordCount(r.outcome) >= 5)),
+        c(label("Questions include at least 2 question marks"), all((r) => questionCount(r.questions) >= 2)),
+        c(label("At least 3 steps"), all((r) => stepCount(r.steps) >= 3)),
+        c(label("Deadline names a day, date or time"), all((r) => hasWhen(r.deadline))),
+        c(label("Definition of done (6+ words)"), all((r) => wordCount(r.dod) >= 6)),
+        c(label("Priority chosen"), all((r) => PRIORITIES.includes(norm(r.priority)))),
+        c(label("Depends on: filled in (write \"none\" if nothing)"), all((r) => wordCount(r.dependsOn) >= 1 || norm(r.dependsOn) === "none")),
       ]);
     },
 
@@ -235,7 +290,6 @@
     /* ---- Lesson 5 ---- */
     "l05-schedule"(a) {
       const p = obj(obj(a).placements);
-      const flags = obj(obj(a).flags);
       const slot = (k) => {
         const s = toMin(p[k]);
         return Number.isNaN(s) ? null : { start: s, end: s + L05.items[k].duration, key: k };
@@ -260,14 +314,15 @@
         c("Prospect call placed in the afternoon", prospectOk),
         c("No two items overlap", noOverlap),
         c("Lunch (12–1 PM) kept free", lunchFree),
-        c("Flagged that the 2-hour focus block cannot fit and needs a client decision", flags.focusCannotFit === true),
+        // Correction pass (decision 3): answered by the "which request can't fit?" question; the label names no answer.
+        c("Identified the request that can't fit", obj(a).cannotFit === "focus"),
       ]);
     },
     "l05-ws"(a) {
       // Exclude the two example rows only while unchanged. A learner's own row may use the
       // same event name (the lesson asks them to log the practice requests).
       const rows = rowsOf(a).filter((r) => str(r.event).trim() && !(r.example === true && isExampleRow("l05", r.event)));
-      const valid = rows.filter((r) => hasTime(r.confirmed) && wordCount(r.tz) >= 1);
+      const valid = rows.filter((r) => hasTime(r.confirmed) && hasTimeZone(r.tz));
       return result([
         c("At least 4 events of your own", rows.length >= 4),
         c("Each has a confirmed time and a time zone", rows.length >= 4 && valid.length === rows.length),
@@ -278,12 +333,16 @@
     /* ---- Lesson 6 ---- */
     "l06-ws"(a) {
       const rows = rowsOf(a).filter((r) => str(r.folder).trim() && !isExampleRow("l06", r.folder));
-      const tokenOk = (n) => /yyyy|yy|mm|dd|\d{4}|v\d+|_v|version|date/i.test(str(n));
+      // D1: whole tokens only, so "address" no longer counts as "dd".
+      const tokenOk = (n) => (str(n).toLowerCase().match(/[a-z0-9]+/g) || []).some((t) =>
+        /^(y{2,4}|m{2,3}|d{2}|yyyymmdd|yyyymm|ddmmyyyy|mmddyyyy|yymmdd|date[sd]?|version|ver|rev|v|vx|vn+|v\d+|ver\d+|rev\d+|r\d{2})$/.test(t) ||
+        /^(19|20)\d{2}(\d{2}){0,2}$/.test(t) || /^\d{2}(\d{2})?(19|20)\d{2}$/.test(t) || /[a-z]v\d+$/.test(t));
       return result([
         c("At least 2 folders of your own (besides the 3 starters)", rows.length >= 2),
         c("Each naming convention includes a date or version part", rows.length >= 2 && rows.every((r) => tokenOk(r.naming))),
         c("Each folder says who needs access", rows.length >= 2 && rows.every((r) => wordCount(r.access) >= 1)),
-        c("Version rule written (8+ words)", wordCount(obj(a).versionRule) >= 8),
+        // D2: the rule must actually talk about versions.
+        c("Version rule written (8+ words, naming how versions are marked, e.g. v01, draft, final, archive)", wordCount(obj(a).versionRule) >= 8 && VERSION_WORD.test(str(obj(a).versionRule))),
       ]);
     },
 
@@ -294,7 +353,8 @@
       return result([
         c("At least 4 records of your own, each with a cleaned version that differs from the original", changed.length >= 4),
         c("At least 3 cleaning rules listed", listItems(obj(a).rules) >= 3),
-        c("Quality check described (8+ words)", wordCount(obj(a).qaCheck) >= 8),
+        // D3: the description must say how the work was checked.
+        c("Quality check described (8+ words, saying how you checked, e.g. compared, counted, verified)", wordCount(obj(a).qaCheck) >= 8 && CHECK_VERB.test(str(obj(a).qaCheck))),
       ]);
     },
 
@@ -307,7 +367,7 @@
         c("3 tools listed", rows.length >= 3),
         c("Each has a price, or says \"not published\"", rows.length >= 3 && rows.every((r) => priceOk(r.price))),
         c("Each has a source (link or publisher name)", rows.length >= 3 && rows.every((r) => sourceOk(r.source))),
-        c("Each has the date you checked it", rows.length >= 3 && rows.every((r) => hasDate(r.checked) || DAYWORD_RE.test(str(r.checked)))),
+        c("Each has the date you checked it (a calendar date, e.g. 11 Nov 2026)", rows.length >= 3 && rows.every((r) => hasDate(r.checked))),
       ]);
     },
     "l08-ws"(a) {
@@ -344,7 +404,7 @@
     /* ---- Lesson 10: Task Tracker ---- */
     "l10-ws"(a) {
       const rows = rowsOf(a).filter((r) => str(r.task).trim() && !isExampleRow("l10", r.task));
-      const valid = rows.filter((r) => wordCount(r.owner) >= 1 && PRIORITIES.includes(norm(r.priority)) && STATUSES.includes(norm(r.status)) && wordCount(r.next) >= 3);
+      const valid = rows.filter((r) => meaningfulOwner(r.owner) && PRIORITIES.includes(norm(r.priority)) && STATUSES.includes(norm(r.status)) && wordCount(r.next) >= 3);
       return result([
         c("At least 3 tasks of your own (besides the 2 examples)", rows.length >= 3),
         c("Each has an owner, priority, status and next action (3+ words)", rows.length >= 3 && valid.length === rows.length),
@@ -361,7 +421,8 @@
         c("4 workflow rows", rows.filter((r) => str(r.step).trim()).length >= 4),
         c("At least 3 rows changed from the examples", changed.length >= 3),
         c("Each human-verification step has 6+ words", rows.length >= 4 && rows.every((r) => wordCount(r.human) >= 6)),
-        c("\"Never paste into AI\" filled in (6+ words)", wordCount(obj(a).neverPaste) >= 6),
+        // D4: must name at least one kind of data.
+        c("\"Never paste into AI\" filled in (6+ words, naming at least one kind of data)", wordCount(obj(a).neverPaste) >= 6 && DATA_KIND.test(str(obj(a).neverPaste))),
       ]);
     },
 
@@ -382,7 +443,10 @@
         c("All 5 checks marked Pass or Fail", checks.length === 5 && checks.every((x) => x && (x.result === "pass" || x.result === "fail"))),
         c("Each check has evidence (6+ words)", checks.length === 5 && checks.every((x) => x && wordCount(x.evidence) >= 6)),
         c("Issue report (25+ words)", wordCount(report) >= 25),
-        c("Issue report covers what happened, the action taken and what remains", /happen|found|noticed|issue/i.test(str(report)) && /did|fixed|corrected|action|changed|flagged/i.test(str(report)) && /remain|next|still|pending|recommend/i.test(str(report))),
+        c("Issue report covers what happened, the action taken and what remains",
+          /\b(happen(?:s|ed|ing)?|found|notic(?:e|ed|ing)|issues?)\b/i.test(str(report)) &&
+          /\b(did|fix(?:ed|ing)?|correct(?:ed|ing)?|actions?|chang(?:e|ed|ing)|flag(?:ged|ging)?)\b/i.test(str(report)) &&
+          /\b(remains?|remaining|next|still|pending|recommend(?:s|ed|ing)?)\b/i.test(str(report))),
       ]);
     },
 
@@ -493,6 +557,6 @@
 
   return {
     ...rules,
-    __meta: { COPY, ruleNames, statusLabel, L05, FP_T2, FP_T3_RECORDS, helpers: { wordCount, wordsOf, stepCount, nearCopy, hasTime, hasDate, hasWhen, hasURL, questionCount, listItems } },
+    __meta: { COPY, ruleNames, statusLabel, L05, FP_T2, FP_T3_RECORDS, helpers: { wordCount, wordsOf, stepCount, nearCopy, hasTime, hasDate, hasWhen, hasURL, questionCount, listItems, meaningfulOwner, hasTimeZone, isMash, VERSION_WORD, CHECK_VERB, DATA_KIND } },
   };
 });

@@ -22,7 +22,7 @@
     "l09-exception": [{ options: [
       { id: "o1", correct: false,
         text: "Send the standard reminder anyway, since the SOP says to send one for every overdue invoice.",
-        feedback: "The SOP is a guide, not a substitute for judgment — sending an automatic reminder to a client who's actively disputing the charge could make a delicate situation worse." },
+        feedback: "The SOP is a guide, not a substitute for judgment — sending an automatic reminder to a client who says they've already paid could make a delicate situation worse." },
       { id: "o2", correct: true,
         text: "Pause, flag this specific case to the client, and note it as a gap in the SOP for later.",
         feedback: "Correct. Pause on this one case, flag it to the client, and note the gap so the SOP can be updated — that's exactly what \"identify missing steps and exceptions\" means in practice." },

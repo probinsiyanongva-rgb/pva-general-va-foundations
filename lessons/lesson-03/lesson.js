@@ -16,7 +16,7 @@
   const CHOICES = {
     "l03-escalate": [{ options: [
       { id: "o1", correct: false,
-        text: "Sign it and send it back — it keeps the work moving, and the vendor is waiting on a reply.",
+        text: "Sign it and send it back — the vendor is waiting, and it keeps the work moving.",
         feedback: "Signing anything with new pricing/contract terms is a decision that exceeds a General Admin VA's authority — this is exactly the kind of thing to escalate first, not handle to save time." },
       { id: "o2", correct: true,
         text: "Escalate to the client — explain what the vendor sent and ask how they'd like to proceed.",

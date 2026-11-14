@@ -2,7 +2,8 @@
    Lesson 5 — Calendar & Appointment Management   (v2.0, WP3b)
    --------------------------------------------------------------------------
    Lesson data + wiring only; behaviour comes from shared/ga/activities.js.
-     l05-schedule  step 6  structured schedule (spec T4), rule "l05-schedule"
+     l05-schedule  step 6  structured schedule (spec T4), rule "l05-schedule", plus the
+                           "which request can't fit?" question (correction pass, decision 3)
      l05-tz        step 7  scenario     "Whose 3 PM?"
      l05-resched   step 8  scenario     NEW check 1 (wording approved 2026-11-11)
      l05-ws        step 9  work sample  Client Calendar Plan, rule "l05-ws"
@@ -19,7 +20,7 @@
   const CHOICES = {
     "l05-tz": [{ options: [
       { id: "o1", correct: false,
-        text: "Send the invite at 3 PM Manila time, since the client is in Manila and this is the client's own meeting.",
+        text: "Send the invite at 3 PM Manila time, since the client is in Manila.",
         feedback: "3 PM Manila time and 3 PM Berlin time are different moments — sending the invite without confirming whose 3 PM this is risks a real scheduling mistake." },
       { id: "o2", correct: true,
         text: "Confirm with the client which time zone they meant, then send the invite showing both time zones.",
@@ -45,6 +46,25 @@
           feedback: "Their preferred time may clash with the client's calendar or working hours. Offer times you have checked are free." },
       ],
     }],
+    // Correction pass (decision 3): replaces the "focus block cannot fit" checkbox, which named the answer.
+    "l05-cannotfit": [{
+      prompt: "One request can't be placed today without breaking a client rule. Which one, and why?",
+      hint: "Place the fixed meetings and lunch first. What is the longest free stretch left, and is any request longer than that?",
+      options: [
+        { id: "c1", correct: true, value: "focus",
+          text: "The 2-hour focus block — with the meetings and lunch fixed, no free stretch of two hours is left between 9 and 5.",
+          feedback: "Correct. Once the fixed meetings and lunch are in, the longest free stretch is 1 hour 45 minutes, so a 2-hour block can't fit. Flag it and let the client decide what moves." },
+        { id: "c2", correct: false,
+          text: "The prospect call — once the buffer and presentation are placed, the afternoon has no room left for a 30-minute call.",
+          feedback: "There is room: 1:00–2:45 PM is free after lunch, and the call needs only 30 minutes." },
+        { id: "c3", correct: false,
+          text: "The 15-minute buffer — the vendor call runs until noon, so there is no gap left right before the presentation.",
+          feedback: "The buffer fits from 2:45 to 3:00 PM. The vendor call ends at noon, hours before the presentation." },
+        { id: "c4", correct: false,
+          text: "Nothing — every request fits, as long as lunch is shortened to 30 minutes to make room for the focus time.",
+          feedback: "Lunch is a client rule. Shortening it to make room is a decision for the client, not something to do on your own." },
+      ],
+    }],
   };
   window.PVAGALesson = { n: 5, choices: CHOICES };
 
@@ -68,7 +88,7 @@
       { key: "prospect", label: "Prospect call (30 min)" },
     ],
     times,
-    flags: [{ key: "focusCannotFit", label: "Flag for the client: the 2-hour focus block cannot fit on this day and needs their decision" }],
+    question: { key: "cannotFit", item: CHOICES["l05-cannotfit"][0] },
   });
   // Model schedule: only after the schedule meets every rule (audit M-02).
   const revealBtn = document.getElementById("dayRevealBtn");

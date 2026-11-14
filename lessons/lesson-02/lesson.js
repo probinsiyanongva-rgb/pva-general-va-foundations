@@ -18,7 +18,7 @@
   const CHOICES = {
     "l02-skip": [{ options: [
       { id: "o1", correct: false,
-        text: "Plan — the VA never worked out the priority or the deadline before starting on the cleanup.",
+        text: "Plan — the VA never worked out the priority or the deadline before starting.",
         feedback: "Plan was fine here — the VA knew what to do and when. The problem showed up after the work was done, not before it started." },
       { id: "o2", correct: true,
         text: "Check — the VA reported completion without reviewing accuracy and completeness first.",

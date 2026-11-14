@@ -74,6 +74,50 @@
   }
   const passed = (id) => getStore().requirementStatus(id).passed;
 
+  /* ---------------- Quick re-check (correction pass, decision 5) ----------------
+     A single-choice item answered wrongly on its step is queued. Before the lesson
+     is marked complete, each queued item must be answered correctly once more,
+     with new option order and no feedback, hints or explanations. State is a draft
+     (persists with progress, export and restore); the completion guard in
+     manifest.js refuses markLessonComplete while the queue is not empty.
+     The re-check never records requirement attempts and never completes anything. */
+  let currentLesson = null;
+  const recheckDefs = new Map(); // itemKey -> { item, context: [Node] }
+  const nowISO = () => new Date().toISOString();
+  function readRecheck() { return GA.recheck.read(currentLesson, (id, fb) => getStore().getDraft(id, fb)); }
+  function writeRecheck(state) { return getStore().saveDraft(GA.recheck.draftId(currentLesson), JSON.stringify(state)); }
+  function noteWrong(key) {
+    if (!currentLesson || !key) return;
+    const st = readRecheck();
+    const it = st.items[key] || (st.items[key] = { original: { wrong: 0, firstWrongAt: null }, recheck: { attempts: 0, wrong: 0, passedAt: null } });
+    if (it.recheck.passedAt) return;
+    it.original.wrong += 1;
+    if (!it.original.firstWrongAt) it.original.firstWrongAt = nowISO();
+    if (!st.queue.includes(key)) st.queue.push(key);
+    writeRecheck(st);
+  }
+  // Context for the re-check: the step's title and the scenario/rules text that
+  // came before the activity. Never model answers, hidden panels or form controls.
+  function captureContext(container) {
+    const panel = container.closest(".step-panel");
+    if (!panel) return [];
+    const out = [];
+    const title = panel.querySelector("h2");
+    if (title) out.push(h("h4", { class: "ga-recheck-title" }, title.textContent));
+    for (const el of panel.children) {
+      if (el === container || el.contains(container)) break;
+      if (el.matches(".step-tag, h2, .model-answer, .reveal-btn, .ga-reveal-note, .ga-recheck-skip, [hidden], .no-print") ||
+          el.querySelector("input, select, textarea, button")) continue;
+      const c = el.cloneNode(true);
+      [c, ...c.querySelectorAll("[id]")].forEach((n) => n.removeAttribute("id"));
+      out.push(c);
+    }
+    return out;
+  }
+  function registerRecheck(key, item, container) {
+    if (!recheckDefs.has(key)) recheckDefs.set(key, { item, context: captureContext(container) });
+  }
+
   // Hint shown after the second failed check (spec: new checks). Never reveals the answer.
   function hintBox(hint) {
     const el = h("p", { class: "ga-hint", hidden: true });
@@ -109,7 +153,7 @@
      Choice items (scenario, choice-set, fp-t8 option)
      ====================================================================== */
   // item: { prompt?, options:[{ id, text, correct, feedback }], hint? }
-  function renderChoiceItem(container, item, { random, alreadyPassed, onResult }) {
+  function renderChoiceItem(container, item, { random, alreadyPassed, onResult, recheckKey }) {
     const optionsEl = h("div", { class: "ga-options", role: "group", "aria-label": item.prompt || "Choose an answer" });
     const region = liveRegion();
     const hintEl = h("p", { class: "ga-hint", hidden: true });
@@ -138,6 +182,7 @@
         onResult(true, opt.id);
       } else {
         wrongCount++;
+        noteWrong(recheckKey);
         btn.classList.add("is-wrong");
         btn.prepend(mark(false));
         say(region, false, (opt.feedback || "That's not the best option.") + " Try again.");
@@ -171,8 +216,11 @@
     items.forEach((item, i) => {
       const wrap = items.length > 1 ? h("div", { class: "ga-item" }) : container;
       if (wrap !== container) container.append(wrap);
+      const recheckKey = `${requirementId}#${i}`;
+      registerRecheck(recheckKey, item, container);
       renderChoiceItem(wrap, item, {
         random,
+        recheckKey,
         alreadyPassed: already,
         onResult(ok, optionId) {
           if (ok) results[i] = true;
@@ -223,21 +271,25 @@
       say(region, null, `Placed in ${bins.find((b) => b.id === binId).label}. ${items.length - Object.keys(placement).length} left to place.`);
       chip.focus();
     }
+    // Progressive disclosure (correction pass, decision 5): 1st failed check = count only;
+    // from the 2nd, ✗ on wrong items without naming the right bin (3+ bins only — with two
+    // bins a ✗ is the answer); explanations only once everything is right.
+    let fails = 0;
     function check(restoring = false) {
-      let right = 0;
+      const right = items.filter((it) => placement[it.id] === it.bin).length;
+      const all = right === items.length;
+      if (!all && !restoring) fails++;
+      const showMarks = all || (bins.length >= 3 && fails >= 2);
       for (const it of items) {
         const chip = chips[it.id];
         chip.querySelectorAll(".ga-mark, .ga-visually-hidden").forEach((m) => m.remove());
         const ok = placement[it.id] === it.bin;
-        if (ok) right++;
-        chip.classList.toggle("is-correct", ok);
-        chip.classList.toggle("is-wrong", !ok);
-        chip.prepend(mark(ok), h("span", { class: "ga-visually-hidden" }, ok ? "Right bin: " : "Wrong bin: "));
+        chip.classList.toggle("is-correct", showMarks && ok);
+        chip.classList.toggle("is-wrong", showMarks && !ok);
+        if (showMarks) chip.prepend(mark(ok), h("span", { class: "ga-visually-hidden" }, ok ? "Right bin: " : "Wrong bin: "));
       }
-      const all = right === items.length;
       if (!restoring) s.recordAttempt(requirementId, { passed: all, answer: all ? { placement } : undefined });
-      // Explanations (when the lesson provides them): wrong items after a check; all items once correct.
-      const explain = items.filter((it) => it.feedback && (all || placement[it.id] !== it.bin));
+      const explain = all ? items.filter((it) => it.feedback) : [];
       notesEl.replaceChildren(...explain.map((it) => h("li", {}, h("strong", {}, `“${it.text}”`), ` — ${it.feedback}`)));
       notesEl.hidden = explain.length === 0;
       if (!restoring) { if (all) hints.pass(); else hints.fail(); }
@@ -247,7 +299,9 @@
         Object.values(binEls).forEach((b) => { b.place.disabled = true; });
         checkBtn.disabled = true;
       } else {
-        say(region, false, `${right} of ${items.length} are in the right bin. Items marked ✗ are in the wrong bin — select one and move it, then check again.`);
+        say(region, false, showMarks
+          ? `${right} of ${items.length} are in the right bin. Items marked ✗ are in the wrong bin — select one and move it, then check again.`
+          : `${right} of ${items.length} are in the right bin. Move items you're unsure about, then check again.`);
       }
     }
 
@@ -307,25 +361,28 @@
     }
     const checkBtn = h("button", { type: "button", class: "btn btn-primary" }, "Check all");
     const labelOf = (v) => (categories.find((c) => c.value === v) || {}).label || v;
+    // Progressive disclosure (decision 5): 1st failed check = count only; from the 2nd,
+    // ✗ on wrong items (3+ categories only), never the accepted category; feedback once all are right.
+    let fails = 0;
     function check(restoring = false) {
-      let right = 0, answered = 0;
+      const answered = items.filter((it) => selects[it.id].value).length;
+      const right = items.filter((it) => it.accept.includes(selects[it.id].value)).length;
+      const all = right === items.length;
+      if (!all && !restoring) fails++;
+      const showMarks = !all && categories.length >= 3 && fails >= 2;
       for (const it of items) {
         const v = selects[it.id].value;
         const line = lines[it.id];
         line.replaceChildren();
         if (!v) { line.append("Choose a category for this message."); continue; }
-        answered++;
         const ok = it.accept.includes(v);
-        if (ok) right++;
-        const acceptedText = it.accept.map(labelOf).join(" or ");
-        line.append(mark(ok), h("span", { class: "ga-visually-hidden" }, ok ? "Correct. " : "Not quite. "),
-          ok ? (it.feedback || `${acceptedText}.`) : `Not ${labelOf(v)}. ${it.feedback || ""} Accepted: ${acceptedText}.`);
+        if (all) line.append(mark(true), h("span", { class: "ga-visually-hidden" }, "Correct. "), it.feedback || `${it.accept.map(labelOf).join(" or ")}.`);
+        else if (showMarks) line.append(mark(ok), h("span", { class: "ga-visually-hidden" }, ok ? "Correct. " : "Not quite. "), ok ? "Right category." : `Not ${labelOf(v)}.`);
       }
-      const all = right === items.length;
       if (!restoring) s.recordAttempt(requirementId, { passed: all, answer: all ? Object.fromEntries(items.map((i) => [i.id, selects[i.id].value])) : undefined });
       if (!restoring) { if (all) hints.pass(); else hints.fail(); }
       if (all) { say(region, true, `All ${items.length} categorised correctly.`); Object.values(selects).forEach((x) => { x.disabled = true; }); checkBtn.disabled = true; }
-      else say(region, false, `${right} of ${items.length} correct${answered < items.length ? `, ${items.length - answered} not answered` : ""}. Change the ones marked ✗ and check again.`);
+      else say(region, false, `${right} of ${items.length} correct${answered < items.length ? `, ${items.length - answered} not answered` : ""}. ${showMarks ? "Change the ones marked ✗ and check again." : "Change any you're unsure about and check again."}`);
     }
     checkBtn.addEventListener("click", () => check());
     if (legend) container.append(legend instanceof Node ? legend : h("p", { class: "small" }, legend));
@@ -339,7 +396,7 @@
      ====================================================================== */
   // options: [{ id, text, correct: true | false | "either", note }]
   //   "either" — ticked or not, both are accepted (U-01); its note explains why.
-  // explainAll — after a check, show every option's note (per-element feedback), not only the wrong ones.
+  // explainAll — kept for existing callers; since the correction pass every option's note shows once the answer is right.
   function IdentifyActivity({ container, requirementId, options, prompt, random, keepOrder, hint, explainAll = false, successText }) {
     const s = getStore();
     const already = passed(requirementId);
@@ -357,21 +414,20 @@
       group.append(h("div", { class: "ga-check" }, box, h("div", {}, h("label", { for: id }, o.text), note)));
     }
     const checkBtn = h("button", { type: "button", class: "btn btn-primary" }, "Check my answer");
+    // Progressive disclosure (decision 5): a tick is a yes/no choice, so any per-item mark
+    // gives the answer away. Failed checks show counts only; every note appears once right.
     function check(restoring = false) {
       let missed = 0, extra = 0;
       for (const o of options) {
-        const ticked = boxes[o.id].checked;
-        const note = notes[o.id];
-        note.replaceChildren();
-        const ok = o.correct === "either" || ticked === !!o.correct;
-        if (ok) {
-          if ((explainAll || o.correct === "either") && o.note) note.append(mark(true), h("span", { class: "ga-visually-hidden" }, "Accepted. "), o.note);
-          continue;
-        }
-        if (o.correct) missed++; else extra++;
-        note.append(mark(false), h("span", { class: "ga-visually-hidden" }, "Not quite. "), o.note || (o.correct ? "This one should be ticked." : "This one should not be ticked."));
+        const ok = o.correct === "either" || boxes[o.id].checked === !!o.correct;
+        if (!ok) { if (o.correct) missed++; else extra++; }
       }
       const all = missed === 0 && extra === 0;
+      for (const o of options) {
+        const note = notes[o.id];
+        note.replaceChildren();
+        if (all && o.note) note.append(mark(true), h("span", { class: "ga-visually-hidden" }, "Accepted. "), o.note);
+      }
       if (!restoring) s.recordAttempt(requirementId, { passed: all, answer: all ? options.filter((o) => boxes[o.id].checked).map((o) => o.id) : undefined });
       if (!restoring) { if (all) hints.pass(); else hints.fail(); }
       if (all) { say(region, true, successText || "Exactly right."); Object.values(boxes).forEach((b) => { b.disabled = true; }); checkBtn.disabled = true; }
@@ -512,7 +568,9 @@
      Schedule activity (L5, FP T2) — structured placements + flags (T4)
      ====================================================================== */
   // items: [{ key, label }], times: ['9:00', ...], days?: ['Mon', ...], flags: [{ key, label }], noteLabel?, formatTime?(t) -> option text
-  function ScheduleActivity({ container, requirementId, ruleName, items, times, days, flags = [], noteLabel, formatTime = (t) => t }) {
+  // question?: { key, item } — a single-choice item (options carry `value`); the correct option's
+  //   value is stored in the answer under `key` (L5 "which request can't fit"). It joins the re-check.
+  function ScheduleActivity({ container, requirementId, ruleName, items, times, days, flags = [], noteLabel, formatTime = (t) => t, question }) {
     const s = getStore();
     const draftKey = `${requirementId}:state`;
     let saved = {};
@@ -542,6 +600,20 @@
       flagEls[f.key] = box;
       container.append(h("div", { class: "ga-check" }, box, h("label", { for: id }, f.label)));
     }
+    let qValue = question && typeof saved[question.key] === "string" ? saved[question.key] : "";
+    let update = null;
+    if (question) {
+      const qWrap = h("div", { class: "ga-item ga-schedule-question" });
+      container.append(qWrap);
+      const right = question.item.options.find((o) => o.correct);
+      const recheckKey = `${requirementId}#${question.key.toLowerCase()}`;
+      registerRecheck(recheckKey, question.item, qWrap);
+      renderChoiceItem(qWrap, question.item, {
+        recheckKey,
+        alreadyPassed: qValue !== "" && qValue === right.value,
+        onResult(ok) { if (ok) { qValue = right.value; if (update) { update(); update.flush(); } } },
+      });
+    }
     let note = null;
     if (noteLabel) {
       const id = uid("note");
@@ -556,6 +628,7 @@
         placements[it.key] = days ? { day: daySel.value, start: timeSel.value } : timeSel.value;
       }
       const out = { placements, flags: Object.fromEntries(Object.entries(flagEls).map(([k, b]) => [k, b.checked])) };
+      if (question) out[question.key] = qValue;
       if (note) out.note = note.value;
       return out;
     };
@@ -568,7 +641,7 @@
       status.textContent = res.ok ? "All scheduling rules met." : `${res.missing.length} rule${res.missing.length > 1 ? "s" : ""} not met yet.`;
       status.className = `ga-status ${res.ok ? "is-complete" : "is-missing"}`;
     }
-    const update = debounce(() => {
+    update = debounce(() => {
       const a = collect();
       s.saveDraft(draftKey, JSON.stringify(a));
       s.recordAttempt(requirementId, { answer: a });
@@ -673,9 +746,14 @@
       s.saveDraft(stepKey, String(current));
       if (current >= total) {
         nav.style.display = "none";
-        const r = s.markLessonComplete(lesson);
-        label.textContent = r.ok ? (r.saved ? "Complete" : "Complete — not saved in this browser") : "Some activities still need to be completed";
-        if (onComplete) onComplete(r);
+        const finish = () => {
+          const r = s.markLessonComplete(lesson);
+          label.textContent = r.ok ? (r.saved ? "Complete" : "Complete — not saved in this browser") : "Some activities still need to be completed";
+          if (onComplete) onComplete(r);
+        };
+        const done = s.evaluate().lessons.find((l) => l.n === lesson);
+        if (done && done.complete) finish();
+        else runRecheck(panels.find((p) => Number(p.dataset.step) === current), label, finish);
       } else {
         nav.style.display = "flex";
         label.textContent = `Step ${current} of ${total - 1}`;
@@ -708,6 +786,73 @@
   }
 
   /* ======================================================================
+     Quick re-check runner (decision 5) — on the completion step, before completion
+     ====================================================================== */
+  function runRecheck(panel, label, finish) {
+    const completion = panel.querySelector(".completion-panel") || panel.firstElementChild;
+    panel.querySelectorAll(".ga-recheck").forEach((e) => e.remove());
+    // Items whose definition no longer exists in the lesson cannot be asked; they are retired.
+    const st0 = readRecheck();
+    const missing = st0.queue.filter((k) => !recheckDefs.has(k));
+    if (missing.length) {
+      missing.forEach((k) => { st0.items[k].recheck.passedAt = nowISO(); st0.items[k].retired = true; });
+      st0.queue = st0.queue.filter((k) => recheckDefs.has(k));
+      writeRecheck(st0);
+    }
+    if (!readRecheck().queue.length) { if (completion) completion.hidden = false; finish(); return; }
+
+    if (completion) completion.hidden = true;
+    label.textContent = "Quick re-check";
+    const headingId = uid("recheck");
+    const heading = h("h2", { tabindex: "-1", id: headingId }, "Quick re-check");
+    const intro = h("p", {}, "You found the right answer to these after a first try. Answer them once more — the options are in a new order. The lesson is complete when all are right.");
+    const left = h("p", { class: "ga-recheck-left small" });
+    const body = h("div", { class: "ga-recheck-item" });
+    const status = h("p", { class: "ga-recheck-status", role: "status", "aria-live": "polite" });
+    const box = h("section", { class: "ga-recheck", "aria-labelledby": headingId }, heading, intro, left, body, status);
+    panel.prepend(box);
+
+    function ask(first) {
+      const st = readRecheck();
+      if (!st.queue.length) {
+        box.replaceChildren(h("h2", { tabindex: "-1" }, "Re-check complete"), h("p", {}, "All answered correctly."));
+        if (completion) completion.hidden = false;
+        finish();
+        return;
+      }
+      const key = st.queue[0];
+      const { item, context } = recheckDefs.get(key);
+      left.textContent = `${st.queue.length} question${st.queue.length > 1 ? "s" : ""} left`;
+      const qTitle = h("h3", { class: "ga-recheck-q", tabindex: "-1" }, `Question: ${(context[0] && context[0].textContent) || "Re-check"}`);
+      const options = h("div", { class: "ga-options", role: "group", "aria-label": item.prompt || "Choose an answer" });
+      for (const opt of shuffle(item.options)) {
+        options.append(h("button", { type: "button", class: "ga-option", "data-option": opt.id, onclick: () => answer(key, opt) }, opt.text));
+      }
+      body.replaceChildren(qTitle, ...context.slice(1).map((n) => n.cloneNode(true)),
+        item.prompt ? h("p", { class: "ga-item-prompt" }, item.prompt) : null, options);
+      if (!first) qTitle.focus(); else heading.focus();
+    }
+    function answer(key, opt) {
+      body.querySelectorAll("button").forEach((b) => { b.disabled = true; });
+      const st = readRecheck();
+      const it = st.items[key];
+      it.recheck.attempts += 1;
+      if (opt.correct) {
+        it.recheck.passedAt = nowISO();
+        st.queue = st.queue.filter((k) => k !== key);
+        status.textContent = "Answer recorded.";
+      } else {
+        it.recheck.wrong += 1;
+        st.queue = st.queue.filter((k) => k !== key).concat(key);
+        status.textContent = "Not yet — this question will come back after the others.";
+      }
+      writeRecheck(st);
+      ask(false);
+    }
+    ask(true);
+  }
+
+  /* ======================================================================
      Print sheet (M-14): print only the learner's work, with header and footer
      ====================================================================== */
   // sections: [{ heading, text }] or [{ heading, table: { columns:[labels], rows:[[cells]] } }]
@@ -737,6 +882,7 @@
 
   /* ---------------- page bootstrap ---------------- */
   function initPage({ lesson } = {}) {
+    if (Number.isInteger(lesson)) currentLesson = lesson;
     document.body.classList.add("ga-v2");
     mountSkipLink();
     mountStorageBanner();
@@ -744,7 +890,7 @@
   }
 
   root.PVAGAActivities = {
-    version: "2.0.0-wp3",
+    version: "2.0.0-wp3b",
     getStore,
     initPage,
     shuffle,

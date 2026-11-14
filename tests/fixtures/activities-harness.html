@@ -35,6 +35,7 @@
   <div class="harness-block"><h2>Triage</h2><div id="triage"></div></div>
   <div class="harness-block"><h2>Identify</h2><div id="identify"></div></div>
   <div class="harness-block"><h2>Schedule</h2><div id="schedule"></div></div>
+  <div class="harness-block"><h2>Sort (three bins)</h2><div id="sort3"></div></div>
   <div class="harness-block"><h2>Written with model answer</h2><div id="john"></div>
     <button type="button" class="btn btn-ghost" id="johnReveal">Show suggested answer</button>
     <div id="johnModel" hidden><p>Model answer text.</p></div></div>
@@ -93,7 +94,18 @@
   A.ScheduleActivity({ container: document.getElementById("schedule"), requirementId: "l05-schedule", ruleName: "l05-schedule",
     items: Object.entries(PVAGAValidators.__meta.L05.items).map(([key, v]) => ({ key, label: v.label })),
     times: ["9:00", "9:30", "10:00", "11:00", "12:00", "13:00", "13:30", "14:00", "14:45", "15:00", "16:00"],
-    flags: [{ key: "focusCannotFit", label: "The 2-hour focus block cannot fit today — flag for a client decision" }] });
+    question: { key: "cannotFit", item: { prompt: "Which request can't fit?", hint: "Look at the longest free stretch.", options: [
+      { id: "f", text: "The focus block (harness)", correct: true, value: "focus", feedback: "Feedback for focus." },
+      { id: "p", text: "The prospect call (harness)", correct: false, feedback: "Feedback for prospect." },
+    ] } } });
+
+  A.SortActivity({ container: document.getElementById("sort3"), requirementId: "l10-sort", random,
+    bins: [{ id: "a", label: "Bin A" }, { id: "b", label: "Bin B" }, { id: "c", label: "Bin C" }],
+    items: [
+      { id: "x1", text: "Belongs in A", bin: "a", feedback: "Explanation for A." },
+      { id: "x2", text: "Belongs in B", bin: "b", feedback: "Explanation for B." },
+      { id: "x3", text: "Belongs in C", bin: "c", feedback: "Explanation for C." },
+    ] });
 
   A.WrittenWork({ container: document.getElementById("john"), requirementId: "l03-john", ruleName: "l03-john",
     fields: [{ key: "text", label: "Write the message you'd send", type: "textarea" }],

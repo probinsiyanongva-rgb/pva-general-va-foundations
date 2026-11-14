@@ -340,3 +340,76 @@ test("core reports its version", () => {
   assert.strictEqual(PVACore.VERSION, "1.0.0");
   assert.strictEqual(make().version, "1.0.0");
 });
+
+/* ---------- Quick re-check completion guard (WP3b correction pass, decision 5) ---------- */
+const RC = PVAGA.recheck;
+const rcState = (items, queue) => JSON.stringify({ v: 1, queue: queue || Object.keys(items), items });
+const wrongOnce = (passedAt = null) => ({ original: { wrong: 1, firstWrongAt: "2026-11-14T00:00:00Z" }, recheck: { attempts: passedAt ? 1 : 0, wrong: 0, passedAt } });
+
+test("re-check: an outstanding re-check blocks lesson completion and the certificate", () => {
+  const p = make();
+  completeAllLessons(p);
+  completeFinalProject(p);
+  // Start again with a fresh store where Lesson 5 has an outstanding re-check
+  const q = make();
+  for (const l of PVAGA.manifest.lessons) if (l.n !== 5) completeLesson(q, l.n);
+  completeFinalProject(q);
+  q.saveDraft(RC.draftId(5), rcState({ "l05-tz#0": wrongOnce() }));
+  const r = completeLesson(q, 5);
+  assert.deepStrictEqual(r, { ok: false, saved: false, reason: "completion-guard" });
+  const ev = q.evaluate();
+  assert.strictEqual(ev.lessons.find((l) => l.n === 5).complete, false);
+  assert.strictEqual(ev.eligible, false);
+  assert.strictEqual(ev.completedAt, null);
+  // Passing the re-check lets the normal completion through
+  q.saveDraft(RC.draftId(5), rcState({ "l05-tz#0": wrongOnce("2026-11-14T01:00:00Z") }, []));
+  assert.strictEqual(q.markLessonComplete(5).ok, true);
+  assert.strictEqual(q.evaluate().eligible, true);
+});
+
+test("re-check: never a new way to unlock — a passed re-check cannot complete a lesson whose requirements fail", () => {
+  const p = make();
+  p.saveDraft(RC.draftId(3), rcState({ "l03-escalate#0": wrongOnce("2026-11-14T01:00:00Z") }, []));
+  assert.strictEqual(p.markLessonComplete(3).ok, false);
+  const ev = p.evaluate();
+  assert.strictEqual(ev.completedLessons, 0);
+  assert.strictEqual(ev.eligible, false);
+  // The re-check state is a draft only: it writes no requirement records and no lesson completion
+  const st = JSON.parse(p.exportBackup()).state;
+  assert.deepStrictEqual(st.records, {});
+  assert.deepStrictEqual(st.lessons, {});
+});
+
+test("re-check: a tampered queue cannot hide an item still owed; malformed entries are ignored", () => {
+  const p = make();
+  const items = { "l07-standard#1": wrongOnce(), "bad key": wrongOnce(), "l07-missing#0": { original: { wrong: 2 }, recheck: { passedAt: "not a date" } } };
+  p.saveDraft(RC.draftId(7), JSON.stringify({ v: 1, queue: [], items }));
+  const pending = RC.pending(7, p.getDraft);
+  assert.deepStrictEqual(pending.sort(), ["l07-missing#0", "l07-standard#1"]);
+  assert.strictEqual(completeLesson(p, 7).ok, false);
+});
+
+test("re-check: original wrong answers and re-check answers are recorded separately", () => {
+  const p = make();
+  p.saveDraft(RC.draftId(9), rcState({ "l09-follow#0": { original: { wrong: 3, firstWrongAt: "2026-11-14T00:00:00Z" }, recheck: { attempts: 2, wrong: 1, passedAt: "2026-11-14T02:00:00Z" } } }, []));
+  const st = RC.read(9, p.getDraft);
+  assert.deepStrictEqual(st.items["l09-follow#0"].original, { wrong: 3, firstWrongAt: "2026-11-14T00:00:00Z" });
+  assert.deepStrictEqual(st.items["l09-follow#0"].recheck, { attempts: 2, wrong: 1, passedAt: "2026-11-14T02:00:00Z" });
+  assert.deepStrictEqual(st.queue, []);
+});
+
+test("re-check: state survives a reload and a backup restore; a lesson completed earlier stays complete", () => {
+  const storage = new FakeStorage();
+  const p = make(storage);
+  completeLesson(p, 2);
+  p.saveDraft(RC.draftId(4), rcState({ "l04-authority#0": wrongOnce() }));
+  const reloaded = make(storage);
+  assert.deepStrictEqual(RC.pending(4, reloaded.getDraft), ["l04-authority#0"]);
+  const other = make();
+  assert.strictEqual(other.restoreBackup(reloaded.exportBackup(), { confirmed: true }).ok, true);
+  assert.deepStrictEqual(RC.pending(4, other.getDraft), ["l04-authority#0"]);
+  // Lesson 2 was already complete; a later re-check entry for it does not undo that
+  other.saveDraft(RC.draftId(2), rcState({ "l02-skip#0": wrongOnce() }));
+  assert.strictEqual(other.markLessonComplete(2).ok, true);
+  assert.strictEqual(other.evaluate().lessons.find((l) => l.n === 2).complete, true);
+});

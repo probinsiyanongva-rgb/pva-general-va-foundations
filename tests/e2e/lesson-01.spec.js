@@ -94,7 +94,7 @@ test("wrong answers keep Continue locked on steps 4 and 7; hint-free retry still
   expect(await passed(page, "l01-limit")).toBe(false);
 });
 
-test("sort: wrong placements are marked and keep Continue locked until fixed", async ({ page }) => {
+test("sort: wrong placements keep Continue locked until fixed; two bins show counts only (decision 5)", async ({ page }) => {
   await toStep(page, 4);
   await answerChoice(page, /Clarify what "clean" means/);
   await next(page).click(); await next(page).click();
@@ -103,7 +103,7 @@ test("sort: wrong placements are marked and keep Continue locked until fixed", a
   while (await chips.count()) { await chips.first().click(); await panel.locator(".ga-bin-place").first().click(); }
   await panel.getByRole("button", { name: "Check my sorting" }).click();
   await expect(panel.locator(".ga-feedback")).toContainText("5 of 8 are in the right bin");
-  await expect(panel.locator(".ga-chip.is-wrong")).toHaveCount(3);
+  await expect(panel.locator(".ga-chip.is-wrong, .ga-chip .ga-mark")).toHaveCount(0);
   await expect(next(page)).toBeDisabled();
   for (const item of ["Attention to detail", "Professional communication", "Time management"]) {
     await panel.locator(".ga-chip", { hasText: item }).click();

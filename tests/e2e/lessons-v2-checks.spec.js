@@ -60,7 +60,7 @@ for (const [n, step, id, wrong, right] of NEW_CHECKS) {
   });
 }
 
-test("U-01: Lesson 9 gap check accepts Purpose and Steps ticked or not, with per-element feedback", async ({ page }) => {
+test("U-01: Lesson 9 gap check accepts Purpose and Steps ticked or not; per-element feedback once passed (decision 5)", async ({ page }) => {
   const base = ["Inputs", "Tools/access", "Exceptions", "Escalation", "Definition of done"];
   await goToStep(page, 9, 3);
   await identify(page, [...base, "Purpose", "Steps"]);
@@ -70,17 +70,25 @@ test("U-01: Lesson 9 gap check accepts Purpose and Steps ticked or not, with per
   await goToStep(page, 9, 3);
   await identify(page, ["Inputs", "Tools/access", "Exceptions", "Escalation"]); // misses Definition of done
   await expect(next(page)).toBeDisabled();
+  await expect(panel(page).locator(".ga-feedback").first()).toContainText("1 missed");
+  await expect(panel(page).locator(".ga-identify .ga-result-line .ga-mark")).toHaveCount(0);
+  await identify(page, ["Definition of done"]);
+  await expect(next(page)).toBeEnabled();
   await expect(panel(page).locator(".ga-check", { hasText: "Definition of done" }).locator(".ga-result-line")).toContainText("finished");
 });
 
-test("M-09: the $499 renewal is Client review only (Action is no longer accepted)", async ({ page }) => {
+test("M-09: the $499 renewal is Client review only (Action is no longer accepted); the accepted category is not revealed (decision 5)", async ({ page }) => {
   await goToStep(page, 4, 6);
   await triage(page, {
     "Meeting moved": "Action", "Industry newsletter": "Reference", "Proposal needs client approval": "Client review",
     "Checking in on information": "Waiting", "Software renews tomorrow": "Action", "Thank you; issue resolved": "Archive",
   });
   await expect(next(page)).toBeDisabled();
-  await expect(panel(page).locator(".ga-item", { hasText: "Software renews tomorrow" }).locator(".ga-result-line")).toContainText("Accepted: Client review.");
+  await expect(panel(page).locator(".ga-feedback").last()).toContainText("5 of 6 correct");
+  await panel(page).getByRole("button", { name: "Check all" }).click();
+  const line = panel(page).locator(".ga-item", { hasText: "Software renews tomorrow" }).locator(".ga-result-line");
+  await expect(line).toContainText("Not Action.");
+  await expect(panel(page)).not.toContainText("Accepted:");
 });
 
 for (const [n, step, btn] of [[2, 6, "#clarifyRevealBtn"], [3, 6, "#johnRevealBtn"], [5, 6, "#dayRevealBtn"], [9, 4, "#sopRevealBtn"]]) {

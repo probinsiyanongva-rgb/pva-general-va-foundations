@@ -35,7 +35,7 @@
         text: "The report due at noon, since that's the client's own deadline — with a brief \"got it, will reply shortly\" to the vendor.",
         feedback: "Correct. The client-defined deadline (today by noon) is a real commitment; the vendor's self-labeled urgency isn't automatically higher priority. A brief acknowledgment to the vendor buys time without dropping the report." },
       { id: "o3", correct: false,
-        text: "Try to do both at the same time, switching between the report and the vendor reply so that neither one is left waiting too long.",
+        text: "Try to do both at the same time, switching between the report and the vendor reply.",
         feedback: "Splitting focus on both at once usually means neither gets done well, and the deadline that actually matters (the client's) is the one that slips." },
     ] }],
     "l10-workload": [{

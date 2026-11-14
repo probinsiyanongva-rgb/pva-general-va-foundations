@@ -312,8 +312,16 @@
       return { passed: requirementStatus(id).passed, attempts: rec.attempts, saved };
     }
 
+    // cfg.completionGuard(n, { getDraft }) may only add a condition (e.g. an outstanding
+    // re-check); it can never complete a lesson whose requirements do not pass.
+    function guardAllows(n) {
+      if (typeof cfg.completionGuard !== "function") return true;
+      try { return cfg.completionGuard(n, { getDraft }) === true; } catch (e) { return false; }
+    }
+
     function markLessonComplete(n) {
       if (!lessonRequirementsPass(n)) return { ok: false, saved: false };
+      if (!state.lessons[String(n)] && !guardAllows(n)) return { ok: false, saved: false, reason: "completion-guard" };
       const key = String(n);
       if (!state.lessons[key]) state.lessons[key] = { completedAt: now() };
       const saved = persist();

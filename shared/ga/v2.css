@@ -243,3 +243,11 @@ body.ga-v2 fieldset.ga-yn > legend + * { clear: both; }
 
 /* WP3b: schedule time pickers (L5) at body size with a comfortable touch target */
 body.ga-v2 .ga-schedule-row select { font: inherit; min-height: 40px; padding: 4px 8px; border: 1px solid #857D6C; border-radius: 8px; background: #fff; color: inherit; }
+
+/* Quick re-check (WP3b correction pass) — shown on the completion step before completion */
+.ga-recheck { border: 1px solid var(--sage); border-radius: 10px; padding: 18px 20px; margin-bottom: 18px; background: #FBFCF8; }
+.ga-recheck h2 { margin-top: 0; }
+.ga-recheck-q { font-size: 1.05rem; margin: 14px 0 8px; }
+.ga-recheck-title { margin: 0; }
+.ga-recheck-status:empty { display: none; }
+.ga-schedule-question { margin-top: 18px; }

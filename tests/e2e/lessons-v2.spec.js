@@ -94,7 +94,7 @@ for (const n of Object.keys(SOLUTIONS).map(Number)) {
       expect(over).toEqual([]);
     });
 
-    test("answer length is not a cue (M-01); new checks: correct is never longest or shortest", async ({ page }) => {
+    test("answer length is not a cue (M-01): no outlier; new checks never longest or shortest", async ({ page }) => {
       await fresh(page, n);
       const data = await page.evaluate(() => ({ choices: (window.PVAGALesson || {}).choices || {}, reqs: PVAGA.manifest.lessons }));
       const lesson = data.reqs.find((l) => l.n === n);
@@ -106,12 +106,37 @@ for (const n of Object.keys(SOLUTIONS).map(Number)) {
           const right = item.options.find((o) => o.correct);
           if (!right) return issues.push(`${id}#${i}: no correct option`);
           const others = item.options.filter((o) => o !== right).map((o) => o.text.length);
-          // A tie is not a cue; only a uniquely longest (or, for new checks, uniquely shortest) correct answer is.
-          if (right.text.length > Math.max(...others)) issues.push(`${id}#${i}: correct is the longest (${lens.join("/")})`);
-          if (isNew(id) && right.text.length < Math.min(...others)) issues.push(`${id}#${i}: correct is the shortest (${lens.join("/")})`);
+          // Never a stand-out: the correct answer is at most 30% longer than the longest wrong option
+          // and at least 70% of the shortest one (WP3b correction, decision 4).
+          if (right.text.length > 1.3 * Math.max(...others)) issues.push(`${id}#${i}: correct stands out as longest (${lens.join("/")})`);
+          if (right.text.length < 0.7 * Math.min(...others)) issues.push(`${id}#${i}: correct stands out as shortest (${lens.join("/")})`);
+          // Approved rule for the 8 new checks (spec, shared rules)
+          if (isNew(id) && right.text.length > Math.max(...others)) issues.push(`${id}#${i}: new check, correct is the longest (${lens.join("/")})`);
+          if (isNew(id) && right.text.length < Math.min(...others)) issues.push(`${id}#${i}: new check, correct is the shortest (${lens.join("/")})`);
         });
       }
       expect(issues).toEqual([]);
     });
   });
 }
+
+// Decision 4 (WP3b correction): across the whole course there is no consistent length rule.
+// The correct answer is sometimes the longest, sometimes the shortest, sometimes in between.
+test("course-wide: the correct answer's length position varies (no 'never the longest' rule)", async ({ page }) => {
+  const pos = { longest: 0, shortest: 0, middle: 0 };
+  for (let n = 1; n <= 13; n++) {
+    await page.goto(url(n));
+    const items = await page.evaluate(() => Object.values((window.PVAGALesson || {}).choices || {}).flat());
+    for (const it of items) {
+      const r = it.options.find((o) => o.correct).text.length;
+      const others = it.options.filter((o) => !o.correct).map((o) => o.text.length);
+      pos[r > Math.max(...others) ? "longest" : r < Math.min(...others) ? "shortest" : "middle"]++;
+    }
+  }
+  const total = pos.longest + pos.shortest + pos.middle;
+  console.log("correct-answer length position:", JSON.stringify(pos), "of", total);
+  expect(pos.longest / total).toBeGreaterThanOrEqual(0.2);
+  expect(pos.longest / total).toBeLessThanOrEqual(0.5);
+  expect(pos.shortest / total).toBeGreaterThanOrEqual(0.1);
+});
+

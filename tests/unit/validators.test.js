@@ -65,7 +65,7 @@ const GOOD = {
     { subject: "Newsletter from industry group", category: "reference", priority: "Low", action: "Save to reading folder" },
     { subject: "Waiting on contract from vendor", category: "waiting", priority: "Medium", action: "Track and follow up", followup: "Friday" },
   ] },
-  "l05-schedule": { placements: { team: "10:00", vendor: "11:00", presentation: "15:00", buffer: "14:45", prospect: "13:30" }, flags: { focusCannotFit: true } },
+  "l05-schedule": { placements: { team: "10:00", vendor: "11:00", presentation: "15:00", buffer: "14:45", prospect: "13:30" }, cannotFit: "focus" },
   "l05-ws": { rows: [
     { event: "Team meeting", confirmed: "10:00 AM", tz: "Manila", notes: "", example: true },
     { event: "Supplier call", confirmed: "2:00 PM", tz: "Manila (UTC+8)", notes: "Prep notes 15 min before" },
@@ -88,7 +88,7 @@ const GOOD = {
   "l08-compare": { rows: [
     { tool: "Trello", price: "$5 per user per month", source: "https://trello.com/pricing", checked: "2026-11-11" },
     { tool: "Asana", price: "Not published for Team tier", source: "Asana pricing page", checked: "Nov 11" },
-    { tool: "ClickUp", price: "$7 per user", source: "https://clickup.com/pricing", checked: "today" },
+    { tool: "ClickUp", price: "$7 per user", source: "https://clickup.com/pricing", checked: "11 Nov 2026" },
   ] },
   "l08-ws": { question: "Which project tool fits a five-person remote team under $10 per user?", criteria: "Price, task views, mobile app", findings: "Three tools fit the budget. Trello is simplest and cheapest but limited for reporting. ClickUp has the most features and good mobile apps, though setup takes longer. Asana sits between them on price and ease, with strong task views and integrations the team already uses.", caveats: "Prices were checked on Nov 11 and may change", sources: "trello.com/pricing\nclickup.com/pricing\nasana.com/pricing" },
   "l09-practice": { fields: { Purpose: "Follow up overdue invoices weekly", Trigger: "Every Friday at 4 PM", Inputs: "Invoice list and tracker", "Tools/access": "Accounting view access, Drive", Steps: "1. Pull list 2. Compare 3. Update tracker 4. Send reminders", Exceptions: "Disputed invoices are paused", Escalation: "Over 30 days goes to client", "Definition of done": "Tracker updated and reminders sent" } },
@@ -130,7 +130,7 @@ const GOOD = {
   "fp-t4": { rows: [
     { tool: "Jobber", price: "$39 per month", source: "https://getjobber.com/pricing", checked: "2026-11-11", pros: "Built for home services", cons: "Higher price than others" },
     { tool: "Housecall Pro", price: "Not published", source: "Housecall Pro sales page", checked: "Nov 11", pros: "Good scheduling and dispatch", cons: "Pricing needs a sales call" },
-    { tool: "Google Calendar", price: "$7 per user", source: "https://workspace.google.com/pricing", checked: "today", pros: "Team already knows it", cons: "No dispatch or invoicing" },
+    { tool: "Google Calendar", price: "$7 per user", source: "https://workspace.google.com/pricing", checked: "11 Nov 2026", pros: "Team already knows it", cons: "No dispatch or invoicing" },
   ] },
   "fp-t5": { fields: { Purpose: "Make sure every new booking is scheduled and confirmed", Trigger: "A new customer books a job", Inputs: "Booking form details", "Tools/access": "Scheduling app and SMS tool", Steps: "1. Add job to schedule\n2. Assign technician\n3. Send confirmation text", Exceptions: "Same-day emergency jobs", Escalation: "Any job outside service area goes to the owner", "Definition of done": "Job scheduled, technician assigned and customer confirmation sent" } },
   "fp-t6": { rows: [
@@ -178,15 +178,44 @@ test("Lesson 5: a learner's own row may use an example's event name; the unchang
   assert.equal(V["l05-ws"]({ rows: withExamples }).ok, false);
 });
 
+test("WP3b corrections: genuine dates, meaningful owners, whole-word keywords, every started plan row", () => {
+  const H = V.__meta.helpers;
+  // Date checked must be a real calendar date
+  for (const d of ["2026-11-11", "11/11/2026", "11 Nov 2026", "Nov 11, 2026", "31 Dec 2026"]) assert.equal(H.hasDate(d), true, d);
+  for (const d of ["today", "Friday", "99/99/9999", "32/13", "2026-02-30", "Nov 31", "soon"]) assert.equal(H.hasDate(d), false, d);
+  const cmp = GOOD["l08-compare"].rows;
+  assert.equal(V["l08-compare"]({ rows: cmp.map((r) => ({ ...r, checked: "today" })) }).ok, false);
+  assert.equal(V["l08-compare"]({ rows: cmp.map((r) => ({ ...r, checked: "99/99/9999" })) }).ok, false);
+  // Owner must be meaningful
+  for (const o of ["xy", "tbd", "n/a", "test", "someone", "aaa", ""]) assert.equal(H.meaningfulOwner(o), false, o);
+  for (const o of ["You", "me", "VA", "Bookkeeper", "Ana", "Mark R."]) assert.equal(H.meaningfulOwner(o), true, o);
+  const l10 = GOOD["l10-ws"].rows;
+  assert.equal(V["l10-ws"]({ rows: l10.map((r, i) => (i === 2 ? { ...r, owner: "xy" } : r)) }).ok, false);
+  // Issue-report keywords match whole words only
+  const pad = " alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango uniform victor whiskey xray yankee zulu";
+  const qa = (report) => V["l13-ws"]({ checks: Array(5).fill({ result: "pass", evidence: "checked every row against the source" }), issueReport: report + pad });
+  assert.equal(qa("tissue candidate stillness").ok, false);
+  assert.equal(qa("found fixed next").ok, true);
+  // Lesson 2: every started plan row must be complete
+  const row = GOOD["l02-ws"].rows[0];
+  assert.equal(V["l02-ws"]({ rows: [row, { request: "Second request" }] }).ok, true, "an untouched extra request is not started");
+  const half = V["l02-ws"]({ rows: [row, { request: "Second request", outcome: "half done plan for a second thing" }] });
+  assert.equal(half.ok, false);
+  assert.ok(half.missing.some((m) => /every request/.test(m)));
+});
+
 test("filler answers fail written rules", () => {
   assert.strictEqual(ok("l03-ws", { clarify: FILLER, progress: FILLER, completion: FILLER, delay: FILLER, error: FILLER }).ok, false);
   assert.strictEqual(ok("l08-ws", { question: FILLER, criteria: FILLER, findings: FILLER, caveats: FILLER, sources: FILLER }).ok, false);
 });
 
-test("Lesson 5 schedule: missing focus-block flag, overlap, lunch and wrong buffer are each detected (NT-05)", () => {
+test("Lesson 5 schedule: missing can't-fit answer, overlap, lunch and wrong buffer are each detected (NT-05)", () => {
   const base = GOOD["l05-schedule"];
   const miss = (ans) => ok("l05-schedule", ans).missing;
-  assert.ok(miss({ ...base, flags: {} }).some((m) => /focus block/.test(m)));
+  assert.ok(miss({ ...base, cannotFit: "" }).includes("Identified the request that can't fit"));
+  assert.ok(miss({ ...base, cannotFit: "prospect" }).includes("Identified the request that can't fit"));
+  // The retired checkbox no longer counts.
+  assert.ok(miss({ placements: base.placements, flags: { focusCannotFit: true } }).includes("Identified the request that can't fit"));
   assert.ok(miss({ ...base, placements: { ...base.placements, prospect: "15:00" } }).some((m) => /overlap/.test(m)));
   assert.ok(miss({ ...base, placements: { ...base.placements, prospect: "12:00" } }).some((m) => /afternoon|Lunch/.test(m)));
   assert.ok(miss({ ...base, placements: { ...base.placements, buffer: "14:00" } }).some((m) => /buffer/.test(m)));
@@ -231,4 +260,76 @@ test("wired into the progress core: a stored genuine answer passes, an edit to f
   const p = PVAGA.createProgress({ storage: store, rules: V });
   assert.strictEqual(p.recordAttempt("l03-ws", { answer: GOOD["l03-ws"] }).passed, true);
   assert.strictEqual(p.recordAttempt("l03-ws", { answer: { ...GOOD["l03-ws"], error: FILLER } }).passed, false);
+});
+
+/* ---------- Correction pass D1–D6: positive and negative fixtures ---------- */
+test("D1 naming convention: whole date/version tokens only", () => {
+  const rule = (naming) => V["l06-ws"]({ ...GOOD["l06-ws"], rows: GOOD["l06-ws"].rows.map((r, i) => (i === 1 ? { ...r, naming } : r)) });
+  for (const n of ["YYYY-MM-DD_Topic", "Report_v01", "Proposal v2", "ProposalV2", "2026-11_Report", "Report_20261114", "14112026_Report",
+                   "ClientName_Report_[date]", "Topic - version 3", "Invoice_REV02", "yyyymmdd_invoice", "Notes_MMM_YY", "Report_vX"]) assert.equal(rule(n).ok, true, n);
+  for (const n of ["Client address list", "Odd addenda", "Hidden summary", "Commander notes", "Report_final", "Vendor contract", "Addendum"]) assert.equal(rule(n).ok, false, n);
+});
+
+test("D2 version rule must name how versions are marked", () => {
+  const rule = (versionRule) => V["l06-ws"]({ ...GOOD["l06-ws"], versionRule }).ok;
+  for (const t of ["Drafts use v01, v02; the approved file is renamed FINAL and moved",
+                   "Every time I edit a file I save a new version with the next number",
+                   "Older revisions go into the 03_Archive folder at the end of each week",
+                   "Keep one working draft and mark the signed copy as final in its name",
+                   "We never overwrite; each change gets V2, V3 and so on in the file name"]) assert.equal(rule(t), true, t);
+  for (const t of ["Files are named nicely and kept somewhere safe always",
+                   "I will keep everything organised in the right folders for the client",
+                   "Make sure names are consistent and easy to understand for everyone"]) assert.equal(rule(t), false, t);
+});
+
+test("D3 quality check must say how the work was checked", () => {
+  const rule = (qaCheck) => V["l07-ws"]({ ...GOOD["l07-ws"], qaCheck }).ok;
+  for (const t of ["I compared every cleaned row with the original export before saving",
+                   "Counted the rows before and after cleaning to make sure none were lost",
+                   "Spot-checked ten random records against the source sheet for typos",
+                   "Double checked that each phone number now uses the same +63 format",
+                   "I'll verify the totals match the original file and review blank cells",
+                   "Cross-checked the emails with the CRM export and confirmed no duplicates"]) assert.equal(rule(t), true, t);
+  for (const t of ["I looked at the sheet and it seemed fine to me",
+                   "Everything looks good and clean now and ready to send over",
+                   "The data is tidy and I am happy with how it turned out", "I used a checklist and it all looks fine now honestly"]) assert.equal(rule(t), false, t);
+});
+
+test("D4 never-paste list must name a kind of data", () => {
+  const rule = (neverPaste) => V["l11-ws"]({ ...GOOD["l11-ws"], neverPaste }).ok;
+  for (const t of ["Customer names, phone numbers and home addresses",
+                   "Never paste passwords, bank details or card numbers into any AI tool",
+                   "Anything personal or confidential from the client's files",
+                   "Salary figures, contracts and medical information about staff",
+                   "No order numbers or e-mail addresses from the support inbox",
+                   "Client data of any kind, including IDs and dates of birth"]) assert.equal(rule(t), true, t);
+  for (const t of ["I will be careful with everything I paste",
+                   "Only paste what is really needed for the job and nothing more",
+                   "Think twice before using these tools for any of the work"]) assert.equal(rule(t), false, t);
+});
+
+test("D5 keyboard mashes are not words (heuristic); abbreviations and real words still count", () => {
+  const H = V.__meta.helpers;
+  assert.equal(H.wordCount("asdf qwer zxcv hjkl"), 2, "asdf and qwer have a vowel and still count (heuristic)");
+  assert.equal(H.wordCount("qwrt zxcv hjkl bnmp"), 0);
+  // Common abbreviations and vowel-less English words that use y still count
+  assert.equal(H.wordCount("Update the SOP and the CRM, export a PDF and CSV"), 10);
+  assert.equal(H.wordCount("Send the URL by SMS before the mtg, RSVP by 3 PM PST"), 12);
+  assert.equal(H.wordCount("Why my gym rhythm try"), 5);
+  // Numbers, mixed tokens and non-ASCII words are untouched
+  assert.equal(H.wordCount("Call 0917 at 2pm about Q3 kpis"), 7);
+  assert.equal(H.wordCount("Nag-follow up na ako sa kliyente, salamat"), 7);
+  assert.equal(H.isMash("ltd"), false);
+  assert.equal(H.isMash("xkcd"), true, "a heuristic: some real tokens are treated as mashes");
+  // Effect on a written rule
+  assert.equal(V["l03-ws"]({ ...GOOD["l03-ws"], clarify: "asdf qwer zxcv hjkl bnmv tyui" }).ok, false);
+});
+
+test("D6 Calendar Plan time zone must look like a time zone", () => {
+  const H = V.__meta.helpers;
+  for (const t of ["Manila (UTC+8)", "UTC+8", "GMT -5", "PHT", "pst", "EST/EDT", "Berlin", "Client's local time", "Asia/Manila", "Philippine time", "UTC"]) assert.equal(H.hasTimeZone(t), true, t);
+  for (const t of ["ok", "x", "tbd", "n/a", "?", "123", "same", "qwrt", ""]) assert.equal(H.hasTimeZone(t), false, t);
+  const rows = GOOD["l05-ws"].rows;
+  assert.equal(V["l05-ws"]({ rows: rows.map((r, i) => (i === 1 ? { ...r, tz: "ok" } : r)) }).ok, false);
+  assert.equal(V["l05-ws"]({ rows }).ok, true);
 });
