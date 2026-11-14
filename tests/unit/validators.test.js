@@ -117,16 +117,8 @@ const GOOD = {
     { result: "pass", evidence: "The summary is short and easy to follow" },
   ], issueReport: "I found that three records were deleted without approval and the date was invalid. I restored the records from the previous version and corrected the date. The status values still need one agreed format, and I recommend confirming it with the client." },
   "fp-t2": { placements: { walkthrough: { day: "Wed", start: "13:00" }, supplier: { day: "Tue", start: "14:00" }, checkin: { day: "Mon", start: "10:00" }, insurance: { day: "Fri", start: "14:00" } }, note: "The new walk-through time needs the customer's agreement and the owner's confirmation before I send invites." },
-  "fp-t3": { records: [
-    { id: "R1", cleaned: "Juan Santos, +63 917 222 4444, Active, email missing, 2026-02-11", flag: "missing-email" },
-    { id: "R2", cleaned: "Maria Lopez, +63 918 555 1212, Active, maria.lopez@example.com, 2026-01-20" },
-    { id: "R3", cleaned: "Maria Lopez, +63 918 555 1212, Active, maria.lopez@example.com, 2026-01-20", flag: "duplicate", duplicateOf: "R2" },
-    { id: "R4", cleaned: "Pedro Reyes, +63 919 333 7788, Inactive, pedro.reyes@example.com, 2025-12-02" },
-    { id: "R5", cleaned: "Ana Garcia, +63 920 444 5566, Active, ana.garcia@example.com, date unclear", flag: "ambiguous-date" },
-    { id: "R6", cleaned: "Liza Tan, +63 921 888 0001, Active, liza.tan@example.com, 2026-02-28" },
-    { id: "R7", cleaned: "Ben Cruz, +63 922 777 0002, Active, ben.cruz@example.com, 2026-03-05" },
-    { id: "R8", cleaned: "Carlo Mendoza, +63 923 666 0003, Inactive, carlo.m@example.com, 2025-11-15" },
-  ], rules: "Title Case names\nPhones +63 XXX XXX XXXX\nDates YYYY-MM-DD" },
+  "fp-t3": { records: V.__meta.FP_T3_RECORDS.map((r) => ({ id: r.id, ...r.clean, flag: r.flag, duplicateOf: r.duplicateOf || "", clarification: r.clarification || "" })),
+    rules: "Title Case names, single spaces\nPhones as +63 9XX XXX XXXX\nDates as YYYY-MM-DD\nStatus as Active or Inactive" },
   "fp-t4": { rows: [
     { tool: "Jobber", price: "$39 per month", source: "https://getjobber.com/pricing", checked: "2026-11-11", pros: "Built for home services", cons: "Higher price than others" },
     { tool: "Housecall Pro", price: "Not published", source: "Housecall Pro sales page", checked: "Nov 11", pros: "Good scheduling and dispatch", cons: "Pricing needs a sales call" },
@@ -134,11 +126,11 @@ const GOOD = {
   ] },
   "fp-t5": { fields: { Purpose: "Make sure every new booking is scheduled and confirmed", Trigger: "A new customer books a job", Inputs: "Booking form details", "Tools/access": "Scheduling app and SMS tool", Steps: "1. Add job to schedule\n2. Assign technician\n3. Send confirmation text", Exceptions: "Same-day emergency jobs", Escalation: "Any job outside service area goes to the owner", "Definition of done": "Job scheduled, technician assigned and customer confirmation sent" } },
   "fp-t6": { rows: [
-    { task: "Example A", example: true },
+    { task: "Owner attends the start of the approved kitchen installation", example: true },
     { task: "Order replacement parts", owner: "VA", priority: "High", status: "Not started", next: "Get supplier quote", dependency: "Owner approves the budget" },
     { task: "Reschedule Thursday jobs", owner: "VA", priority: "High", status: "In progress", next: "Call customers" },
     { task: "Update price list", owner: "Owner", priority: "Low", status: "Waiting", next: "Send draft" },
-  ], conflictNote: "Both the parts order and the rescheduling are due today, so I asked the owner which comes first before starting." },
+  ], conflictNote: "The installation start and the insurance renewal both need the owner on Thursday 8-10 AM, so I asked the owner to decide which one moves." },
   "fp-t7": { used: "I used AI to extract action items from the subcontractor schedule email", verify: "I checked every name and date against the original email and confirmed no customer personal data was included", noConfidential: true },
   "fp-t8": { correct: true, explanation: "I would not share the login. I tell the owner right away, and the owner sets up the subcontractor's own account so the job can start after access is granted." },
   "fp-checklist": { checked: [true, true, true, true, true, true, true, true] },
@@ -233,14 +225,107 @@ test("Final Project Task 2: each rule violation is detected (NT-05)", () => {
   assert.ok(miss({ insurance: { day: "Fri", start: "16:45" } }).some((m) => /8 AM–5 PM/.test(m)));
 });
 
-test("Final Project Task 3: merging or not flagging the duplicate fails (M-06)", () => {
-  const recs = GOOD["fp-t3"].records;
-  const without = (id, patch) => ({ ...GOOD["fp-t3"], records: recs.map((r) => (r.id === id ? { ...r, ...patch } : r)) });
-  assert.strictEqual(ok("fp-t3", without("R3", { cleaned: "" })).ok, false, "deleted/merged duplicate");
-  assert.strictEqual(ok("fp-t3", without("R3", { flag: "", duplicateOf: "" })).ok, false, "duplicate not flagged");
-  assert.strictEqual(ok("fp-t3", without("R3", { duplicateOf: "R4" })).ok, false, "wrong pair");
-  assert.strictEqual(ok("fp-t3", without("R1", { flag: "" })).ok, false, "missing email not flagged");
-  assert.strictEqual(ok("fp-t3", without("R6", { cleaned: "LIZA TAN | 0921-888-0001 | active | liza.tan@example.com | 2026-02-28" })).ok, false, "unchanged record");
+/* ---------- Final Project Task 3 (WP4, field-level checks) ---------- */
+const T3 = () => JSON.parse(JSON.stringify(GOOD["fp-t3"]));
+const t3With = (id, patch, base = T3()) => ({ ...base, records: base.records.map((r) => (r.id === id ? { ...r, ...patch } : r)) });
+const t3Miss = (a) => ok("fp-t3", a).missing;
+
+test("Final Project Task 3: the answer key and other consistent formats pass", () => {
+  assert.deepStrictEqual(t3Miss(T3()), []);
+  // all numbers kept in the 09XX-XXX-000N layout
+  const dash = T3(); dash.records.forEach((r) => { r.mobile = "09XX-XXX-" + r.mobile.slice(-4); });
+  assert.deepStrictEqual(t3Miss(dash), []);
+  // all readable dates written as "20 Jan 2026"
+  const words = T3(); const M = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  words.records.forEach((r) => { if (r.id !== "R5") { const [y, m, d] = r.date.split("-"); r.date = `${+d} ${M[+m]} ${y}`; } });
+  assert.deepStrictEqual(t3Miss(words), []);
+  // reverse duplicate, and lower-case statuses used consistently
+  assert.deepStrictEqual(t3Miss(t3With("R2", { flag: "duplicate", duplicateOf: "R3" }, t3With("R3", { flag: "none", duplicateOf: "" }))), []);
+  const lower = T3(); lower.records.forEach((r) => { r.status = r.status.toLowerCase(); });
+  assert.deepStrictEqual(t3Miss(lower), []);
+  // R5 clarification in other natural wordings
+  for (const c of ["Can you check with the customer whether 03/04/26 is 3 April or 4 March 2026?",
+                   "Please confirm the date: it could be April 3 or March 4, 2026, depending on the format used.",
+                   "Need to verify this date with Ana, because it might mean 3rd April or 4th March."]) {
+    assert.deepStrictEqual(t3Miss(t3With("R5", { clarification: c })), [], c);
+  }
+});
+
+test("Final Project Task 3: each wrong value or flag fails its check (field-level, never word-for-word)", () => {
+  const has = (a, re) => t3Miss(a).some((m) => re.test(m));
+  assert.ok(has(t3With("R1", { name: "juan santos" }), /^Names/), "lower-case name");
+  assert.ok(has(t3With("R8", { name: "Carlo  Mendoza" }), /^Names/), "double space kept");
+  assert.ok(has(t3With("R4", { mobile: "+63 9XX XXX 0009" }), /^Mobile/), "changed digit");
+  assert.ok(has(t3With("R4", { mobile: "09XX XXX 0004" }), /^Mobile/), "mixed layouts");
+  assert.ok(has(t3With("R6", { status: "active" }), /^Status/), "mixed capitalisation");
+  assert.ok(has(t3With("R7", { email: "ben.cruz@example.org" }), /^Emails/), "edited email");
+  assert.ok(has(t3With("R1", { email: "juan.santos@example.com" }), /^Emails/), "invented email");
+  assert.ok(has(t3With("R2", { date: "2026-01-21" }), /^Dates/), "wrong date");
+  assert.ok(has(t3With("R3", { date: "20 Jan 2026" }), /^Dates/), "mixed date formats");
+  const numeric = T3(); numeric.records.forEach((r) => { if (r.id !== "R5") { const [y, m, d] = r.date.split("-"); r.date = `${d}/${m}/${y}`; } });
+  assert.ok(has(numeric, /^Dates/), "numeric day/month target format");
+  for (const d of ["2026-04-03", "2026-03-04", "3 April 2026", "", "03/04/26 (confirm)"]) assert.ok(has(t3With("R5", { date: d }), /can't be read safely/), `R5 date ${d}`);
+  for (const c of ["", "please confirm", "Please confirm this date with the customer soon.", "Could be 3 April or 4 March 2026 depending on format.",
+                   "confirm confirm confirm April March 3 4", "Please confirm whether the date is 3 April 2026."]) {
+    assert.ok(has(t3With("R5", { clarification: c }), /can't be read safely/), `R5 clarification "${c}"`);
+  }
+  assert.ok(has(t3With("R1", { flag: "none" }), /^Missing information/), "R1 unflagged");
+  assert.ok(has(t3With("R5", { flag: "none" }), /^Missing information/), "R5 unflagged");
+  assert.ok(has(t3With("R2", { flag: "duplicate", duplicateOf: "R3" }), /^The duplicate/), "both flagged");
+  assert.ok(has(t3With("R3", { flag: "none", duplicateOf: "" }), /^The duplicate/), "neither flagged");
+  assert.ok(has(t3With("R3", { duplicateOf: "R4" }), /^The duplicate/), "wrong pair");
+  const merged = T3(); merged.records = merged.records.filter((r) => r.id !== "R3");
+  assert.strictEqual(ok("fp-t3", merged).ok, false, "deleted duplicate");
+  for (const id of ["R4", "R6", "R7", "R8"]) assert.ok(has(t3With(id, { flag: "missing-email" }), /^No other record/), `extra flag on ${id}`);
+  assert.ok(has({ ...T3(), rules: "Title Case" }, /cleaning rules/));
+});
+
+test("Final Project Task 3: every untouched record fails at least one check under any accepted format", () => {
+  // Dataset invariant (R8 decision): a correct final state always means at least one correction per record.
+  const variants = [T3()];
+  const dash = T3(); dash.records.forEach((r) => { r.mobile = r.mobile.replace("+63 ", "0").replace(/ /g, "-").replace(/^0/, "0"); }); variants.push(dash);
+  for (const o of V.__meta.FP_T3_RECORDS) {
+    for (const base of variants) {
+      const untouched = t3With(o.id, { ...o.original, clarification: "", flag: o.flag, duplicateOf: o.duplicateOf || "" }, base);
+      assert.strictEqual(ok("fp-t3", untouched).ok, false, `${o.id} untouched must fail`);
+    }
+  }
+});
+
+test("Final Project Task 6: the conflict note names both tasks and asks the owner; Owner is a valid assignee", () => {
+  const base = GOOD["fp-t6"];
+  const note = (conflictNote) => ok("fp-t6", { ...base, conflictNote }).missing;
+  assert.deepStrictEqual(note("Both the installation start and the insurance renewal need the owner on Thursday morning; please choose which one should move."), []);
+  assert.ok(note("Two tasks compete for Thursday morning so something has to move to another day.").some((m) => /names both/.test(m)));
+  assert.ok(note("The installation and the insurance renewal clash on Thursday morning, I will move the renewal.").some((m) => /asks the owner/.test(m)));
+  const rows = (owner) => ok("fp-t6", { ...base, rows: base.rows.map((r, i) => (i === 3 ? { ...r, owner } : r)) }).missing;
+  for (const o of ["Owner", "the owner", "VA", "Dan (owner)"]) assert.deepStrictEqual(rows(o), [], o);
+  for (const o of ["xy", "tbd", "n/a", ""]) assert.ok(rows(o).some((m) => /owner \(a name or role\)/.test(m)), o);
+});
+
+test("Final Project keyword checks: whole words only; stuffing and filler fail; natural answers pass (red-team F3)", () => {
+  const t5 = (Trigger) => ok("fp-t5", { fields: { ...GOOD["fp-t5"].fields, Trigger } }).missing.some((m) => /Trigger/.test(m));
+  assert.strictEqual(t5("A customer books a repair job online"), false);
+  assert.strictEqual(t5("Whenever a new customer is scheduled"), false);
+  for (const t of ["A Facebook message arrives", "Someone updates the notebook", "The owner sends a message"]) assert.strictEqual(t5(t), true, t);
+  const t7 = (verify) => ok("fp-t7", { ...GOOD["fp-t7"], verify }).missing;
+  assert.deepStrictEqual(t7("I compared every name and amount in the draft against the original email before sending it"), []);
+  assert.ok(t7("I made an update to the manufacturer section and it all looked fine to me afterwards").some((m) => /names at least one check/.test(m)));
+  const t8 = (explanation) => ok("fp-t8", { ...GOOD["fp-t8"], explanation }).missing;
+  assert.deepStrictEqual(t8(GOOD["fp-t8"].explanation), []);
+  assert.deepStrictEqual(t8("I'd say no to sharing the password, message the owner straight away, and ask them to create a separate account for the subcontractor so the job can go ahead after that."), []);
+  assert.ok(t8("Two-factor authentication matters and passwords must stay private, so I would refuse politely and wait for things to settle down by themselves.").some((m) => /who is told/.test(m)), "authentication is not 'then'");
+  assert.ok(t8("owner owner owner owner next next next next access access access owner owner next next access access owner next access").some((m) => /20\+ words/.test(m)), "keyword stuffing");
+  assert.ok(t8("owner owners owner's next nexts access accessed accessing accesses then thens account accounts until after owner next access account then until").some((m) => /20\+ words/.test(m)), "repeated variations");
+  assert.ok(t8("blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah owner next").some((m) => /20\+ words/.test(m)), "filler with keywords");
+});
+
+test("Final Project Task 8: copied feedback fails; an original answer sharing common words passes (Q10)", () => {
+  const fb = V.__meta.FP_T8.options.find((o) => o.correct).feedback;
+  const t8 = (explanation) => ok("fp-t8", { correct: true, explanation }).missing;
+  assert.ok(t8(fb).some((m) => /own words/.test(m)), "pasted feedback");
+  assert.ok(t8(fb.replace("Correct. ", "").replace("even under time pressure", "even when time is short")).some((m) => /own words/.test(m)), "lightly edited feedback");
+  assert.deepStrictEqual(t8("I won't share the owner's login. I'll tell the owner what happened and ask them to set up separate access for the subcontractor, then confirm with the subcontractor once it works."), []);
 });
 
 test("research rules require price-or-not-published, source and date (M-07)", () => {

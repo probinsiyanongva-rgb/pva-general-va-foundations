@@ -413,3 +413,52 @@ test("re-check: state survives a reload and a backup restore; a lesson completed
   assert.strictEqual(other.markLessonComplete(2).ok, true);
   assert.strictEqual(other.evaluate().lessons.find((l) => l.n === 2).complete, true);
 });
+
+/* ---------- WP4 red-team F1 + decision R2: historical vs current completion ---------- */
+test("F1/R2: a broken answer clears current completion and eligibility after reload; completedAt stays; Finish is needed again", () => {
+  const storage = new FakeStorage();
+  const p = make(storage);
+  completeAllLessons(p);
+  assert.strictEqual(completeFinalProject(p).ok, true);
+  const first = p.snapshot().finalProject.completedAt;
+  assert.ok(first);
+  assert.strictEqual(p.isCertificateEligible(), true);
+  const certAt = p.getCert().completedAt;
+  // 2. break a previously passing answer
+  p.recordAttempt("fp-t4", { answer: { ok: false } });
+  // 3. reload
+  const q = make(storage);
+  const ev = q.evaluate();
+  // 4. current completion and eligibility are false
+  assert.strictEqual(ev.finalProject.complete, false);
+  assert.strictEqual(q.isCertificateEligible(), false);
+  // 5. historical timestamps unchanged
+  assert.strictEqual(ev.finalProject.firstCompletedAt, first);
+  assert.strictEqual(q.snapshot().finalProject.completedAt, first);
+  assert.strictEqual(q.getCert().completedAt, certAt, "cert.completedAt is history too");
+  assert.strictEqual(q.snapshot().finalProject.finishedAt, null);
+  // 6. restoring a valid answer is not enough on its own: Finish must be pressed again
+  q.recordAttempt("fp-t4", { answer: { ok: true } });
+  assert.strictEqual(q.evaluate().finalProject.complete, false, "no automatic re-completion");
+  assert.strictEqual(q.isCertificateEligible(), false);
+  assert.strictEqual(q.markFinalProjectComplete().ok, true);
+  assert.strictEqual(q.evaluate().finalProject.complete, true);
+  assert.strictEqual(q.isCertificateEligible(), true);
+  assert.strictEqual(q.snapshot().finalProject.completedAt, first, "first completion preserved");
+});
+
+test("R2: progress saved before WP4 keeps a valid completion; an invalid one is cleared on load", () => {
+  const storage = new FakeStorage();
+  const p = make(storage);
+  completeFinalProject(p);
+  const raw = JSON.parse(storage.data[KEY]);
+  delete raw.finalProject.finishedAt; // shape written before WP4
+  storage.data[KEY] = JSON.stringify(raw);
+  assert.strictEqual(make(storage).evaluate().finalProject.complete, true, "valid old completion carried over");
+  raw.records["fp-t2"].answer = { ok: false };
+  storage.data[KEY] = JSON.stringify(raw);
+  const q = make(storage);
+  assert.strictEqual(q.evaluate().finalProject.complete, false);
+  assert.strictEqual(q.snapshot().finalProject.finishedAt, null);
+  assert.ok(q.snapshot().finalProject.completedAt);
+});

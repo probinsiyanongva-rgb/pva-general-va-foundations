@@ -54,7 +54,9 @@
       records: {},
       drafts: {},
       lessons: {},
-      finalProject: { completedAt: null },
+      // completedAt: first successful Finish (historical, never erased).
+      // finishedAt: the current Finish; cleared as soon as any Final Project requirement fails (WP4 R2).
+      finalProject: { completedAt: null, finishedAt: null },
       cert: { name: "", ack: false, issuedAt: null, completedAt: null, code: null },
       legacyV1: null,
     };
@@ -98,7 +100,11 @@
     }
     if (isPlainObject(raw.finalProject) && isISO(raw.finalProject.completedAt)) {
       out.finalProject.completedAt = raw.finalProject.completedAt;
+      // Progress saved before WP4 has no finishedAt: carry the completion over; it is cleared on
+      // load if the stored answers no longer pass (syncFinish).
+      if (!Object.prototype.hasOwnProperty.call(raw.finalProject, "finishedAt")) out.finalProject.finishedAt = raw.finalProject.completedAt;
     }
+    if (isPlainObject(raw.finalProject) && isISO(raw.finalProject.finishedAt)) out.finalProject.finishedAt = raw.finalProject.finishedAt;
     if (isPlainObject(raw.cert)) {
       const c = raw.cert;
       if (typeof c.name === "string") out.cert.name = c.name.slice(0, LIMITS.nameChars);
@@ -178,6 +184,7 @@
       }
       state = normalize(parsed, cfg);
       importLegacy();
+      syncFinish();
     }
 
     // Writes, then reads back to confirm. Any mismatch counts as failure.
@@ -250,10 +257,13 @@
       });
       const fpPassed = manifest.finalProject.requirements.filter((r) => requirementStatus(r.id).passed).length;
       const fpReqsOk = fpPassed === manifest.finalProject.requirements.length;
+      // Current status is live: all requirements pass AND there is a current Finish.
+      // firstCompletedAt is history only and never implies current completion (WP4 red-team F1).
       const finalProject = {
         passed: fpPassed,
         total: manifest.finalProject.requirements.length,
-        complete: fpReqsOk && !!state.finalProject.completedAt,
+        complete: fpReqsOk && !!state.finalProject.finishedAt,
+        firstCompletedAt: state.finalProject.completedAt,
       };
       const remaining = [];
       lessons.forEach((l) => { if (!l.complete) remaining.push({ kind: "lesson", n: l.n, passed: l.passed, total: l.total }); });
@@ -272,7 +282,16 @@
 
     // Evaluates and records the first moment full eligibility is reached.
     // cert.completedAt is written once and never overwritten (spec clarification 2).
+    // A current Finish stops counting the moment any Final Project requirement fails;
+    // the learner must press Finish again once it is fixed (WP4 R2).
+    function syncFinish() {
+      if (state.finalProject.finishedAt && !finalRequirementsPass()) {
+        state.finalProject.finishedAt = null;
+        persist();
+      }
+    }
     function refresh() {
+      syncFinish();
       const ev = evaluate();
       if (ev.eligible && !state.cert.completedAt) {
         state.cert.completedAt = now();
@@ -332,7 +351,9 @@
     // Recorded only when every Final Project requirement passes at this moment.
     function markFinalProjectComplete() {
       if (!finalRequirementsPass()) return { ok: false, saved: false };
-      if (!state.finalProject.completedAt) state.finalProject.completedAt = now();
+      const t = now();
+      if (!state.finalProject.completedAt) state.finalProject.completedAt = t;
+      state.finalProject.finishedAt = t;
       const saved = persist();
       refresh();
       return { ok: true, saved };

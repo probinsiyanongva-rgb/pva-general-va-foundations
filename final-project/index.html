@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/styles.css">
+<link rel="stylesheet" href="/shared/ga/v2.css">
 <style>
   .lesson-hero{ background: linear-gradient(135deg, var(--forest-dark), var(--forest)); color:#fff; padding: 40px 0 32px; }
   .lesson-hero .eyebrow{ color:#E7D3A8; }
@@ -90,16 +91,15 @@
         </div>
       </section>
 
-      <!-- STEP 2: Task 1 — Email -->
+      <!-- STEP 2: Task 1 — Email (fp-t1) -->
       <section class="step-panel" data-step="2" id="task1Step">
         <div class="step-tag">Task 1 of 8</div>
         <h2>Email</h2>
-        <p>Triage these 10 fictional messages. Pick a category for each, then check your answer.</p>
-        <div id="emailItems"></div>
-        <p class="task-progress-note" id="emailScore">0 of 10 checked.</p>
+        <p>Triage these 10 fictional messages. Choose a category for each, then check your answers.</p>
+        <div id="emailActivity"></div>
       </section>
 
-      <!-- STEP 3: Task 2 — Calendar -->
+      <!-- STEP 3: Task 2 — Calendar (fp-t2) -->
       <section class="step-panel" data-step="3" id="task2Step">
         <div class="step-tag">Task 2 of 8</div>
         <h2>Calendar</h2>
@@ -113,18 +113,16 @@
           </ul>
           <strong>Requests:</strong>
           <ul>
-            <li>Customer walk-through — customer asked for "Wednesday at 9 AM"</li>
-            <li>Supplier call — supplier proposed "3 PM their time"</li>
-            <li>Team check-in — flexible, "sometime this week"</li>
-            <li>Insurance agent call — "Friday afternoon"</li>
+            <li>Customer walk-through (1 hour): customer asked for "Wednesday at 9 AM"</li>
+            <li>Supplier call (30 minutes): 3 PM supplier time (UTC+9) = 2 PM Northstar time (UTC+8)</li>
+            <li>Team check-in (30 minutes): flexible, "sometime this week"</li>
+            <li>Insurance agent call (30 minutes): "Friday afternoon"</li>
           </ul>
         </div>
-        <div class="field">
-          <label for="calAnswer">Build a conflict-free schedule, explain your decisions, and note anything that needs the owner's confirmation.</label>
-          <textarea id="calAnswer" rows="5" placeholder="e.g. Move the walk-through to..."></textarea>
-        </div>
+        <p class="ga-recheck-skip">Choose a day and start time for each item so the week follows every client rule. All times are in Northstar time (UTC+8).</p>
+        <div id="calActivity"></div>
         <button class="btn btn-ghost reveal-btn no-print" id="calRevealBtn" type="button">Show a model schedule</button>
-        <div class="model-answer" id="calModel">
+        <div class="model-answer" id="calModel" hidden>
           <table class="ref-table" style="margin-top:8px;">
             <tr><th>Item</th><th>Placement &amp; reasoning</th></tr>
             <tr><td>Customer walk-through</td><td>The requested Wednesday 9 AM conflicts with the no-meetings rule — propose Wednesday afternoon or Thursday morning instead, with a 30-minute buffer before it.</td></tr>
@@ -136,59 +134,53 @@
         </div>
       </section>
 
-      <!-- STEP 4: Task 3 — Spreadsheet -->
+      <!-- STEP 4: Task 3 — Spreadsheet (fp-t3) -->
       <section class="step-panel" data-step="4" id="task3Step">
         <div class="step-tag">Task 3 of 8</div>
         <h2>Spreadsheet</h2>
-        <p>Clean this customer/contact spreadsheet: standardize fields, flag duplicates, note missing required information, and describe your rules.</p>
-        <div id="task3Rows"></div>
-        <div class="field" style="margin-top:12px;">
-          <label for="task3Rules">Rules you used</label>
-          <textarea id="task3Rules" rows="2" placeholder="e.g. Title Case names, phone as +63 XXX XXX XXXX, one date format"></textarea>
-        </div>
+        <p>Clean each record so every field follows one consistent format. Flag anything you can't fix yourself. Keep every record: flag duplicates, don't merge or delete them.</p>
+        <p class="small">Each record shows its original, read-only, with your cleaned version underneath. The fields start with the original values — correct them where needed. The two examples show how a duplicate is flagged; they don't count.</p>
+        <div id="t3Records" class="ga-records"></div>
+        <div id="t3Check"></div>
+        <button class="btn btn-ghost reveal-btn no-print" id="t3RevealBtn" type="button">Show a model answer</button>
+        <div class="model-answer" id="t3Model" hidden></div>
       </section>
 
-      <!-- STEP 5: Task 4 — Research -->
+      <!-- STEP 5: Task 4 — Research (fp-t4) -->
       <section class="step-panel" data-step="5" id="task4Step">
         <div class="step-tag">Task 4 of 8</div>
         <h2>Research</h2>
         <p>Research three scheduling/dispatch software options suitable for a five-person home-services team. Compare price, features, limitations, and sources.</p>
-        <div id="task4Rows"></div>
+        <div id="t4Rows" class="no-print"></div>
+        <div id="t4Check"></div>
       </section>
 
-      <!-- STEP 6: Task 5 — SOP -->
+      <!-- STEP 6: Task 5 — SOP (fp-t5) -->
       <section class="step-panel" data-step="6" id="task5Step">
         <div class="step-tag">Task 5 of 8</div>
         <h2>SOP</h2>
         <div class="brief-box">"Every time a new customer books a job, add them to the schedule and send a confirmation text." — turn this recurring instruction into a usable one-page SOP.</div>
-        <div id="task5Fields"></div>
+        <div id="t5Fields"></div>
       </section>
 
-      <!-- STEP 7: Task 6 — Task management -->
+      <!-- STEP 7: Task 6 — Task management (fp-t6) -->
       <section class="step-panel" data-step="7" id="task6Step">
         <div class="step-tag">Task 6 of 8</div>
         <h2>Task management</h2>
-        <p>Two competing requests are started below — add at least one more, then identify priority, dependencies, deadlines, status, and next actions.</p>
-        <div id="task6Rows"></div>
-        <button class="btn btn-ghost no-print" id="addTask6RowBtn" type="button">+ Add another task</button>
+        <p>Two competing requests are shown below as examples. Add at least three tasks of your own, each with an owner, priority, status and next action, and note at least one dependency. Then explain the conflict between the two example requests.</p>
+        <div id="t6Rows" class="no-print"></div>
+        <div id="t6Check"></div>
       </section>
 
-      <!-- STEP 8: Task 7 — AI assistance -->
+      <!-- STEP 8: Task 7 — AI assistance (fp-t7) -->
       <section class="step-panel" data-step="8" id="task7Step">
         <div class="step-tag">Task 7 of 8</div>
         <h2>AI assistance</h2>
         <p>Use AI for one appropriate administrative task in this engagement — for example, extracting action items from one of the emails above, or drafting the confirmation text template from Task 5. Keep the source fictional and verify the output manually.</p>
-        <div class="field">
-          <label for="task7Used">What did you use AI for?</label>
-          <textarea id="task7Used" rows="2"></textarea>
-        </div>
-        <div class="field">
-          <label for="task7Verify">What did you check to verify the output before using it?</label>
-          <textarea id="task7Verify" rows="2" placeholder="e.g. checked names/dates against the original, confirmed nothing confidential was pasted in"></textarea>
-        </div>
+        <div id="t7Fields"></div>
       </section>
 
-      <!-- STEP 9: Task 8 — Security -->
+      <!-- STEP 9: Task 8 — Security (fp-t8) -->
       <section class="step-panel" data-step="9" id="task8Step">
         <div class="step-tag">Task 8 of 8</div>
         <h2>Security</h2>
@@ -196,37 +188,44 @@
           <div class="scenario-msg">A subcontractor texts asking for the owner's login to the scheduling software "just this once" because they're locked out and have a job starting soon.</div>
           <p style="margin-bottom:0;">What's the safer response?</p>
         </div>
-        <div class="option-list" id="task8Options">
-          <button class="option-btn" data-correct="false" data-feedback="Sharing the owner's own login, even &quot;just once,&quot; defeats the point of individual access and is exactly the convenience-over-security tradeoff this course warns against." >Share the owner's login so the subcontractor can get in quickly.</button>
-          <button class="option-btn" data-correct="true" data-feedback="Correct. If the software supports separate logins or delegated access, set that up (or flag it to the owner to set up) rather than sharing credentials — even under time pressure." >Explain that credentials can't be shared, and set up (or ask the owner to set up) the subcontractor's own access instead.</button>
-          <button class="option-btn" data-correct="false" data-feedback="Ignoring a time-sensitive request doesn't protect anything — it just leaves the subcontractor stuck and the owner unaware there's an access gap to fix." >Don't respond until you have time to think about it.</button>
-        </div>
-        <div class="feedback-box" id="task8Feedback"></div>
-        <div class="field" style="margin-top:14px;">
-          <label for="task8Explain">Briefly explain the safer action and the escalation path (who needs to know, and what should happen next).</label>
-          <textarea id="task8Explain" rows="3"></textarea>
-        </div>
+        <div id="t8Choice"></div>
+        <div id="t8Fields"></div>
       </section>
 
-      <!-- STEP 10: Final submission checklist -->
+      <!-- STEP 10: Final submission checklist (fp-checklist) -->
       <section class="step-panel" data-step="10" id="finalChecklistStep">
         <div class="step-tag">Before you submit</div>
         <h2>Final submission checklist</h2>
         <p>Check each item honestly against the 8 tasks you just completed.</p>
-        <div class="final-checklist" id="finalChecklist"></div>
+        <div id="checklistFields"></div>
+        <div class="save-reminder no-print">
+          💾 <strong>Save your work after you finish.</strong> Your answers are saved only in this browser. On the next screen you can print your Final Project Report or download it as one .html file to keep in your portfolio.
+        </div>
       </section>
 
       <!-- COMPLETION -->
       <section class="step-panel" data-step="11" id="completionStep">
         <div class="completion-panel">
           <div class="stamp" style="font-size:1.05rem;padding:12px 22px;">✓ Final Project Complete</div>
-          <h2 style="margin-top:18px;">You've finished the course.</h2>
-          <p class="wrap-narrow" style="padding:0;">All 13 lessons and the Final Simulated Client Project are done. Together with your 13 lesson work samples, this project completes your 14-piece starter General Admin VA portfolio.</p>
+          <h2 style="margin-top:18px;">You've finished the Final Project.</h2>
+          <p class="wrap-narrow" style="padding:0;" id="completionStatus"></p>
           <p class="small wrap-narrow" style="padding:0;">Remember: these are training work samples from a fictional practice environment — genuinely useful evidence of what you practiced, but not paid client work or proof of real experience. Present them that way.</p>
-          <div class="hero-cta center" style="justify-content:center;">
-            <a class="btn btn-kraft" href="/">Back to Course Map</a>
-            <a class="btn btn-ghost" href="https://probinsiyanongva.org" target="_blank" rel="noopener">Explore PVA Academy</a>
+        </div>
+        <div class="export-box no-print" id="reportBox">
+          <span class="eyebrow">Your Final Project Report</span>
+          <div class="ga-field">
+            <label for="reportName">Your name for the report (optional — saved only in this browser)</label>
+            <input type="text" id="reportName" autocomplete="name">
           </div>
+          <div class="ga-actions" id="reportActions">
+            <button class="btn btn-primary" id="printReportBtn" type="button">🖨️ Print / Save as PDF</button>
+            <button class="btn btn-ghost" id="downloadReportBtn" type="button">⬇️ Download report (.html)</button>
+          </div>
+          <p class="small" id="reportLocked" hidden></p>
+        </div>
+        <div class="hero-cta center no-print" style="justify-content:center;">
+          <a class="btn btn-kraft" href="/">Back to Course Map</a>
+          <a class="btn btn-ghost" href="https://probinsiyanongva.org" target="_blank" rel="noopener">Explore PVA Academy</a>
         </div>
       </section>
 
@@ -246,8 +245,10 @@
   </div>
 </footer>
 
-<script src="/shared/progress.js"></script>
-<script src="/shared/lessons-data.js"></script>
+<script src="/shared/pva-core/progress-core.js"></script>
+<script src="/shared/ga/manifest.js"></script>
+<script src="/shared/ga/validators.js"></script>
+<script src="/shared/ga/activities.js"></script>
 <script src="final-project.js"></script>
 </body>
 </html>

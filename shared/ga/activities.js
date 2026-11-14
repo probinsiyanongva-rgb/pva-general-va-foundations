@@ -453,6 +453,14 @@
     const draftId = (key) => `${requirementId}:${String(key).toLowerCase().replace(/[^a-z0-9_-]+/g, "-")}`;
     for (const f of fields) {
       const id = uid("fld");
+      if (f.type === "checkbox") {
+        // Unchecked by default; restored as ticked only if the learner ticked it (WP4 Q6).
+        const box = h("input", { type: "checkbox", id });
+        box.checked = s.getDraft(draftId(f.key), "") === "true";
+        inputs[f.key] = box;
+        container.append(h("div", { class: "ga-check" }, box, h("label", { for: id }, f.label)));
+        continue;
+      }
       const input = f.type === "text"
         ? h("input", { type: "text", id })
         : h("textarea", { id, rows: f.rows || 3 });
@@ -471,7 +479,8 @@
       reviewNote ? h("p", { class: "ga-review-note" }, reviewNote) : null);
     container.append(box);
 
-    const answer = () => (collect ? collect(inputs) : Object.fromEntries(Object.entries(inputs).map(([k, el]) => [k, el.value])));
+    const valueOf = (el) => (el.type === "checkbox" ? el.checked : el.value);
+    const answer = () => (collect ? collect(inputs) : Object.fromEntries(Object.entries(inputs).map(([k, el]) => [k, valueOf(el)])));
     function render(res) {
       list.replaceChildren(...res.checks.map((c) => h("li", {}, h("span", { class: `ga-mark ${c.ok ? "ga-mark-ok" : ""}`, "aria-hidden": "true" }, c.ok ? "✓" : "○"),
         h("span", { class: "ga-visually-hidden" }, c.ok ? "Present: " : "Missing: "), c.label)));
@@ -482,7 +491,7 @@
       if (!res.ok && revealPanel) revealPanel.hidden = true;
     }
     const save = () => {
-      for (const [k, el] of Object.entries(inputs)) s.saveDraft(draftId(k), el.value);
+      for (const [k, el] of Object.entries(inputs)) s.saveDraft(draftId(k), el.type === "checkbox" ? (el.checked ? "true" : "") : el.value);
       const a = answer();
       s.recordAttempt(requirementId, { answer: a });
       render(V[ruleName](a));
@@ -713,7 +722,10 @@
      Stepper — gates, focus, restore, completion (C-01, m-03, m-09, M-10)
      ====================================================================== */
   // gates: { [stepNumber]: requirementId | [requirementIds] }
-  function Stepper({ lesson, gates = {}, root: rootEl = document, onComplete }) {
+  // finalProject: true — Final Project mode (WP4 Q15): step saved under "fp:step", Finish calls
+  // markFinalProjectComplete(), no re-check, and the completion step is only restored when the
+  // project is currently complete (a fixed project needs Finish pressed again, decision R2).
+  function Stepper({ lesson, gates = {}, root: rootEl = document, onComplete, finalProject = false }) {
     const s = getStore();
     const panels = Array.from(rootEl.querySelectorAll(".step-panel"));
     const total = panels.length; // last panel is the completion screen
@@ -722,7 +734,7 @@
     const prev = rootEl.querySelector("#prevBtn");
     const next = rootEl.querySelector("#nextBtn");
     const nav = rootEl.querySelector("#stepNav");
-    const stepKey = `l${String(lesson).padStart(2, "0")}:step`;
+    const stepKey = finalProject ? "fp:step" : `l${String(lesson).padStart(2, "0")}:step`;
     if (label) { label.setAttribute("role", "status"); label.setAttribute("aria-live", "polite"); }
     let current = 1;
 
@@ -744,7 +756,13 @@
         for (let i = 1; i < total; i++) rail.append(h("div", { class: `seg${i < current ? " done" : i === current ? " active" : ""}` }));
       }
       s.saveDraft(stepKey, String(current));
-      if (current >= total) {
+      if (current >= total && finalProject) {
+        nav.style.display = "none";
+        const already = s.evaluate().finalProject.complete;
+        const r = already ? { ok: true, saved: s.isPersistent() } : s.markFinalProjectComplete();
+        label.textContent = r.ok ? (r.saved ? "Complete" : "Complete — not saved in this browser") : "Some tasks still need to be completed";
+        if (onComplete) onComplete(r);
+      } else if (current >= total) {
         nav.style.display = "none";
         const finish = () => {
           const r = s.markLessonComplete(lesson);
@@ -758,7 +776,7 @@
         nav.style.display = "flex";
         label.textContent = `Step ${current} of ${total - 1}`;
         prev.style.visibility = current === 1 ? "hidden" : "visible";
-        next.textContent = current === total - 1 ? "Finish Lesson →" : "Continue →";
+        next.textContent = current === total - 1 ? (finalProject ? "Finish Project →" : "Finish Lesson →") : "Continue →";
         updateNav();
       }
       const heading = panels.find((p) => Number(p.dataset.step) === current).querySelector("h2");
@@ -774,15 +792,137 @@
 
     // Banners: completed earlier (m-09) / completed in V1 (T2)
     const ev = s.evaluate();
-    const info = ev.lessons.find((l) => l.n === lesson);
     const body = rootEl.querySelector(".step-card") || rootEl.querySelector("main");
-    if (info && info.complete) body.prepend(h("div", { class: "ga-note-banner" }, "You completed this lesson. Your answers are saved below; you can review them or print your work sample."));
-    else if (info && info.completedInV1Only) body.prepend(h("div", { class: "ga-note-banner" }, "You completed this lesson in an earlier version of the course. The checks have been updated — please work through them again to count this lesson toward your certificate."));
+    if (finalProject) {
+      if (ev.finalProject.complete) body.prepend(h("div", { class: "ga-note-banner" }, "You completed the Final Project. Your answers are saved below, and your report is on the last step."));
+      else if (ev.finalProject.firstCompletedAt) body.prepend(h("div", { class: "ga-note-banner ga-note-banner-warn" }, "You finished this project before, but at least one task no longer meets its required parts, so the project is not currently complete. Fix the task marked below, then press Finish Project again."));
+    } else {
+      const info = ev.lessons.find((l) => l.n === lesson);
+      if (info && info.complete) body.prepend(h("div", { class: "ga-note-banner" }, "You completed this lesson. Your answers are saved below; you can review them or print your work sample."));
+      else if (info && info.completedInV1Only) body.prepend(h("div", { class: "ga-note-banner" }, "You completed this lesson in an earlier version of the course. The checks have been updated — please work through them again to count this lesson toward your certificate."));
+    }
 
     // Restore the saved step, but never past the first incomplete activity (M-10).
     const savedStep = Number(s.getDraft(stepKey, "1")) || 1;
-    show(Math.min(savedStep, firstLocked()), { focus: false });
+    const cap = finalProject && !ev.finalProject.complete ? total - 1 : total;
+    show(Math.min(savedStep, firstLocked(), cap), { focus: false });
     return { show, current: () => current, gateOpen };
+  }
+
+  /* ======================================================================
+     Record cleaning (Final Project Task 3, WP4) — read-only original + editable group
+     ====================================================================== */
+  // records: [{ id, original:{name,mobile,status,email,date} }], examples: [{ id, original, clean, flag, duplicateOf }]
+  // getRecords() -> [{ id, name, mobile, status, email, date, clarification, flag, duplicateOf }]
+  const T3_COLS = [["name", "Name"], ["mobile", "Mobile"], ["status", "Status"], ["email", "Email"], ["date", "Date added"]];
+  const T3_FLAGS = [["none", "None"], ["duplicate", "Duplicate of…"], ["missing-email", "Missing email"], ["ambiguous-date", "Ambiguous date"]];
+  function CleanRecords({ container, idPrefix, records, examples = [] }) {
+    const s = getStore();
+    let saved = null;
+    try { saved = JSON.parse(s.getDraft(`${idPrefix}:records`, "null")); } catch (e) { saved = null; }
+    const savedById = Object.fromEntries((Array.isArray(saved) ? saved : []).filter((r) => r && r.id).map((r) => [r.id, r]));
+    const originalPanel = (rec, oid) => h("div", { class: "ga-record-original", id: oid },
+      h("p", { class: "ga-record-original-title" }, "Original record (read-only)"),
+      h("dl", {}, ...T3_COLS.map(([k, l]) => h("div", {}, h("dt", {}, l), h("dd", { class: "ga-record-value" }, rec.original[k])))));
+    for (const ex of examples) {
+      container.append(h("section", { class: "ga-record ga-record-example", "aria-label": `Example ${ex.id}` },
+        h("div", { class: "ga-example-badge" }, "Example — doesn't count"),
+        h("h4", { class: "ga-record-title" }, `Example ${ex.id}`),
+        originalPanel(ex, uid("orig")),
+        h("div", { class: "ga-record-example-clean" }, h("p", { class: "ga-record-original-title" }, "Cleaned version"),
+          h("dl", {}, ...T3_COLS.map(([k, l]) => h("div", {}, h("dt", {}, l), h("dd", {}, ex.clean[k]))),
+            h("div", {}, h("dt", {}, "Flag"), h("dd", {}, ex.flag === "duplicate" ? `Duplicate of ${ex.duplicateOf} (keep both)` : "None"))))));
+    }
+    const rows = records.map((rec) => {
+      const sv = savedById[rec.id] || {};
+      const oid = uid("orig");
+      const hid = uid("rec");
+      const els = {};
+      const grid = h("div", { class: "ga-record-grid" });
+      for (const [k, l] of T3_COLS) {
+        const id = uid("t3");
+        const input = h("input", { type: "text", id });
+        input.value = sv[k] != null ? String(sv[k]) : rec.original[k]; // prefilled with the original (approved)
+        els[k] = input;
+        grid.append(h("div", { class: "ga-field" }, h("label", { for: id }, l, h("span", { class: "ga-visually-hidden" }, ` — record ${rec.id}`)), input));
+      }
+      const cid = uid("t3");
+      els.clarification = h("textarea", { id: cid, rows: 2 });
+      els.clarification.value = sv.clarification || "";
+      const fid = uid("t3");
+      els.flag = h("select", { id: fid }, ...T3_FLAGS.map(([v, l]) => h("option", { value: v }, l)));
+      els.flag.value = sv.flag || "none";
+      const did = uid("t3");
+      els.duplicateOf = h("select", { id: did }, h("option", { value: "" }, "Choose the record…"),
+        ...records.filter((o) => o.id !== rec.id).map((o) => h("option", { value: o.id }, `Record ${o.id}`)));
+      els.duplicateOf.value = sv.duplicateOf || "";
+      const dupWrap = h("div", { class: "ga-field" }, h("label", { for: did }, "Duplicate of", h("span", { class: "ga-visually-hidden" }, ` — record ${rec.id}`)), els.duplicateOf);
+      const syncDup = () => { dupWrap.hidden = els.flag.value !== "duplicate"; };
+      els.flag.addEventListener("change", syncDup);
+      syncDup();
+      const edit = h("fieldset", { class: "ga-record-edit", "aria-describedby": oid },
+        h("legend", {}, "Your cleaned version", h("span", { class: "ga-visually-hidden" }, ` of record ${rec.id}`)),
+        grid,
+        h("div", { class: "ga-record-flags" },
+          h("div", { class: "ga-field" }, h("label", { for: fid }, "Flag", h("span", { class: "ga-visually-hidden" }, ` — record ${rec.id}`)), els.flag),
+          dupWrap),
+        h("div", { class: "ga-field" }, h("label", { for: cid }, "Clarification (optional — what needs confirming?)", h("span", { class: "ga-visually-hidden" }, ` — record ${rec.id}`)), els.clarification));
+      container.append(h("section", { class: "ga-record", "aria-labelledby": hid }, h("h4", { class: "ga-record-title", id: hid }, `Record ${rec.id}`), originalPanel(rec, oid), edit));
+      return { id: rec.id, els };
+    });
+    const getRecords = () => rows.map(({ id, els }) => {
+      const out = { id };
+      for (const [k] of T3_COLS) out[k] = els[k].value;
+      out.clarification = els.clarification.value;
+      out.flag = els.flag.value;
+      out.duplicateOf = els.flag.value === "duplicate" ? els.duplicateOf.value : "";
+      return out;
+    });
+    const persist = () => s.saveDraft(`${idPrefix}:records`, JSON.stringify(getRecords()));
+    container.addEventListener("input", persist);
+    container.addEventListener("change", persist);
+    return { getRecords };
+  }
+
+  /* ======================================================================
+     Portfolio report (Final Project, C-04): self-contained .html download
+     ====================================================================== */
+  const escHTML = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  const REPORT_FOOTER = "Training work sample — fictional client. Not paid client work. Probinsiyanong VA · General Administrative VA — Beginner Foundations. Written work is checked for required parts only; it is not individually reviewed.";
+  // Same sections as printWorkSample. No scripts, no external requests; every learner value is escaped.
+  function reportHTML({ title, subtitle, sections, learnerName, date = new Date() }) {
+    const when = date.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+    const cell = (v) => (v == null || v === "" ? "—" : escHTML(v));
+    const body = sections.map((sec) => `<h2>${escHTML(sec.heading)}</h2>` + (sec.table
+      ? `<table><thead><tr>${sec.table.columns.map((c) => `<th>${escHTML(c)}</th>`).join("")}</tr></thead><tbody>${sec.table.rows.map((r) => `<tr>${r.map((v) => `<td>${cell(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>`
+      : `<p class="text">${cell(sec.text)}</p>`)).join("\n");
+    const meta = [subtitle, learnerName ? `Learner: ${learnerName}` : null, `Report date ${when}`].filter(Boolean).map(escHTML).join(" · ");
+    return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escHTML(title)}</title>
+<style>
+body{font-family:Georgia,"Times New Roman",serif;color:#1f2a24;max-width:860px;margin:32px auto;padding:0 20px;line-height:1.5}
+h1{font-size:1.6rem;margin:0 0 4px}h2{font-size:1.15rem;margin:26px 0 8px;border-bottom:1px solid #c9cfc3;padding-bottom:4px}
+.meta{color:#4a554e;margin:0 0 18px}.text{white-space:pre-wrap;margin:0}
+table{border-collapse:collapse;width:100%;font-size:.92rem}th,td{border:1px solid #c9cfc3;padding:6px 8px;text-align:left;vertical-align:top;white-space:pre-wrap}
+th{background:#f1f3ee}.footer{margin-top:30px;font-size:.85rem;color:#4a554e;border-top:1px solid #c9cfc3;padding-top:10px}
+@media print{body{margin:0}}
+</style></head>
+<body>
+<h1>${escHTML(title)}</h1>
+<p class="meta">${meta}</p>
+${body}
+<p class="footer">${escHTML(REPORT_FOOTER)}</p>
+</body></html>
+`;
+  }
+  function downloadReport(opts, filename) {
+    const blob = new Blob([reportHTML(opts)], { type: "text/html" });
+    const a = h("a", { href: URL.createObjectURL(blob), download: filename });
+    document.body.append(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+    return blob;
   }
 
   /* ======================================================================
@@ -890,11 +1030,16 @@
   }
 
   root.PVAGAActivities = {
-    version: "2.0.0-wp3b",
+    version: "2.0.0-wp4",
     getStore,
     initPage,
     shuffle,
     ChoiceActivity,
+    // A single-choice item without a requirement of its own (Final Project Task 8).
+    ChoiceItem: (container, item, opts) => renderChoiceItem(container, item, opts),
+    CleanRecords,
+    reportHTML,
+    downloadReport,
     SortActivity,
     TriageActivity,
     IdentifyActivity,

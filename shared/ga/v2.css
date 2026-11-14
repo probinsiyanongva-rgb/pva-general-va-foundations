@@ -251,3 +251,29 @@ body.ga-v2 .ga-schedule-row select { font: inherit; min-height: 40px; padding: 4
 .ga-recheck-title { margin: 0; }
 .ga-recheck-status:empty { display: none; }
 .ga-schedule-question { margin-top: 18px; }
+
+/* ---------- Final Project (WP4) ---------- */
+.ga-note-banner-warn { border-left-color: var(--ga-kraft-ink); background: #FBF5EA; }
+/* Task 3: read-only original vs editable group — neutral grouping, no red/green (red-team F4) */
+.ga-records { margin: 14px 0; }
+.ga-record { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 14px; background: #fff; }
+.ga-record-title { margin: 0 0 8px; font-size: 1rem; }
+.ga-record-original { background: var(--paper-dim); border: 1px dashed var(--ga-line-strong); border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; }
+.ga-record-original-title { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ga-kraft-ink); margin: 0 0 6px; font-weight: 700; }
+.ga-record-original dl, .ga-record-example-clean dl { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px 12px; margin: 0; }
+.ga-record-original dt, .ga-record-example-clean dt { font-size: 0.72rem; color: var(--ink-soft); }
+.ga-record-original dd, .ga-record-example-clean dd { margin: 0; font-family: var(--font-mono); font-size: 0.86rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ga-record-edit { border: 2px solid var(--ga-line-strong); border-radius: 6px; padding: 10px 12px 4px; margin: 0; min-width: 0; }
+.ga-record-edit legend { font-weight: 700; padding: 0 6px; }
+.ga-record-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 10px; }
+.ga-record-grid .ga-field input { width: 100%; box-sizing: border-box; }
+.ga-record-flags { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 10px; }
+.ga-record-example { background: var(--paper-dim); }
+.ga-record-example-clean { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; background: #fff; }
+.ga-table-scroll { overflow-x: auto; }
+@media (max-width: 760px) {
+  .ga-record-original dl, .ga-record-example-clean dl, .ga-record-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 420px) {
+  .ga-record-original dl, .ga-record-example-clean dl, .ga-record-grid, .ga-record-flags { grid-template-columns: 1fr; }
+}

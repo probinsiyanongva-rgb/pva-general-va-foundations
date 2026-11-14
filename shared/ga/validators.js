@@ -48,10 +48,13 @@
   }
   // Meaningful word count: if fewer than 60% of words are distinct, only the
   // distinct words count (so "test test test test" counts as 1).
+  // WP4 red-team F3: distinctness is judged on word stems, so repeated variations
+  // ("check checked checking checks") count once, like plain repetition.
+  const stem = (w) => w.replace(/['’]s$/, "").replace(/(ing|ed|es|s)$/, "").slice(0, 6) || w;
   function wordCount(text) {
     const w = wordsOf(text);
     if (w.length === 0) return 0;
-    const distinct = new Set(w).size;
+    const distinct = new Set(w.map(stem)).size;
     return distinct / w.length < 0.6 ? distinct : w.length;
   }
   const questionCount = (t) => (str(t).match(/\?/g) || []).length;
@@ -192,23 +195,88 @@
     hours: { start: toMin("8:00"), end: toMin("17:00") },
     items: {
       walkthrough: { label: "Customer walk-through (1 hour)", duration: 60 },
-      supplier: { label: "Supplier call (30 min)", duration: 30 },
-      checkin: { label: "Team check-in (30 min)", duration: 30 },
-      insurance: { label: "Insurance agent call (30 min)", duration: 30 },
+      supplier: { label: "Supplier call (30 minutes)", duration: 30 },
+      checkin: { label: "Team check-in (30 minutes)", duration: 30 },
+      insurance: { label: "Insurance agent call (30 minutes)", duration: 30 },
     },
   };
 
-  /* ---------------- Final Project Task 3 dataset (spec A9, M-06) ---------------- */
+  /* ---------------- Final Project Task 3 dataset (WP4, approved 14 Nov 2026) ----------------
+     Fictional placeholder numbers (09XX…), each source record in a different layout. `clean` is
+     the model answer (shown only after the task passes); the rule never compares word for word. */
+  const FP_T3_FIELDS = ["name", "mobile", "status", "email", "date"];
   const FP_T3_RECORDS = [
-    { id: "R1", original: "juan santos | 0917.222.4444 | active | (no email) | 2026-02-11", expectFlag: "missing-email" },
-    { id: "R2", original: "MARIA LOPEZ | 0918-555-1212 | ACTIVE | maria.lopez@example.com | 2026-01-20" },
-    { id: "R3", original: "Maria  Lopez | +63 918 555 1212 | Active | maria.lopez@example.com | 20 Jan 2026", expectFlag: "duplicate", duplicateOf: "R2" },
-    { id: "R4", original: "pedro reyes | 0919 333 7788 | inactive | pedro.reyes@example.com | 2025-12-02" },
-    { id: "R5", original: "Ana Garcia | 09204445566 | Active | ana.garcia@example.com | 03/04/26", expectFlag: "ambiguous-date" },
-    { id: "R6", original: "LIZA TAN | 0921-888-0001 | active | liza.tan@example.com | 2026-02-28" },
-    { id: "R7", original: "ben cruz | +639227770002 | ACTIVE | ben.cruz@example.com | 2026-03-05" },
-    { id: "R8", original: "Carlo Mendoza | 0923 666 0003 | Inactive | carlo.m@example.com | 2025-11-15" },
+    { id: "R1", original: { name: "juan santos", mobile: "09XX.XXX.0001", status: "active", email: "(no email)", date: "2026-02-11" },
+      clean: { name: "Juan Santos", mobile: "+63 9XX XXX 0001", status: "Active", email: "(email missing)", date: "2026-02-11" }, flag: "missing-email",
+      why: "No email on file: flag it so someone can ask the customer for one. Don't invent an address." },
+    { id: "R2", original: { name: "MARIA LOPEZ", mobile: "09XX-XXX-0002", status: "ACTIVE", email: "maria.lopez@example.com", date: "2026-01-20" },
+      clean: { name: "Maria Lopez", mobile: "+63 9XX XXX 0002", status: "Active", email: "maria.lopez@example.com", date: "2026-01-20" }, flag: "none",
+      why: "The original record of the Maria Lopez pair (flagging R2 against R3 instead is also accepted)." },
+    { id: "R3", original: { name: "Maria  Lopez", mobile: "+63 9XX XXX 0002", status: "Active", email: "maria.lopez@example.com", date: "20 Jan 2026" },
+      clean: { name: "Maria Lopez", mobile: "+63 9XX XXX 0002", status: "Active", email: "maria.lopez@example.com", date: "2026-01-20" }, flag: "duplicate", duplicateOf: "R2",
+      why: "Same person, number and email as R2, written differently. Flag it and keep both records; the client decides what to merge." },
+    { id: "R4", original: { name: "pedro reyes", mobile: "09XX XXX 0004", status: "inactive", email: "pedro.reyes@example.com", date: "2025-12-02" },
+      clean: { name: "Pedro Reyes", mobile: "+63 9XX XXX 0004", status: "Inactive", email: "pedro.reyes@example.com", date: "2025-12-02" }, flag: "none", why: "Formatting only." },
+    { id: "R5", original: { name: "Ana Garcia", mobile: "09XXXXX0005", status: "Active", email: "ana.garcia@example.com", date: "03/04/26" },
+      clean: { name: "Ana Garcia", mobile: "+63 9XX XXX 0005", status: "Active", email: "ana.garcia@example.com", date: "03/04/26" }, flag: "ambiguous-date",
+      clarification: "Please confirm the date added: 03/04/26 could mean 3 April 2026 or 4 March 2026.",
+      why: "03/04/26 can be read two ways. Keep it as it is and ask, rather than guessing." },
+    { id: "R6", original: { name: "LIZA TAN", mobile: "09XX-XXX-0006", status: "active", email: "liza.tan@example.com", date: "2026-02-28" },
+      clean: { name: "Liza Tan", mobile: "+63 9XX XXX 0006", status: "Active", email: "liza.tan@example.com", date: "2026-02-28" }, flag: "none", why: "Formatting only." },
+    { id: "R7", original: { name: "ben cruz", mobile: "+639XXXXX0007", status: "ACTIVE", email: "ben.cruz@example.com", date: "2026-03-05" },
+      clean: { name: "Ben Cruz", mobile: "+63 9XX XXX 0007", status: "Active", email: "ben.cruz@example.com", date: "2026-03-05" }, flag: "none", why: "Formatting only." },
+    { id: "R8", original: { name: "Carlo  Mendoza", mobile: "09XX XXX 0008", status: "Inactive", email: "carlo.m@example.com", date: "2025-11-15" },
+      clean: { name: "Carlo Mendoza", mobile: "+63 9XX XXX 0008", status: "Inactive", email: "carlo.m@example.com", date: "2025-11-15" }, flag: "none", why: "Formatting only (the double space in the name)." },
   ];
+  const FP_T3_EXAMPLES = [
+    { id: "E1", original: { name: "Rosa Diaz", mobile: "09XX-XXX-0091", status: "active", email: "rosa.diaz@example.com", date: "2026-01-05" },
+      clean: { name: "Rosa Diaz", mobile: "+63 9XX XXX 0091", status: "Active", email: "rosa.diaz@example.com", date: "2026-01-05" }, flag: "none" },
+    { id: "E2", original: { name: "ROSA DIAZ", mobile: "09XXXXX0091", status: "ACTIVE", email: "rosa.diaz@example.com", date: "5 Jan 2026" },
+      clean: { name: "Rosa Diaz", mobile: "+63 9XX XXX 0091", status: "Active", email: "rosa.diaz@example.com", date: "2026-01-05" }, flag: "duplicate", duplicateOf: "E1" },
+  ];
+  // Task 3 field helpers
+  const t3Name = (v, orig) => {
+    const t = str(v);
+    return t === t.trim().replace(/\s+/g, " ") && t.length > 0 && norm(t) === norm(orig) && t.split(" ").every((w) => /^\p{Lu}[\p{Ll}'’-]*$/u.test(w));
+  };
+  const phoneKey = (v) => {
+    let k = str(v).toUpperCase().replace(/[^0-9X+]/g, "");
+    if (k.startsWith("+63")) k = k.slice(3); else if (k.startsWith("63") && k.length === 12) k = k.slice(2); else if (k.startsWith("0")) k = k.slice(1);
+    return k;
+  };
+  const phoneLayout = (v) => str(v).trim().replace(/[0-9Xx]/g, "#");
+  const statusStyle = (v) => { const t = str(v).trim(); return /^[A-Z][a-z]+$/.test(t) ? "T" : t === t.toUpperCase() ? "U" : t === t.toLowerCase() ? "L" : "X"; };
+  // A cleaned date in an unambiguous format: ISO, "20 Jan 2026" / "20 January 2026", "Jan 20, 2026" / "January 20, 2026".
+  function parseCleanDate(v) {
+    const t = str(v).trim();
+    let m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(t);
+    if (m) return validDay(+m[3], +m[2], +m[1]) ? { y: +m[1], m: +m[2], d: +m[3], fmt: "iso" } : null;
+    m = new RegExp(`^(\\d{1,2}) (${MONTHS})\\.? (\\d{4})$`, "i").exec(t);
+    if (m) return validDay(+m[1], monthOf(m[2]), +m[3]) ? { y: +m[3], m: monthOf(m[2]), d: +m[1], fmt: "dmy-" + (m[2].length > 3 ? "full" : "abbr") } : null;
+    m = new RegExp(`^(${MONTHS})\\.? (\\d{1,2}), (\\d{4})$`, "i").exec(t);
+    if (m) return validDay(+m[2], monthOf(m[1]), +m[3]) ? { y: +m[3], m: monthOf(m[1]), d: +m[2], fmt: "mdy-" + (m[1].length > 3 ? "full" : "abbr") } : null;
+    return null;
+  }
+  const sameDay = (a, b) => a && b && a.y === b.y && a.m === b.m && a.d === b.d;
+  const REQUEST_WORD = /\b(confirm(?:s|ed|ing)?|check(?:s|ed|ing)?|verif(?:y|ies|ied|ying)|ask(?:s|ed|ing)?|clarif(?:y|ies|ied|ying))\b/i;
+  const READ_3_APRIL = /\b(3(?:rd)?\s+(?:of\s+)?april|april\s+3(?:rd)?)\b|\b2026-04-03\b/i;
+  const READ_4_MARCH = /\b(4(?:th)?\s+(?:of\s+)?march|march\s+4(?:th)?)\b|\b2026-03-04\b/i;
+  const t3Clarification = (v) => wordCount(v) >= 6 && REQUEST_WORD.test(str(v)) && READ_3_APRIL.test(str(v)) && READ_4_MARCH.test(str(v));
+
+  /* ---------------- Final Project Task 8 options (feedback is also the copy check) ---------------- */
+  const FP_T8 = {
+    options: [
+      { id: "s1", correct: false,
+        text: "Share the owner's login this one time so the job can start, then ask the owner to change the password.",
+        feedback: "Sharing the owner's own login, even \"just once,\" defeats the point of individual access and is exactly the convenience-over-security tradeoff this course warns against." },
+      { id: "s2", correct: true,
+        text: "Explain that credentials can't be shared, and set up (or ask the owner to set up) the subcontractor's own access instead.",
+        feedback: "Correct. If the software supports separate logins or delegated access, set that up (or flag it to the owner to set up) rather than sharing credentials — even under time pressure." },
+      { id: "s3", correct: false,
+        text: "Leave the text unanswered until you've had time to think it through and check with someone.",
+        feedback: "Ignoring a time-sensitive request doesn't protect anything — it just leaves the subcontractor stuck and the owner unaware there's an access gap to fix." },
+    ],
+  };
 
   /* ======================================================================
      Rules
@@ -484,21 +552,40 @@
       ]);
     },
     "fp-t3"(a) {
+      // Field-level checks on the resulting values (WP4, approved 14 Nov 2026). Labels name the kind
+      // of problem, never a record. Every record must end in a correct state.
       const recs = Array.isArray(obj(a).records) ? a.records : [];
-      const byId = Object.fromEntries(recs.filter((r) => r && r.id).map((r) => [r.id, r]));
-      const allCleaned = FP_T3_RECORDS.every((o) => {
-        const r = byId[o.id];
-        return r && wordCount(r.cleaned) >= 2 && norm(r.cleaned) !== norm(o.original);
-      });
-      const r1 = byId.R1 || {}, r2 = byId.R2 || {}, r3 = byId.R3 || {}, r5 = byId.R5 || {};
-      const dupFlagged = (r3.flag === "duplicate" && r3.duplicateOf === "R2") || (r2.flag === "duplicate" && r2.duplicateOf === "R3");
-      const dupKept = wordCount(r2.cleaned) >= 2 && wordCount(r3.cleaned) >= 2;
+      const byId = Object.fromEntries(recs.filter((r) => r && typeof r === "object" && r.id).map((r) => [r.id, r]));
+      const present = FP_T3_RECORDS.every((o) => byId[o.id]);
+      const val = (id, f) => str((byId[id] || {})[f]);
+      const each = (fn) => present && FP_T3_RECORDS.every((o) => fn(o, byId[o.id]));
+      const flagOf = (id) => { const f = str((byId[id] || {}).flag).trim(); return f === "" ? "none" : f; };
+      const namesOk = each((o, r) => t3Name(r.name, o.original.name));
+      const phonesOk = each((o, r) => phoneKey(r.mobile) === phoneKey(o.original.mobile)) && new Set(FP_T3_RECORDS.map((o) => phoneLayout(val(o.id, "mobile")))).size === 1;
+      const statusOk = each((o, r) => norm(r.status) === norm(o.original.status) && /^(active|inactive)$/.test(norm(r.status))) &&
+        new Set(FP_T3_RECORDS.map((o) => statusStyle(val(o.id, "status")))).size === 1 && statusStyle(val("R1", "status")) !== "X";
+      const emailOk = each((o, r) => (/@/.test(o.original.email) ? norm(r.email) === norm(o.original.email) && str(r.email).trim() !== "" : !/@/.test(str(r.email))));
+      const readable = FP_T3_RECORDS.filter((o) => o.flag !== "ambiguous-date");
+      const parsed = readable.map((o) => parseCleanDate(val(o.id, "date")));
+      const datesOk = present && parsed.every(Boolean) && new Set(parsed.map((p) => p.fmt)).size === 1 &&
+        readable.every((o, i) => sameDay(parsed[i], parseCleanDate(o.original.date) || parseCleanDate(o.clean.date)));
+      const ambiguousOk = present && val("R5", "date").trim() === "03/04/26" && t3Clarification(val("R5", "clarification"));
+      const flaggedOk = present && flagOf("R1") === "missing-email" && flagOf("R5") === "ambiguous-date";
+      const dupR3 = flagOf("R3") === "duplicate" && str(byId.R3 && byId.R3.duplicateOf) === "R2";
+      const dupR2 = flagOf("R2") === "duplicate" && str(byId.R2 && byId.R2.duplicateOf) === "R3";
+      const duplicateOk = present && (dupR3 !== dupR2) && (dupR3 ? flagOf("R2") === "none" : flagOf("R3") === "none") &&
+        FP_T3_FIELDS.every((f) => val("R2", f).trim() && val("R3", f).trim());
+      const othersOk = present && ["R4", "R6", "R7", "R8"].every((id) => flagOf(id) === "none");
       return result([
-        c("Every record has a cleaned version that differs from the original", allCleaned),
-        c("The duplicate is flagged and names the record it duplicates", dupFlagged),
-        c("Both duplicate records are kept (flagged, not merged or deleted)", dupKept),
-        c("The record with no email is flagged", r1.flag === "missing-email"),
-        c("The ambiguous date is flagged", r5.flag === "ambiguous-date"),
+        c("Names: extra spaces removed, every name in Title Case", namesOk),
+        c("Mobile numbers: the same number, in one consistent format", phonesOk),
+        c("Status: written the same way on every record", statusOk),
+        c("Emails kept exactly as they were; none invented", emailOk),
+        c("Dates: one unambiguous format, the same date as the original", datesOk),
+        c("A date that can't be read safely is kept and marked for confirmation", ambiguousOk),
+        c("Missing information and unreadable dates are flagged", flaggedOk),
+        c("The duplicate: exactly one record flagged, both kept", duplicateOk),
+        c("No other record is flagged", othersOk),
         c("At least 3 cleaning rules listed", listItems(obj(a).rules) >= 3),
       ]);
     },
@@ -513,19 +600,26 @@
       return result([
         c("All 8 SOP parts filled", SOP_FIELDS.every((k) => wordCount(f[k]) >= 2)),
         c("Steps: at least 3", stepCount(f.Steps) >= 3),
-        c("Trigger names the booking event", /book|schedul|new customer|job/i.test(str(f.Trigger)) && wordCount(f.Trigger) >= 3),
+        c("Trigger names the booking event", /\b(book(?:s|ed|ing|ings)?|schedul(?:e|es|ed|ing)|new customers?|jobs?)\b/i.test(str(f.Trigger)) && wordCount(f.Trigger) >= 3),
         c("Escalation (6+ words)", wordCount(f.Escalation) >= 6),
         c("Definition of done (6+ words)", wordCount(f["Definition of done"]) >= 6),
       ]);
     },
     "fp-t6"(a) {
       const rows = rowsOf(a).filter((r) => str(r.task).trim() && r.example !== true);
-      const valid = rows.filter((r) => wordCount(r.owner) >= 1 && PRIORITIES.includes(norm(r.priority)) && STATUSES.includes(norm(r.status)) && wordCount(r.next) >= 2);
+      // In the Final Project the business owner is a real assignee, so "Owner" counts here.
+      const fpOwner = (t) => meaningfulOwner(t) || /^\s*(the\s+)?(business\s+)?owner\s*$/i.test(str(t));
+      const valid = rows.filter((r) => fpOwner(r.owner) && PRIORITIES.includes(norm(r.priority)) && STATUSES.includes(norm(r.status)) && wordCount(r.next) >= 2);
+      // Q4: the note must identify the real conflict (installation vs insurance renewal) and ask the owner to decide.
+      const note = str(obj(a).conflictNote);
+      const namesBoth = /\binstall(?:ation|ations|ing|ed|s)?\b/i.test(note) && /\b(insurance|renewal)\b/i.test(note);
+      const asksOwner = /\bowner(?:'s|’s)?\b/i.test(note) && /\b(ask(?:s|ed|ing)?|confirm(?:s|ed|ing)?|decid(?:e|es|ed|ing)|decision|choos(?:e|es|ing)|chose|prioriti[sz](?:e|es|ed|ing)|check(?:s|ed|ing)? with)\b/i.test(note);
       return result([
         c("At least 3 tasks of your own (besides the examples)", rows.length >= 3),
-        c("Each has an owner, priority, status and next action", rows.length >= 3 && valid.length === rows.length),
+        c("Each has an owner (a name or role), priority, status and next action", rows.length >= 3 && valid.length === rows.length),
         c("At least one dependency noted", rows.some((r) => wordCount(r.dependency) >= 2)),
-        c("The conflict between competing tasks is explained (10+ words)", wordCount(obj(a).conflictNote) >= 10),
+        c("The conflict is explained (10+ words) and names both competing tasks", wordCount(note) >= 10 && namesBoth),
+        c("The note asks the owner to decide", asksOwner),
       ]);
     },
     "fp-t7"(a) {
@@ -533,7 +627,7 @@
       return result([
         c("What you used AI for (10+ words)", wordCount(m.used) >= 10),
         c("How you verified it (15+ words)", wordCount(m.verify) >= 15),
-        c("Verification names at least one check (names, dates, facts, or confidential data)", /name|date|fact|number|confidential|personal|source|original/i.test(str(m.verify))),
+        c("Verification names at least one check (names, dates, facts, or confidential data)", /\b(names?|dates?|facts?|numbers?|confidential|personal|sources?|original)\b/i.test(str(m.verify))),
         c("Confirmed that no confidential data was pasted into AI", m.noConfidential === true),
       ]);
     },
@@ -542,7 +636,8 @@
       return result([
         c("Safer response chosen", m.correct === true),
         c("Explanation (20+ words)", wordCount(m.explanation) >= 20),
-        c("Explanation names who is told and what happens next", /owner|client|manager/i.test(str(m.explanation)) && /next|then|set up|access|account|until|after/i.test(str(m.explanation))),
+        c("Explanation names who is told and what happens next", /\b(owner(?:'s|’s|s)?|client(?:'s|’s|s)?|manager(?:'s|’s|s)?)\b/i.test(str(m.explanation)) && /\b(next|then|set(?:s|ting)? up|access|accounts?|until|after|afterwards)\b/i.test(str(m.explanation))),
+        c("Written in your own words, not copied from the feedback", notCopyOfAny(str(m.explanation), FP_T8.options.map((o) => o.feedback))),
       ]);
     },
     "fp-checklist"(a) {
@@ -557,6 +652,6 @@
 
   return {
     ...rules,
-    __meta: { COPY, ruleNames, statusLabel, L05, FP_T2, FP_T3_RECORDS, helpers: { wordCount, wordsOf, stepCount, nearCopy, hasTime, hasDate, hasWhen, hasURL, questionCount, listItems, meaningfulOwner, hasTimeZone, isMash, VERSION_WORD, CHECK_VERB, DATA_KIND } },
+    __meta: { COPY, ruleNames, statusLabel, L05, FP_T2, FP_T3_RECORDS, FP_T3_EXAMPLES, FP_T3_FIELDS, FP_T8, helpers: { wordCount, wordsOf, stepCount, nearCopy, hasTime, hasDate, hasWhen, hasURL, questionCount, listItems, meaningfulOwner, hasTimeZone, parseCleanDate, phoneKey, t3Clarification, isMash, VERSION_WORD, CHECK_VERB, DATA_KIND } },
   };
 });

@@ -11,7 +11,8 @@ const { test, expect } = require("@playwright/test");
 const LESSONS = Array.from({ length: 13 }, (_, i) => `/lessons/lesson-${String(i + 1).padStart(2, "0")}/`);
 // Lessons converted to the v2.0 activity library (WP3a pilot, WP3b) -- no longer known defects.
 const CONVERTED = new Set(LESSONS); // WP3a (Lesson 1) + WP3b (Lessons 2–13)
-const KNOWN_DEFECT = new Set([...LESSONS, "/final-project/"].filter((u) => !CONVERTED.has(u))); // shrink as WP3/WP4 land
+// WP4 converted the Final Project, so nothing is a known defect any more.
+const KNOWN_DEFECT = new Set([...LESSONS, "/final-project/"].filter((u) => !CONVERTED.has(u) && u !== "/final-project/"));
 
 async function nextEnabled(page) {
   return page.evaluate(() => !document.getElementById("nextBtn").disabled);
