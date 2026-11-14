@@ -122,19 +122,46 @@ for (const n of Object.keys(SOLUTIONS).map(Number)) {
 
 // Decision 4 (WP3b correction): across the whole course there is no consistent length rule.
 // The correct answer is sometimes the longest, sometimes the shortest, sometimes in between.
+// Items are captured as each lesson hands them to the activity library (ChoiceActivity, and the
+// Lesson 5 schedule question), so Lesson 1 — which does not publish window.PVAGALesson.choices —
+// is covered without changing its content.
+const ACTIVE_SINGLE_CHOICE_ITEMS = 29; // 2 in Lesson 1 + 27 in Lessons 2–13 (reconciled 14 Nov 2026)
 test("course-wide: the correct answer's length position varies (no 'never the longest' rule)", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__choiceItems = [];
+    let lib;
+    Object.defineProperty(window, "PVAGAActivities", {
+      configurable: true,
+      get: () => lib,
+      set(v) {
+        const choice = v.ChoiceActivity, schedule = v.ScheduleActivity;
+        v.ChoiceActivity = (o) => { o.items.forEach((it, i) => window.__choiceItems.push({ key: `${o.requirementId}#${i}`, it })); return choice(o); };
+        v.ScheduleActivity = (o) => { if (o.question) window.__choiceItems.push({ key: `${o.requirementId}#${o.question.key}`, it: o.question.item }); return schedule(o); };
+        lib = v;
+      },
+    });
+  });
   const pos = { longest: 0, shortest: 0, middle: 0 };
+  const perLesson = {};
   for (let n = 1; n <= 13; n++) {
     await page.goto(url(n));
-    const items = await page.evaluate(() => Object.values((window.PVAGALesson || {}).choices || {}).flat());
-    for (const it of items) {
+    const { captured, published } = await page.evaluate(() => ({
+      captured: window.__choiceItems,
+      published: Object.values((window.PVAGALesson || {}).choices || {}).flat().length,
+    }));
+    perLesson[n] = captured.length;
+    // Lessons 2–13 publish their items too: the capture must find every published item.
+    if (n > 1) expect(captured.length, `Lesson ${n} items captured vs published`).toBe(published);
+    for (const { it } of captured) {
       const r = it.options.find((o) => o.correct).text.length;
       const others = it.options.filter((o) => !o.correct).map((o) => o.text.length);
       pos[r > Math.max(...others) ? "longest" : r < Math.min(...others) ? "shortest" : "middle"]++;
     }
   }
   const total = pos.longest + pos.shortest + pos.middle;
-  console.log("correct-answer length position:", JSON.stringify(pos), "of", total);
+  console.log("correct-answer length position:", JSON.stringify(pos), "of", total, "per lesson:", JSON.stringify(perLesson));
+  expect(perLesson[1], "Lesson 1 items included").toBe(2);
+  expect(total, "every active single-choice item is evaluated").toBe(ACTIVE_SINGLE_CHOICE_ITEMS);
   expect(pos.longest / total).toBeGreaterThanOrEqual(0.2);
   expect(pos.longest / total).toBeLessThanOrEqual(0.5);
   expect(pos.shortest / total).toBeGreaterThanOrEqual(0.1);
