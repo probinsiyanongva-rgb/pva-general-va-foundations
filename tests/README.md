@@ -30,5 +30,17 @@ later commit: `UPDATE_BASELINE=1` exists only to rebuild them on the baseline it
 
 `fixtures/activities-harness.html` is a test-only page (marked `noindex`); its sample items are placeholders, not course content.
 
-The `tests/` folder is deployed with the site (Pages publishes the repository root) but
-contains no learner data; `node_modules/` is git-ignored and never deployed.
+The `tests/` folder is never published. Cloudflare Pages runs `bash tools/build-pages.sh`,
+which copies only the site files into `dist/` (the build output directory), so `tests/`,
+`tools/`, `readme.md` and `netlify.toml` stay in the repository only. The suite itself still
+serves the repository root, because `fixtures/activities-harness.html` is loaded from
+`/tests/fixtures/`. To check the published output locally:
+
+```
+bash tools/build-pages.sh && rm -rf /tmp/pva-dist && mv dist /tmp/pva-dist
+npx wrangler pages dev /tmp/pva-dist --port 8791   # in another terminal, from tests/
+PVA_BASE_URL=http://127.0.0.1:8791 npx playwright test $(ls e2e/*.spec.js | grep -v activities.spec)
+```
+
+Move `dist/` out of the repository first: `site-integrity.spec.js` scans the repository
+folder for pages, and a `dist/` copy inside it would be checked as `/dist/...` links.
